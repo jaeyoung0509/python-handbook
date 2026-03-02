@@ -1,15 +1,50 @@
 # SQLAlchemy 2.0
 
-## Goal of This Part
+<p class="lead">Using SQLAlchemy well is less about memorizing ORM syntax and more about separating `Session`, transaction ownership, loading strategy, and API boundaries. In web services, most complexity comes from getting those boundaries wrong.</p>
 
-- Separate the roles of Core and ORM.
-- Understand `Session` as a transaction boundary rather than a passive container.
-- Learn loading strategies and async usage from a practical service perspective.
+<div class="quick-takeaway">
+  <p><strong>Quick takeaway</strong>: treat `Session` as a unit-of-work and transaction boundary, not as a cache or a global DB handle. Repositories talk to the session, but commits belong at the use-case boundary.</p>
+</div>
 
-## Recommended Order
+## The Questions That Matter Most
 
-1. [Core vs ORM](/en/sqlalchemy/core-vs-orm)
-2. [Session and Unit of Work](/en/sqlalchemy/session-and-unit-of-work)
-3. [Relationships and Loading](/en/sqlalchemy/relationships-and-loading)
-4. [Async SQLAlchemy](/en/sqlalchemy/async-sqlalchemy)
+<div class="reading-grid">
+  <div class="reading-card">
+    <h3>What is a Session?</h3>
+    <p>It is a short-lived work context that combines identity mapping and unit-of-work behavior.</p>
+  </div>
+  <div class="reading-card">
+    <h3>Who owns commit?</h3>
+    <p>The use case or service layer should own transaction completion, not the repository.</p>
+  </div>
+  <div class="reading-card">
+    <h3>Can ORM entities cross the API boundary?</h3>
+    <p>Usually they should not. Lazy loading, serialization, and schema evolution become tightly coupled.</p>
+  </div>
+  <div class="reading-card">
+    <h3>When is async worth it?</h3>
+    <p>When your whole stack is async and high-concurrency I/O matters. Session-sharing rules become stricter, not looser.</p>
+  </div>
+</div>
+
+## Recommended Reading Order
+
+1. [Session and Unit of Work](/en/sqlalchemy/session-and-unit-of-work)
+2. [Relationships and Loading](/en/sqlalchemy/relationships-and-loading)
+3. [Async SQLAlchemy](/en/sqlalchemy/async-sqlalchemy)
+4. [Core vs ORM](/en/sqlalchemy/core-vs-orm)
 5. [Migrations and Patterns](/en/sqlalchemy/migrations-and-patterns)
+
+## Working Rules for Real Services
+
+- Keep sessions scoped to a request or use case.
+- Do not `commit()` inside repositories.
+- Design read and write paths differently.
+- Do not collapse ORM entities, Pydantic schemas, and domain concepts into one class.
+- In async code, never share an `AsyncSession` across concurrent tasks.
+
+## Good Companion Chapters
+
+- [Project Structure](/en/fastapi/project-structure)
+- [Dependency Injection](/en/fastapi/dependency-injection)
+- [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
