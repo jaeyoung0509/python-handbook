@@ -25,6 +25,10 @@
     <h3>What should tests prove?</h3>
     <p>Resource lifecycles, dependency overrides, transaction isolation, and response contracts are usually more important than route internals.</p>
   </div>
+  <div class="reading-card">
+    <h3>Where does observability start?</h3>
+    <p>Connect OpenTelemetry, Sentry, and structured logging once at startup, then design request IDs, trace IDs, and sampling policy intentionally.</p>
+  </div>
 </div>
 
 ## Recommended Reading Order
@@ -34,6 +38,7 @@
 3. [Request/Response Modeling](/en/fastapi/request-response-modeling)
 4. [Lifespan and Testing](/en/fastapi/lifespan-and-testing)
 5. [Performance and Ops](/en/fastapi/performance-and-ops)
+6. [Observability](/en/fastapi/observability)
 
 ## Working Rules for Real Services
 
@@ -42,6 +47,7 @@
 - Use lifespan or `yield` dependencies for resource ownership.
 - Do not hide sync blocking work inside `async` endpoints.
 - Look at query shape, serialization cost, pool contention, and observability before blaming framework overhead.
+- Configure tracing, error monitoring, and structured logging once during app bootstrap.
 
 ## Good Companion Chapters
 

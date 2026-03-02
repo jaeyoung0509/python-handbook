@@ -25,6 +25,10 @@
     <h3>테스트는 무엇을 검증해야 하나</h3>
     <p>단순 상태 코드보다 lifespan 자원 초기화, dependency override, transaction 격리, serialization 경계를 먼저 검증해야 한다.</p>
   </div>
+  <div class="reading-card">
+    <h3>관측성은 어디서 시작하나</h3>
+    <p>OpenTelemetry, Sentry, structured logging을 앱 시작 시점에 한 번만 연결하고, request id/trace id/오류 샘플링 정책을 같이 설계해야 한다.</p>
+  </div>
 </div>
 
 ## 추천 읽기 순서
@@ -34,6 +38,7 @@
 3. [Request/Response Modeling](/fastapi/request-response-modeling)
 4. [Lifespan and Testing](/fastapi/lifespan-and-testing)
 5. [Performance and Ops](/fastapi/performance-and-ops)
+6. [Observability](/fastapi/observability)
 
 ## FastAPI 파트의 실전 규칙
 
@@ -42,6 +47,7 @@
 - `yield` dependency 또는 lifespan으로 자원 수명주기를 닫는다.
 - endpoint는 `async`라고 해서 sync I/O를 숨기지 않는다.
 - 성능 문제는 프레임워크보다 query shape, serialization, pool, worker model에서 먼저 찾는다.
+- tracing, error monitoring, structured logging은 bootstrap에서 한 번만 설정한다.
 
 ## 같이 읽으면 좋은 페이지
 

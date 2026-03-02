@@ -131,6 +131,8 @@ app = create_app()
 
 - `examples/fastapi_service_template_example.py`
 - `examples/sqlalchemy_loading_strategies.py`
+- `examples/sqlalchemy_class_based_uow.py`
+- `tests/test_fastapi_fixtures_and_teardown.py`
 
 ## 공식 자료
 

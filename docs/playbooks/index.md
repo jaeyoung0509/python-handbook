@@ -22,6 +22,10 @@
     <p>문법 사용 여부보다 `Any` 누수, alias 남용, protocol 설계, boundary 명확성을 먼저 보는 체크리스트를 제공한다.</p>
   </div>
   <div class="reading-card">
+    <h3>테스트 fixture는 어떻게 설계하나</h3>
+    <p>yield fixture, dependency override cleanup, DB 격리, client lifecycle을 어떻게 나눌지 실전 패턴으로 정리한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>이론과 실전은 어디서 만나나</h3>
     <p>descriptor, typing, runtime, asyncio 지식을 실제 API 서비스 설계와 연결하는 관점을 정리한다.</p>
   </div>
@@ -30,12 +34,14 @@
 ## 추천 읽기 순서
 
 1. [API Service Template](/playbooks/api-service-template)
-2. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
-3. [Typing Review Checklist](/playbooks/typing-review-checklist)
+2. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
+3. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
+4. [Typing Review Checklist](/playbooks/typing-review-checklist)
 
 ## 이 파트의 사용법
 
 - 새 프로젝트를 시작할 때는 `API Service Template`부터 본다.
+- fixture, teardown, override cleanup 기준이 필요하면 `Testing with Fixtures`를 바로 본다.
 - 이미 FastAPI/SQLAlchemy 프로젝트가 있다면 `FastAPI + Pydantic + SQLAlchemy`를 먼저 본다.
 - 팀 코드 리뷰 기준을 만들고 싶다면 `Typing Review Checklist`를 기준 문서로 둔다.
 

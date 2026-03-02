@@ -36,6 +36,7 @@ const sections: NavSection[] = [
     items: [
       { ko: "개요", en: "Overview", path: "/pythonic/" },
       { ko: "Data Model", en: "Data Model", path: "/pythonic/data-model" },
+      { ko: "Dataclass", en: "Dataclasses", path: "/pythonic/dataclasses" },
       {
         ko: "Descriptor와 Property",
         en: "Descriptors and Properties",
@@ -100,6 +101,7 @@ const sections: NavSection[] = [
       { ko: "요청/응답 모델링", en: "Request/Response Modeling", path: "/fastapi/request-response-modeling" },
       { ko: "Lifespan과 테스트", en: "Lifespan and Testing", path: "/fastapi/lifespan-and-testing" },
       { ko: "성능과 운영", en: "Performance and Ops", path: "/fastapi/performance-and-ops" },
+      { ko: "Observability", en: "Observability", path: "/fastapi/observability" },
     ],
   },
   {
@@ -134,6 +136,11 @@ const sections: NavSection[] = [
     items: [
       { ko: "개요", en: "Overview", path: "/playbooks/" },
       { ko: "API 서비스 템플릿", en: "API Service Template", path: "/playbooks/api-service-template" },
+      {
+        ko: "Testing with Fixtures",
+        en: "Testing with Fixtures",
+        path: "/playbooks/testing-with-pytest-fixtures",
+      },
       {
         ko: "FastAPI + Pydantic + SQLAlchemy",
         en: "FastAPI + Pydantic + SQLAlchemy",

@@ -150,6 +150,90 @@ def get_user_service(session: Session = Depends(get_session)) -> RegisterUserSer
 - The same session flows into all repositories used by that request.
 - The dependency closes the session when the request finishes.
 
+## A Class-Based Unit of Work Pattern
+
+Passing the session directly into a service is already a solid default. But once repository groups grow and you want transaction ownership to read as one explicit object, a class-based Unit of Work can make the design easier to scan.
+
+```py
+from collections.abc import Callable
+from typing import Self
+
+from sqlalchemy.orm import Session, sessionmaker
+
+
+class UserRepository:
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+
+class SqlAlchemyUnitOfWork:
+    def __init__(self, session_factory: sessionmaker[Session]) -> None:
+        self.session_factory = session_factory
+        self.session: Session | None = None
+        self.users: UserRepository | None = None
+
+    def __enter__(self) -> Self:
+        session = self.session_factory()
+        self.session = session
+        self.users = UserRepository(session)
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        if self.session is not None:
+            if exc is not None:
+                self.session.rollback()
+            self.session.close()
+
+    def commit(self) -> None:
+        if self.session is None:
+            raise RuntimeError("unit of work not entered")
+        self.session.commit()
+
+    def rollback(self) -> None:
+        if self.session is None:
+            raise RuntimeError("unit of work not entered")
+        self.session.rollback()
+
+
+class RegisterUserService:
+    def __init__(
+        self,
+        uow_factory: Callable[[], SqlAlchemyUnitOfWork],
+    ) -> None:
+        self.uow_factory = uow_factory
+
+    def execute(self, email: str, name: str) -> UserRead:
+        with self.uow_factory() as uow:
+            assert uow.users is not None
+            assert uow.session is not None
+
+            record = UserModel(email=email, name=name)
+            uow.users.add(record)
+            uow.session.flush()
+            uow.commit()
+
+            return UserRead(
+                id=record.id,
+                email=record.email,
+                name=record.name,
+            )
+```
+
+<p class="code-caption">The point is that the Unit of Work owns the session plus the repository set. The service decides when to commit, while session creation, repository wiring, and cleanup stay inside one object. This repository now includes a runnable example of the same pattern in `examples/sqlalchemy_class_based_uow.py`.</p>
+
+## When a Class-Based UoW Fits Well
+
+- when several repositories should always share one transaction
+- when you want service signatures to express "one unit of work" rather than "a raw session"
+- when tests benefit from swapping in a fake UoW for use-case branching
+
+## Patterns to Avoid with a Class-Based UoW
+
+- repositories inside the UoW committing independently
+- reusing one UoW instance like a long-lived singleton
+- accessing repository or session attributes before `__enter__()`
+- letting the UoW know about HTTP status codes or response DTO creation
+
 ## Checklist
 
 <div class="doc-checklist">

@@ -130,6 +130,13 @@ async def test_register_user() -> None:
 | 서비스는 무엇을 검증하나 | status code뿐 아니라 response shape와 side effect | route 함수 내부 구현 세부사항 |
 | 외부 API는 어떻게 대체하나 | override된 client/provider 주입 | 실제 production endpoint 호출 |
 
+## fixture와 teardown은 테스트 바깥에서 소유한다
+
+- `yield fixture`가 setup/teardown 소유권을 가장 읽기 쉽게 드러낸다.
+- `app.dependency_overrides`는 fixture teardown에서 반드시 비워야 한다.
+- `TestClient`도 fixture 안 context manager로 열고 닫는 편이 안정적이다.
+- 더 긴 예제는 [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)와 `tests/test_fastapi_fixtures_and_teardown.py`를 같이 보면 된다.
+
 ## 흔한 실수
 
 - startup에서 session을 만들어 전역으로 재사용한다.

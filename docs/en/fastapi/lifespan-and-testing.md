@@ -130,6 +130,13 @@ async def test_register_user() -> None:
 | What does the test verify? | status, response shape, side effects | route implementation details |
 | How are external APIs replaced? | provider or client overrides | calling real production endpoints |
 
+## Let Fixtures Own Setup and Teardown
+
+- `yield` fixtures make setup and teardown ownership easiest to read.
+- `app.dependency_overrides` should be cleared in fixture teardown, not forgotten inside tests.
+- `TestClient` is more reliable when opened and closed inside a fixture context manager.
+- For a longer example, read [Testing with Fixtures](/en/playbooks/testing-with-pytest-fixtures) alongside `tests/test_fastapi_fixtures_and_teardown.py`.
+
 ## Common Mistakes
 
 - Creating a session at startup and reusing it globally.

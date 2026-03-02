@@ -153,6 +153,90 @@ def get_user_service(session: Session = Depends(get_session)) -> RegisterUserSer
 - service는 같은 session을 여러 repository에 전달한다.
 - 요청이 끝나면 dependency가 session을 닫는다.
 
+## 클래스 기반 Unit of Work 패턴
+
+session을 직접 service에 넣는 방식은 충분히 좋다. 다만 repository 묶음이 커지고 "한 use case 안에서 어떤 저장소가 같은 transaction을 공유하는가"를 더 명시하고 싶다면 class-based Unit of Work가 읽기 좋을 때가 있다.
+
+```py
+from collections.abc import Callable
+from typing import Self
+
+from sqlalchemy.orm import Session, sessionmaker
+
+
+class UserRepository:
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+
+class SqlAlchemyUnitOfWork:
+    def __init__(self, session_factory: sessionmaker[Session]) -> None:
+        self.session_factory = session_factory
+        self.session: Session | None = None
+        self.users: UserRepository | None = None
+
+    def __enter__(self) -> Self:
+        session = self.session_factory()
+        self.session = session
+        self.users = UserRepository(session)
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        if self.session is not None:
+            if exc is not None:
+                self.session.rollback()
+            self.session.close()
+
+    def commit(self) -> None:
+        if self.session is None:
+            raise RuntimeError("unit of work not entered")
+        self.session.commit()
+
+    def rollback(self) -> None:
+        if self.session is None:
+            raise RuntimeError("unit of work not entered")
+        self.session.rollback()
+
+
+class RegisterUserService:
+    def __init__(
+        self,
+        uow_factory: Callable[[], SqlAlchemyUnitOfWork],
+    ) -> None:
+        self.uow_factory = uow_factory
+
+    def execute(self, email: str, name: str) -> UserRead:
+        with self.uow_factory() as uow:
+            assert uow.users is not None
+            assert uow.session is not None
+
+            record = UserModel(email=email, name=name)
+            uow.users.add(record)
+            uow.session.flush()
+            uow.commit()
+
+            return UserRead(
+                id=record.id,
+                email=record.email,
+                name=record.name,
+            )
+```
+
+<p class="code-caption">핵심은 UoW가 session과 repository 집합의 소유권을 가진다는 점이다. 서비스는 `commit()` 시점만 결정하고, session 생성/종료와 저장소 wiring은 UoW가 맡는다. 이 저장소에는 같은 패턴을 실행 가능한 예제로 보여주는 `examples/sqlalchemy_class_based_uow.py`도 추가했다.</p>
+
+## 클래스 기반 UoW를 쓸 때의 기준
+
+- 여러 repository가 항상 같은 transaction을 공유해야 할 때
+- service 시그니처에 session보다 "작업 단위" 의미를 더 드러내고 싶을 때
+- 테스트에서 fake UoW를 넣어 use-case 분기를 검증하고 싶을 때
+
+## 클래스 기반 UoW에서 하지 않는 편이 좋은 것
+
+- UoW 내부 repository가 각자 `commit()` 하는 구조
+- UoW를 long-lived singleton처럼 재사용하는 방식
+- `__enter__()` 밖에서 session과 repository 속성에 접근하는 방식
+- UoW가 HTTP status code나 response DTO 생성까지 알게 만드는 구조
+
 ## Session 설계 체크리스트
 
 <div class="doc-checklist">

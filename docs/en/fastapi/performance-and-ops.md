@@ -90,6 +90,8 @@ async def better_endpoint() -> dict[str, str]:
 4. Measure pool and worker contention.
 5. Only then worry about framework overhead.
 
+The observability stack itself is covered separately in [Observability](/en/fastapi/observability).
+
 ## Practical Checklist
 
 <div class="doc-checklist">

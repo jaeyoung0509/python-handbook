@@ -3,7 +3,7 @@
 이 디렉터리는 핸드북 문서를 "읽고 끝내는 것"이 아니라 바로 실행해보며 감을 잡도록 만든 예제 모음이다. 예제는 크게 두 축으로 나뉜다.
 
 - 버전별 변화 예제: Python 3.10~3.14에서 새로 들어온 기능을 빠르게 체감
-- 주제별 심화 예제: Pydantic, asyncio, FastAPI, SQLAlchemy 같은 실전 주제를 코드로 확인
+- 주제별 심화 예제: Pydantic, asyncio, FastAPI, SQLAlchemy, dataclass, testing 같은 실전 주제를 코드로 확인
 
 모든 예제는 이 저장소의 `.venv` 기준으로 점검한다.
 
@@ -40,9 +40,11 @@ uv run ruff check .
 | Pythonic | `py310_pattern_matching.py` | Python 문법이 데이터 shape와 제어 흐름을 얼마나 자연스럽게 표현하는지 바로 체감 |
 | Typing | `py310_typing_and_zip_strict.py`, `py312_type_params.py` | modern typing 문법과 boundary 설계 감각을 같이 잡기 좋음 |
 | Runtime | `py312_sys_monitoring.py`, `py313_runtime_modes.py`, `py314_interpreter_pool.py` | CPython 런타임이 어떤 방향으로 진화하는지 보여줌 |
+| Dataclass | `dataclass_patterns.py` | 값 객체, `default_factory`, `kw_only`, 패턴 매칭 조합을 빨리 익히기 좋음 |
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
-| FastAPI / SQLAlchemy | `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py` | 서비스 경계와 ORM 로딩 전략을 바로 실행해볼 수 있음 |
+| FastAPI / SQLAlchemy | `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py` | 서비스 경계, ORM 로딩 전략, class-based UoW를 같이 확인할 수 있음 |
+| Testing | `tests/test_fastapi_fixtures_and_teardown.py` | fixture setup/teardown, override cleanup, TestClient lifecycle을 실제 테스트로 확인 |
 
 ## 버전별 예제 맵
 
@@ -91,6 +93,26 @@ uv run ruff check .
 - asyncio chapter에서 cancellation/backpressure를 읽은 직후
 - worker, fan-out pipeline, webhook consumer 구조를 고민할 때
 
+### `dataclass_patterns.py`
+
+무엇을 보여주나:
+
+- `frozen=True`, `slots=True`, `kw_only=True`
+- `default_factory`
+- `__post_init__()` 정규화
+- dataclass와 pattern matching 조합
+
+언제 보면 좋나:
+
+- Pythonic 파트에서 dataclass 챕터를 읽은 직후
+- 내부 command/value object를 어떻게 만들지 고민할 때
+
+실행:
+
+```bash
+./.venv/bin/python examples/dataclass_patterns.py
+```
+
 ### `fastapi_service_template_example.py`
 
 무엇을 보여주나:
@@ -116,6 +138,31 @@ uv run ruff check .
 - 첫 요청은 `201`로 생성된다.
 - 같은 이메일로 다시 요청하면 `409`가 반환된다.
 - 조회는 `GET /users/1`로 별도 route를 통해 이뤄진다.
+
+### `sqlalchemy_class_based_uow.py`
+
+무엇을 보여주나:
+
+- class-based `SqlAlchemyUnitOfWork`
+- repository 묶음과 session 소유권
+- service가 commit 시점만 결정하는 패턴
+
+왜 중요한가:
+
+- repository가 많아질수록 "한 작업 단위"를 명시적 객체로 두는 편이 읽기 좋아질 때가 있다.
+- session을 직접 흘리는 방식과 UoW 객체를 주입하는 방식의 차이를 체감할 수 있다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/sqlalchemy_class_based_uow.py
+```
+
+체크 포인트:
+
+- 중복 이메일은 `DuplicateEmail`로 막힌다.
+- `flush()`는 commit 전에 PK를 확보한다.
+- UoW가 session close를 소유한다.
 
 ### `sqlalchemy_loading_strategies.py`
 
@@ -143,9 +190,34 @@ uv run ruff check .
 - `selectinload()`는 대체로 2번 쿼리로 안정적인 목록 로딩을 보여준다.
 - `joinedload()`는 한 번의 쿼리지만 collection에서는 `unique()` 처리가 필요하다.
 
+## 테스트 예제
+
+### `tests/test_fastapi_fixtures_and_teardown.py`
+
+무엇을 보여주나:
+
+- engine fixture setup/teardown
+- seed fixture
+- FastAPI `dependency_overrides` cleanup
+- `TestClient` context manager lifecycle
+
+실행:
+
+```bash
+uv run pytest tests/test_fastapi_fixtures_and_teardown.py
+```
+
+체크 포인트:
+
+- seed 데이터가 fixture에서 준비된다.
+- `/meta`는 override된 dependency 값 `"test"`를 본다.
+- teardown은 fixture 쪽에서 소유하고 test body는 소비만 한다.
+
 ## 문서와 같이 읽기
 
 - FastAPI 예제와 같이 읽기: `/fastapi/project-structure`, `/fastapi/dependency-injection`, `/playbooks/api-service-template`
 - SQLAlchemy 예제와 같이 읽기: `/sqlalchemy/session-and-unit-of-work`, `/sqlalchemy/relationships-and-loading`
 - Pydantic 예제와 같이 읽기: `/pydantic/core-schema`, `/pydantic/validation-pipeline`
 - Asyncio 예제와 같이 읽기: `/asyncio/cancellation-and-taskgroup`, `/asyncio/queues-and-backpressure`
+- Dataclass 예제와 같이 읽기: `/pythonic/dataclasses`
+- Testing 예제와 같이 읽기: `/fastapi/lifespan-and-testing`, `/playbooks/testing-with-pytest-fixtures`

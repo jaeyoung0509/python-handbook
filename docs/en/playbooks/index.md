@@ -22,6 +22,10 @@
     <p>It prioritizes `Any` containment, abstraction discipline, protocol usage, and boundary clarity over annotation volume.</p>
   </div>
   <div class="reading-card">
+    <h3>How should fixture design work?</h3>
+    <p>It covers yield fixtures, dependency override cleanup, database isolation, and client lifecycles as real service-testing patterns.</p>
+  </div>
+  <div class="reading-card">
     <h3>Where does theory meet service design?</h3>
     <p>It connects typing, runtime, and framework knowledge to concrete API architecture decisions.</p>
   </div>
@@ -30,12 +34,14 @@
 ## Recommended Reading Order
 
 1. [API Service Template](/en/playbooks/api-service-template)
-2. [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
-3. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
+2. [Testing with Fixtures](/en/playbooks/testing-with-pytest-fixtures)
+3. [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
+4. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
 
 ## How to Use This Part
 
 - Start with `API Service Template` when creating a new service skeleton.
+- Start with `Testing with Fixtures` if you need a clean fixture and teardown baseline for service tests.
 - Start with `FastAPI + Pydantic + SQLAlchemy` if you already have a service and want cleaner boundaries.
 - Use `Typing Review Checklist` as a team review baseline.
 

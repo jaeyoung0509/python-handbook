@@ -90,6 +90,8 @@ async def better_endpoint() -> dict[str, str]:
 4. worker/pool contention을 본다.
 5. 그 다음에 framework overhead를 본다.
 
+관측성 스택 자체 설계는 [Observability](/fastapi/observability)에서 따로 다룬다.
+
 ## 실전 체크리스트
 
 <div class="doc-checklist">

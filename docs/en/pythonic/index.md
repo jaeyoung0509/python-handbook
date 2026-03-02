@@ -18,6 +18,10 @@
     <p>Descriptors plus attribute lookup order explain ORM fields, computed attributes, and bound methods.</p>
   </div>
   <div class="reading-card">
+    <h3>When is a dataclass enough?</h3>
+    <p>Dataclasses are excellent for value objects, settings, and internal command payloads. They become painful when asked to own validation, persistence, and transport concerns at once.</p>
+  </div>
+  <div class="reading-card">
     <h3>Decorator or metaclass?</h3>
     <p>Both extend behavior, but they act at different times and with very different costs.</p>
   </div>
@@ -30,13 +34,15 @@
 ## Recommended Order
 
 1. [Data Model](/en/pythonic/data-model)
-2. [Descriptors and Properties](/en/pythonic/descriptors-and-properties)
-3. [Decorators](/en/pythonic/decorators)
-4. [Context Managers](/en/pythonic/context-managers)
-5. [Metaclasses](/en/pythonic/metaclasses)
+2. [Dataclasses](/en/pythonic/dataclasses)
+3. [Descriptors and Properties](/en/pythonic/descriptors-and-properties)
+4. [Decorators](/en/pythonic/decorators)
+5. [Context Managers](/en/pythonic/context-managers)
+6. [Metaclasses](/en/pythonic/metaclasses)
 
 ## Practical Connections
 
 - FastAPI route decorators and dependency wiring
+- dataclass-based internal commands and value objects
 - Pydantic field annotations and field access behavior
 - SQLAlchemy instrumented attributes and class construction hooks
