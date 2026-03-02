@@ -1,4 +1,4 @@
-# python-deep
+# python-handbook
 
 Python 3.14, typing, CPython runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0까지 깊게 다루는 학습 저장소입니다.
 

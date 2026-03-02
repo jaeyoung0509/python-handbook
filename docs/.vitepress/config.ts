@@ -5,7 +5,7 @@ export default defineConfig({
   title: "Python Handbook",
   description:
     "Python 3.14, typing, CPython runtime, asyncio, FastAPI, Pydantic, and SQLAlchemy 2.0.",
-  base: "/python-deep/",
+  base: "/python-handbook/",
   cleanUrls: true,
   lastUpdated: true,
   head: [
@@ -204,10 +204,10 @@ export default defineConfig({
       provider: "local",
     },
     socialLinks: [
-      { icon: "github", link: "https://github.com/jaeyoung0509/python-deep" },
+      { icon: "github", link: "https://github.com/jaeyoung0509/python-handbook" },
     ],
     editLink: {
-      pattern: "https://github.com/jaeyoung0509/python-deep/edit/main/docs/:path",
+      pattern: "https://github.com/jaeyoung0509/python-handbook/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
     outline: {
