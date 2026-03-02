@@ -176,6 +176,8 @@ async def create_user(
   </div>
 </div>
 
+인터페이스 기반 use case와 class-based UoW 조합은 [Use Case + UoW + Interface](/playbooks/usecase-uow-and-interfaces)에서 별도로 더 깊게 다룬다.
+
 ## 하지 않는 편이 좋은 것
 
 - route 함수 안에서 바로 `session.add()`, `session.commit()`, `UserResponse.model_validate(record)`를 다 해버리는 것

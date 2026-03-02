@@ -35,13 +35,15 @@
 
 1. [API Service Template](/playbooks/api-service-template)
 2. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
-3. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
-4. [Typing Review Checklist](/playbooks/typing-review-checklist)
+3. [Use Case + UoW + Interface](/playbooks/usecase-uow-and-interfaces)
+4. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
+5. [Typing Review Checklist](/playbooks/typing-review-checklist)
 
 ## 이 파트의 사용법
 
 - 새 프로젝트를 시작할 때는 `API Service Template`부터 본다.
 - fixture, teardown, override cleanup 기준이 필요하면 `Testing with Fixtures`를 바로 본다.
+- use case와 SQLAlchemy UoW를 인터페이스 경계와 함께 보고 싶다면 `Use Case + UoW + Interface`를 본다.
 - 이미 FastAPI/SQLAlchemy 프로젝트가 있다면 `FastAPI + Pydantic + SQLAlchemy`를 먼저 본다.
 - 팀 코드 리뷰 기준을 만들고 싶다면 `Typing Review Checklist`를 기준 문서로 둔다.
 

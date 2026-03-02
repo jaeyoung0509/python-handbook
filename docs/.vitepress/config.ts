@@ -142,6 +142,11 @@ const sections: NavSection[] = [
         path: "/playbooks/testing-with-pytest-fixtures",
       },
       {
+        ko: "Use Case + UoW + Interface",
+        en: "Use Case + UoW + Interface",
+        path: "/playbooks/usecase-uow-and-interfaces",
+      },
+      {
         ko: "FastAPI + Pydantic + SQLAlchemy",
         en: "FastAPI + Pydantic + SQLAlchemy",
         path: "/playbooks/fastapi-pydantic-sqlalchemy",
@@ -256,6 +261,7 @@ export default defineConfig({
       },
     ],
   ],
+  themeConfig: sharedThemeConfig,
   locales: {
     root: {
       label: "한국어",
@@ -264,7 +270,6 @@ export default defineConfig({
       description:
         "Python 3.14, typing, CPython runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0을 한 흐름으로 읽는 한국어 핸드북",
       themeConfig: {
-        ...sharedThemeConfig,
         nav: buildNav("ko"),
         sidebar: buildSidebar("ko"),
         editLink: {
@@ -300,7 +305,6 @@ export default defineConfig({
       description:
         "A practical Python 3.14 handbook for typing, CPython internals, asyncio, FastAPI, Pydantic, and SQLAlchemy 2.0.",
       themeConfig: {
-        ...sharedThemeConfig,
         nav: buildNav("en"),
         sidebar: buildSidebar("en"),
         editLink: {

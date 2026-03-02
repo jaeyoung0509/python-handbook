@@ -35,13 +35,15 @@
 
 1. [API Service Template](/en/playbooks/api-service-template)
 2. [Testing with Fixtures](/en/playbooks/testing-with-pytest-fixtures)
-3. [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
-4. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
+3. [Use Case + UoW + Interface](/en/playbooks/usecase-uow-and-interfaces)
+4. [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
+5. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
 
 ## How to Use This Part
 
 - Start with `API Service Template` when creating a new service skeleton.
 - Start with `Testing with Fixtures` if you need a clean fixture and teardown baseline for service tests.
+- Start with `Use Case + UoW + Interface` if you want a concrete SOLID-aware use-case boundary with SQLAlchemy.
 - Start with `FastAPI + Pydantic + SQLAlchemy` if you already have a service and want cleaner boundaries.
 - Use `Typing Review Checklist` as a team review baseline.
 
