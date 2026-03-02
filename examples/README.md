@@ -70,6 +70,80 @@ uv run ruff check .
 | 3.14 | `py314_template_strings.py` | `t"..."`, `string.templatelib` | 문자열 결과가 아니라 보간 구조 자체를 다루는 법 이해 |
 | 3.14 | `py314_interpreter_pool.py` | `InterpreterPoolExecutor` | thread/process 사이의 새로운 병렬 실행 선택지 이해 |
 
+## 주제별 심화 예제
+
+버전별 변화 외에, 핸드북의 핵심 주제를 직접 만져볼 수 있는 심화 예제도 추가했다.
+
+| 주제 | 파일 | 핵심 포인트 | 이 예제를 보는 이유 |
+| --- | --- | --- | --- |
+| Pydantic v2 | `pydantic_validation_pipeline.py` | `TypeAdapter`, strict vs lax, validator, serializer | Pydantic을 BaseModel 사용법이 아니라 validation pipeline 관점으로 이해 |
+| Asyncio | `asyncio_backpressure_and_cancellation.py` | `TaskGroup`, bounded queue, `Semaphore`, `Queue.shutdown()`, timeout | 구조적 동시성과 backpressure가 실제로 어떻게 엮이는지 확인 |
+
+### `pydantic_validation_pipeline.py`
+
+무엇을 보여주나:
+
+- `TypeAdapter`와 `BaseModel`이 같은 엔진을 공유한다는 점
+- `AfterValidator`로 재사용 가능한 타입 규칙 만들기
+- strict Python input과 strict JSON input의 차이
+- `field_validator`와 `field_serializer`의 역할 분리
+
+왜 중요하나:
+
+- Pydantic을 DTO 선언 도구로만 이해하면 `TypeAdapter`, strict mode, serializer 설계를 놓치기 쉽다.
+- FastAPI, settings, ingestion pipeline에서는 "입력 규칙"과 "출력 규칙"이 다르다는 감각이 매우 중요하다.
+
+언제 쓰면 좋나:
+
+- request/response DTO 설계
+- queue/event payload 검증
+- 모델 클래스 없이 임의 타입 구조를 빠르게 검증할 때
+
+실행 시 체크 포인트:
+
+- `adapter.core_schema["type"]`가 `list`로 출력되는지 본다.
+- `"7"` 같은 문자열 입력이 어떻게 정수/날짜로 변환되는지 본다.
+- strict Python input은 실패하고, strict JSON input은 성공하는 date 예제를 확인한다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/pydantic_validation_pipeline.py
+```
+
+### `asyncio_backpressure_and_cancellation.py`
+
+무엇을 보여주나:
+
+- `TaskGroup` 기반 worker pool
+- `Queue(maxsize=2)`로 producer 속도 제한
+- `Semaphore`로 downstream 동시성 제한
+- `queue.join()` + `Queue.shutdown()` 기반 종료
+- `asyncio.timeout()`으로 전체 작업 상한 걸기
+
+왜 중요하나:
+
+- 실무 async 코드는 단순 fan-out보다 shutdown과 overload 제어가 더 자주 문제를 만든다.
+- bounded queue와 semaphore가 없으면 메모리와 downstream API가 먼저 터진다.
+
+언제 쓰면 좋나:
+
+- background worker
+- webhook/event 처리 파이프라인
+- 외부 API fan-out 작업
+
+실행 시 체크 포인트:
+
+- queue가 꽉 차면 producer가 자연스럽게 느려지는지 본다.
+- worker는 semaphore 덕분에 동시에 2개까지만 처리한다.
+- 모든 작업이 끝나면 `shutdown` 로그와 함께 task가 깔끔하게 끝나는지 본다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/asyncio_backpressure_and_cancellation.py
+```
+
 ## 3.10
 
 ### `py310_pattern_matching.py`
