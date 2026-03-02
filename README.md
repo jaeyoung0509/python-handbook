@@ -1,11 +1,14 @@
 # python-deep
 
-CPython 3.10~3.14 변화와 내부 동작을 깊게 따라가는 학습 저장소입니다.
+Python 3.14, typing, CPython runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0까지 깊게 다루는 학습 저장소입니다.
+
+문서 사이트 브랜딩은 `Python Handbook`으로 잡고, VitePress 기반으로 읽기 좋은 핸드북 형태로 확장하고 있습니다.
 
 ## 문서
 
 - `docs/python-3.10-3.14-deep-dive.md`: 3.10~3.14 버전별 핵심 변화, 왜 들어왔는지, 런타임/타입 시스템 관점의 의미
 - `docs/cpython-vs-go-runtime.md`: CPython 내부 동작과 Go 런타임 비교
+- `docs/`: VitePress 사이트 루트
 
 ## 예제
 
@@ -20,6 +23,19 @@ CPython 3.10~3.14 변화와 내부 동작을 깊게 따라가는 학습 저장�
 - `uv run ty check`: 전체 워크스페이스 타입 체크
 - `uv run ruff check .`: 엄격한 annotation/lint 체크
 - `.vscode/settings.json`: `python.languageServer = "None"` + `ty.diagnosticMode = "workspace"`
+
+## 문서 사이트 실행
+
+```bash
+npm install
+npm run docs:dev
+```
+
+배포용 빌드:
+
+```bash
+npm run docs:build
+```
 
 예시 실행:
 

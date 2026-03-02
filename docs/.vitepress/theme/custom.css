@@ -1,0 +1,68 @@
+:root {
+  --vp-c-brand-1: #0f766e;
+  --vp-c-brand-2: #0d9488;
+  --vp-c-brand-3: #14b8a6;
+  --vp-c-brand-soft: rgba(15, 118, 110, 0.14);
+  --vp-c-text-1: #132122;
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #134e4a 0%, #b45309 100%);
+  --vp-home-hero-image-background-image:
+    radial-gradient(circle at 20% 20%, rgba(20, 184, 166, 0.28), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(245, 158, 11, 0.22), transparent 35%),
+    radial-gradient(circle at 50% 80%, rgba(15, 118, 110, 0.18), transparent 40%);
+  --vp-home-hero-image-filter: blur(56px);
+  --vp-custom-block-tip-border: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+.VPHero .name,
+.VPDoc h1,
+.VPDoc h2,
+.VPDoc h3,
+.VPDoc h4 {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+.VPDoc .content-container {
+  max-width: 760px !important;
+}
+
+.VPDoc .aside-container {
+  max-width: 260px;
+}
+
+.vp-doc blockquote {
+  border-left: 4px solid var(--vp-c-brand-1);
+  background: color-mix(in srgb, var(--vp-c-brand-soft) 40%, white);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.vp-doc table {
+  display: block;
+  overflow-x: auto;
+}
+
+.vp-doc h2 {
+  margin-top: 36px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(15, 118, 110, 0.16);
+}
+
+.vp-doc a {
+  text-decoration-thickness: 1.5px;
+}
+
+.VPFeature {
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(245, 247, 245, 0.92));
+}
