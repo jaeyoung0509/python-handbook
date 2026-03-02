@@ -1,9 +1,10 @@
 import sys
+from types import CodeType
 
 TOOL_ID = 5
 
 
-def on_line(code, line_number):  # type: ignore[no-untyped-def]
+def on_line(code: CodeType, line_number: int) -> None:
     if code.co_name == "sample_work":
         print(f"LINE {line_number}: {code.co_name}")
 

@@ -8,7 +8,7 @@ NumberLike: TypeAlias = int | float
 
 def traced(func: Callable[P, R]) -> Callable[P, R]:
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        print(f"calling {func.__name__} args={args} kwargs={kwargs}")
+        print(f"calling {func!r} args={args} kwargs={kwargs}")
         return func(*args, **kwargs)
 
     return wrapper

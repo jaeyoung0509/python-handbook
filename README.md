@@ -13,6 +13,14 @@ CPython 3.10~3.14 변화와 내부 동작을 깊게 따라가는 학습 저장�
 
 모든 예제는 저장소의 `.venv`에 있는 Python 3.14.3 기준으로 점검했습니다.
 
+## 타입 체크
+
+이 저장소는 VS Code에서 `pyright` 대신 `ty`를 쓰도록 워크스페이스 설정을 포함합니다.
+
+- `uv run ty check`: 전체 워크스페이스 타입 체크
+- `uv run ruff check .`: 엄격한 annotation/lint 체크
+- `.vscode/settings.json`: `python.languageServer = "None"` + `ty.diagnosticMode = "workspace"`
+
 예시 실행:
 
 ```bash

@@ -31,7 +31,7 @@ def main() -> None:
     for parameter in Cache.__type_params__:
         print("type param:", parameter, "default:", getattr(parameter, "__default__", None))
 
-    print("deprecated call:", fetch_user(7))
+    print("deprecated call:", fetch_user(7))  # ty: ignore[deprecated]
     print("locals snapshot:", locals_snapshot_demo())
 
 
