@@ -1,15 +1,80 @@
 # Descriptors and Properties
 
-## 왜 중요한가
+<p class="lead">descriptor는 Python framework를 이해하는 가장 중요한 장치 중 하나다. 함수의 method binding, `property`, ORM field, computed attribute가 모두 descriptor 규약 위에서 돌아간다.</p>
 
-descriptor는 Python framework를 이해하는 핵심 장치다. ORM field, validation field, computed attribute 대부분이 여기로 연결된다.
+<div class="quick-takeaway">
+  <p><strong>빠른 요약</strong>: descriptor는 "attribute access에 개입하는 객체"다. data descriptor는 instance dict보다 우선하고, non-data descriptor는 그보다 늦게 본다. 이 우선순위가 `property`, method binding, framework field 동작을 결정한다.</p>
+</div>
 
-## 이 장에서 채울 것
+## attribute lookup 순서를 먼저 잡기
 
-- data descriptor vs non-data descriptor
-- `property`가 사실상 descriptor라는 점
-- attribute lookup order
-- method binding과 function descriptor
+<MermaidDiagram
+  caption="instance attribute access는 단순 dict lookup이 아니다. descriptor 종류에 따라 우선순위가 다르다."
+  chart="flowchart LR; A[obj.attr] --> B[data descriptor on class?]; B -->|yes| C[descriptor __get__]; B -->|no| D[instance __dict__]; D -->|found| E[value]; D -->|missing| F[non-data descriptor or class var]; F --> G[__getattr__ fallback];"
+/>
+
+## `property`도 사실 descriptor다
+
+```py
+class Celsius:
+    def __init__(self, value: float) -> None:
+        self._value = value
+
+    @property
+    def value(self) -> float:
+        return self._value
+
+    @value.setter
+    def value(self, number: float) -> None:
+        if number < -273.15:
+            raise ValueError("below absolute zero")
+        self._value = number
+
+
+temp = Celsius(20.0)
+print(temp.value)
+temp.value = 25.0
+```
+
+<p class="code-caption">`property`는 getter/setter를 감싼 descriptor 객체다. 단순 문법 설탕이 아니라, class attribute에 저장된 특별한 객체가 attribute access를 가로채는 구조다.</p>
+
+## 직접 descriptor를 만들면 왜 유용한가
+
+```py
+class PositiveNumber:
+    def __set_name__(self, owner: type, name: str) -> None:
+        self.private_name = f"_{name}"
+
+    def __get__(self, instance: object | None, owner: type | None = None) -> object:
+        if instance is None:
+            return self
+        return getattr(instance, self.private_name)
+
+    def __set__(self, instance: object, value: int) -> None:
+        if value <= 0:
+            raise ValueError("positive only")
+        setattr(instance, self.private_name, value)
+
+
+class Product:
+    stock = PositiveNumber()
+
+    def __init__(self, stock: int) -> None:
+        self.stock = stock
+
+
+product = Product(10)
+print(product.stock)
+```
+
+<p class="code-caption">framework field가 종종 이렇게 동작한다. class body에 descriptor 인스턴스를 두고, `__set_name__`, `__get__`, `__set__`로 access 규칙을 정의한다.</p>
+
+## data descriptor vs non-data descriptor
+
+- data descriptor: `__set__` 또는 `__delete__`가 있음
+- non-data descriptor: 보통 `__get__`만 있음
+- data descriptor는 instance dict보다 우선
+- non-data descriptor는 instance dict 뒤에서 본다
 
 ## 실전 연결
 
@@ -21,3 +86,8 @@ descriptor는 Python framework를 이해하는 핵심 장치다. ORM field, vali
 
 - [Decorators](/pythonic/decorators)
 - [Metaclasses](/pythonic/metaclasses)
+
+## 공식 자료
+
+- [Descriptor HowTo Guide](https://docs.python.org/3/howto/descriptor.html)
+- [Data Model](https://docs.python.org/3/reference/datamodel.html)
