@@ -9,6 +9,13 @@
   --vp-c-brand-3: #14b8a6;
   --vp-c-brand-soft: rgba(15, 118, 110, 0.14);
   --vp-c-text-1: #132122;
+  --vp-c-text-2: #2d4342;
+  --vp-c-text-3: #617b79;
+  --vp-c-bg: #fcfdfc;
+  --vp-c-bg-alt: #f5f9f8;
+  --vp-c-bg-soft: #f0f7f5;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-divider: rgba(15, 118, 110, 0.16);
   --vp-layout-max-width: 1440px;
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, #134e4a 0%, #b45309 100%);
@@ -18,6 +25,34 @@
     radial-gradient(circle at 50% 80%, rgba(15, 118, 110, 0.18), transparent 40%);
   --vp-home-hero-image-filter: blur(56px);
   --vp-custom-block-tip-border: transparent;
+  --py-panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 253, 250, 0.94));
+  --py-panel-bg-strong: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 253, 245, 0.94));
+  --py-panel-border: rgba(15, 118, 110, 0.14);
+  --py-panel-shadow: 0 18px 40px rgba(15, 118, 110, 0.08);
+  --py-nav-bg: rgba(252, 253, 252, 0.72);
+  --py-nav-border: rgba(15, 118, 110, 0.12);
+}
+
+.dark {
+  --vp-c-brand-1: #22c1b6;
+  --vp-c-brand-2: #39d4c8;
+  --vp-c-brand-3: #74e0d7;
+  --vp-c-brand-soft: rgba(34, 193, 182, 0.2);
+  --vp-c-text-1: #edf7f6;
+  --vp-c-text-2: #bfd2d0;
+  --vp-c-text-3: #8ea8a4;
+  --vp-c-bg: #08110f;
+  --vp-c-bg-alt: #0c1715;
+  --vp-c-bg-soft: #11201d;
+  --vp-c-bg-elv: #122321;
+  --vp-c-divider: rgba(140, 190, 184, 0.18);
+  --vp-home-hero-name-background: linear-gradient(120deg, #7de7dd 0%, #f4bf69 100%);
+  --py-panel-bg: linear-gradient(180deg, rgba(14, 28, 27, 0.96), rgba(16, 38, 35, 0.94));
+  --py-panel-bg-strong: linear-gradient(135deg, rgba(14, 28, 27, 0.98), rgba(20, 48, 44, 0.95));
+  --py-panel-border: rgba(115, 198, 189, 0.18);
+  --py-panel-shadow: 0 18px 40px rgba(2, 10, 9, 0.36);
+  --py-nav-bg: rgba(8, 17, 15, 0.76);
+  --py-nav-border: rgba(115, 198, 189, 0.14);
 }
 
 html {
@@ -30,6 +65,61 @@ body {
     radial-gradient(circle at top left, rgba(20, 184, 166, 0.08), transparent 24%),
     radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 22%),
     linear-gradient(180deg, #fcfdfc 0%, #f7faf9 100%);
+  color: var(--vp-c-text-1);
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.12), transparent 24%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 22%),
+    linear-gradient(180deg, #08110f 0%, #0d1715 100%);
+}
+
+.VPNav,
+.VPNavBar,
+.VPNavBar .content-body,
+.VPLocalNav {
+  background: var(--py-nav-bg);
+  backdrop-filter: blur(18px);
+  border-color: var(--py-nav-border);
+}
+
+.VPNavBar .title,
+.VPNavBar .curtain,
+.VPNavBar .divider {
+  border-color: var(--py-nav-border);
+}
+
+.VPNavBarMenuLink,
+.VPNavBarTitle .title,
+.VPNavBarExtra .link,
+.VPNavScreenMenuLink,
+.VPSocialLink,
+.VPFlyout .button,
+.VPLocalNav .menu-text,
+.VPLocalNav .menu + .caret {
+  color: var(--vp-c-text-1);
+}
+
+.VPNavBarSearch .DocSearch-Button,
+.VPNavBarSearch .DocSearch-Button-Container,
+.VPNavBarSearch .DocSearch-Button-Keys {
+  color: var(--vp-c-text-1);
+}
+
+.VPNavBarSearch .DocSearch-Button {
+  min-width: 7.2rem;
+  border: 1px solid var(--py-nav-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--vp-c-bg-elv) 92%, transparent);
+}
+
+.VPNavBarSearch .DocSearch-Button:hover {
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 90%, transparent);
+}
+
+.VPSwitchAppearance .check {
+  border-color: var(--py-nav-border);
 }
 
 .VPHero .name,
@@ -51,7 +141,7 @@ body {
 
 .vp-doc blockquote {
   border-left: 4px solid var(--vp-c-brand-1);
-  background: color-mix(in srgb, var(--vp-c-brand-soft) 40%, white);
+  background: color-mix(in srgb, var(--vp-c-brand-soft) 40%, var(--vp-c-bg-elv));
   border-radius: 10px;
   padding: 14px 18px;
 }
@@ -72,9 +162,8 @@ body {
 }
 
 .VPFeature {
-  border: 1px solid rgba(15, 118, 110, 0.12);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(245, 247, 245, 0.92));
+  border: 1px solid var(--py-panel-border);
+  background: var(--py-panel-bg);
 }
 
 .vp-doc .lead {
@@ -87,11 +176,10 @@ body {
 .quick-takeaway {
   margin: 20px 0 28px;
   padding: 18px 20px;
-  border: 1px solid rgba(15, 118, 110, 0.16);
+  border: 1px solid var(--py-panel-border);
   border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 253, 245, 0.94));
-  box-shadow: 0 18px 40px rgba(15, 118, 110, 0.06);
+  background: var(--py-panel-bg-strong);
+  box-shadow: var(--py-panel-shadow);
 }
 
 .quick-takeaway p {
@@ -116,10 +204,10 @@ body {
 .reading-card,
 .check-card {
   padding: 16px 18px;
-  border: 1px solid rgba(15, 118, 110, 0.12);
+  border: 1px solid var(--py-panel-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 14px 32px rgba(15, 118, 110, 0.05);
+  background: color-mix(in srgb, var(--vp-c-bg-elv) 92%, transparent);
+  box-shadow: var(--py-panel-shadow);
 }
 
 .reading-card h3,
@@ -138,11 +226,10 @@ body {
 .mermaid-diagram {
   margin: 24px 0 28px;
   padding: 18px;
-  border: 1px solid rgba(15, 118, 110, 0.14);
+  border: 1px solid var(--py-panel-border);
   border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 253, 250, 0.94));
-  box-shadow: 0 20px 40px rgba(15, 118, 110, 0.08);
+  background: var(--py-panel-bg);
+  box-shadow: var(--py-panel-shadow);
 }
 
 .mermaid-diagram__canvas {
@@ -171,6 +258,21 @@ body {
 
 .vp-doc pre {
   border-radius: 16px;
+}
+
+.dark .vp-doc pre,
+.dark .vp-code-group,
+.dark .vp-code-group .tabs {
+  background: #0f1b19;
+}
+
+.VPDocAside .outline-link.active,
+.VPDocAside .outline-link:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.dark .VPDocAside .content {
+  border-left-color: var(--py-nav-border);
 }
 
 .vp-doc .vp-code-group .tabs {

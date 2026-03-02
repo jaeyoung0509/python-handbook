@@ -162,55 +162,59 @@ const buildSidebar = (locale: LocaleCode) =>
     })),
   }));
 
-const searchFor = (locale: LocaleCode) => ({
+const searchConfig = {
   provider: "local" as const,
   options: {
-    translations:
-      locale === "ko"
-        ? {
-            button: {
-              buttonText: "검색",
-              buttonAriaLabel: "문서 검색",
-            },
-            modal: {
-              displayDetails: "상세 보기",
-              resetButtonTitle: "검색 초기화",
-              backButtonTitle: "검색 닫기",
-              noResultsText: "검색 결과가 없습니다",
-              footer: {
-                selectText: "선택",
-                selectKeyAriaLabel: "enter",
-                navigateText: "이동",
-                navigateUpKeyAriaLabel: "위 화살표",
-                navigateDownKeyAriaLabel: "아래 화살표",
-                closeText: "닫기",
-                closeKeyAriaLabel: "escape",
-              },
-            },
-          }
-        : {
-            button: {
-              buttonText: "Search",
-              buttonAriaLabel: "Search docs",
-            },
-            modal: {
-              displayDetails: "Display detailed list",
-              resetButtonTitle: "Reset search",
-              backButtonTitle: "Close search",
-              noResultsText: "No results for this query",
-              footer: {
-                selectText: "Select",
-                selectKeyAriaLabel: "enter",
-                navigateText: "Navigate",
-                navigateUpKeyAriaLabel: "arrow up",
-                navigateDownKeyAriaLabel: "arrow down",
-                closeText: "Close",
-                closeKeyAriaLabel: "escape",
-              },
+    locales: {
+      root: {
+        translations: {
+          button: {
+            buttonText: "검색",
+            buttonAriaLabel: "문서 검색",
+          },
+          modal: {
+            displayDetails: "상세 보기",
+            resetButtonTitle: "검색 초기화",
+            backButtonTitle: "검색 닫기",
+            noResultsText: "검색 결과가 없습니다",
+            footer: {
+              selectText: "선택",
+              selectKeyAriaLabel: "enter",
+              navigateText: "이동",
+              navigateUpKeyAriaLabel: "위 화살표",
+              navigateDownKeyAriaLabel: "아래 화살표",
+              closeText: "닫기",
+              closeKeyAriaLabel: "escape",
             },
           },
+        },
+      },
+      en: {
+        translations: {
+          button: {
+            buttonText: "Search",
+            buttonAriaLabel: "Search docs",
+          },
+          modal: {
+            displayDetails: "Display detailed list",
+            resetButtonTitle: "Reset search",
+            backButtonTitle: "Close search",
+            noResultsText: "No results for this query",
+            footer: {
+              selectText: "Select",
+              selectKeyAriaLabel: "enter",
+              navigateText: "Navigate",
+              navigateUpKeyAriaLabel: "arrow up",
+              navigateDownKeyAriaLabel: "arrow down",
+              closeText: "Close",
+              closeKeyAriaLabel: "escape",
+            },
+          },
+        },
+      },
+    },
   },
-});
+};
 
 const sharedThemeConfig = {
   siteTitle: "Python Handbook",
@@ -219,6 +223,7 @@ const sharedThemeConfig = {
     dark: "/mark.svg",
   },
   i18nRouting: true,
+  search: searchConfig,
   socialLinks: [
     { icon: "github", link: "https://github.com/jaeyoung0509/python-handbook" },
   ],
@@ -255,7 +260,6 @@ export default defineConfig({
         ...sharedThemeConfig,
         nav: buildNav("ko"),
         sidebar: buildSidebar("ko"),
-        search: searchFor("ko"),
         editLink: {
           pattern: "https://github.com/jaeyoung0509/python-handbook/edit/main/docs/:path",
           text: "GitHub에서 이 페이지 수정하기",
@@ -292,7 +296,6 @@ export default defineConfig({
         ...sharedThemeConfig,
         nav: buildNav("en"),
         sidebar: buildSidebar("en"),
-        search: searchFor("en"),
         editLink: {
           pattern: "https://github.com/jaeyoung0509/python-handbook/edit/main/docs/:path",
           text: "Edit this page on GitHub",
