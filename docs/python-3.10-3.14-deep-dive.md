@@ -2,35 +2,95 @@
 
 이 문서는 "Python 3.9 이후 감이 떨어진 상태에서 3.10~3.14를 한 번에 따라잡기"를 목표로 정리했다. 기준 구현체는 CPython이고, 예제는 이 저장소의 Python 3.14.3 환경에서 확인했다.
 
-## 먼저 큰 흐름부터
+## 이 문서를 읽는 법
 
-3.10~3.14는 단순 문법 추가 구간이 아니다. 이 시기에는 다음 축이 동시에 움직였다.
+이 문서는 처음부터 끝까지 정독해도 되지만, 아래처럼 읽는 편이 훨씬 효율적이다.
 
-- 언어 표현력: `match`, `X | Y`, 제네릭 문법, `type` 별칭, t-string
-- 런타임 성능: 3.11의 적응형 바이트코드 특수화, 3.12의 comprehension inlining, 3.13의 실험적 JIT
-- 동시성 모델: `ExceptionGroup`, `except*`, `TaskGroup`, 서브인터프리터, free-threaded 빌드
-- 타입 시스템: `ParamSpec`, `TypeGuard`, 타입 파라미터 문법, 타입 파라미터 기본값
-- 메타프로그래밍/툴링: `tomllib`, `sys.monitoring`, 지연 평가 어노테이션, `annotationlib`
+- 빠르게 감만 잡고 싶다:
+  - `3분 요약` -> `3.9에서 3.14로 바뀐 감각` -> `지금 바로 체감이 큰 것`
+- 실무 우선으로 보고 싶다:
+  - 3.10 -> 3.11 -> 3.12 순으로 본다.
+- 타입 시스템 변화가 궁금하다:
+  - 3.10 `ParamSpec`, `TypeGuard`
+  - 3.12 타입 파라미터 문법
+  - 3.13 타입 파라미터 기본값
+  - 3.14 지연 평가 어노테이션
+- 런타임/내부 동작이 궁금하다:
+  - 3.11 적응형 특수화
+  - 3.12 `sys.monitoring`
+  - 3.13 free-threaded/JIT
+  - 3.14 subinterpreter, incremental GC
 
-정리하면:
+## 3분 요약
 
-- 3.10은 "문법 생산성"의 분기점
-- 3.11은 "실행기와 비동기 오류 모델"의 분기점
-- 3.12는 "타입 문법과 툴링 API"의 분기점
-- 3.13은 "GIL 이후를 시험하는 런타임 모드"의 분기점
-- 3.14는 "어노테이션/템플릿/멀티 인터프리터"를 표면 API까지 끌어올린 버전
+3.10~3.14는 한 줄로 요약하면 이렇다.
 
-## 버전별 핵심 요약
+- 3.10: "코드가 더 읽기 좋아진 버전"
+- 3.11: "예외 모델과 실행기 성능이 확 달라진 버전"
+- 3.12: "typing이 드디어 언어 문법처럼 느껴지기 시작한 버전"
+- 3.13: "GIL 이후의 CPython을 시험하기 시작한 버전"
+- 3.14: "프레임워크/도구 제작자에게 중요한 메타프로그래밍 API가 열린 버전"
 
-| 버전 | 한 줄 요약 | 특히 봐야 할 것 |
+버전별로 한 번에 보면:
+
+| 버전 | 한 줄 요약 | 가장 먼저 기억할 것 | 대표 예제 |
+| --- | --- | --- | --- |
+| 3.10 | 오래된 분기/typing 불편함을 강하게 정리 | `match`, `X | Y`, `zip(strict=True)` | `examples/py310_pattern_matching.py` |
+| 3.11 | 속도와 구조적 예외 처리가 크게 바뀜 | PEP 659, `ExceptionGroup`, `TaskGroup` | `examples/py311_exception_groups_and_taskgroup.py` |
+| 3.12 | 타입 문법이 현대화되고 도구 API가 열림 | PEP 695, PEP 701, PEP 709, `sys.monitoring` | `examples/py312_type_params.py` |
+| 3.13 | free-threaded/JIT 등 런타임 실험이 표면화 | PEP 703, PEP 744, PEP 667 | `examples/py313_runtime_modes.py` |
+| 3.14 | 어노테이션/템플릿/인터프리터가 실사용 단계로 진입 | PEP 649/749, PEP 734, PEP 750 | `examples/py314_annotationlib.py` |
+
+## 변화의 큰 흐름
+
+3.10~3.14는 단순 문법 추가 구간이 아니다. 이 시기에는 아래 다섯 축이 동시에 움직였다.
+
+| 축 | 3.9 이전 느낌 | 3.10~3.14에서 바뀐 방향 |
 | --- | --- | --- |
-| 3.10 | 오래된 `if/elif`, `typing` 불편함을 강하게 정리 | `match`, `|` 유니언, `ParamSpec`, `zip(strict=True)` |
-| 3.11 | 속도와 구조적 예외 처리가 크게 바뀜 | PEP 659, `ExceptionGroup`, `except*`, `TaskGroup`, `tomllib` |
-| 3.12 | 타입 시스템 문법이 현대화되고 관측 API가 열림 | PEP 695, PEP 701, PEP 709, `sys.monitoring`, per-interpreter GIL 기반 |
-| 3.13 | GIL 없는 빌드와 JIT가 실험 단계로 등장 | PEP 703, PEP 744, PEP 667, PEP 696, PEP 702 |
-| 3.14 | 어노테이션 평가 모델과 인터프리터 API가 실사용 단계로 진입 | PEP 649/749, PEP 734, PEP 750, incremental GC |
+| 언어 표현력 | `if/elif`, 장황한 typing, 즉시 문자열화 | `match`, `X | Y`, 새 제네릭 문법, t-string |
+| 런타임 성능 | 느리지만 단순한 인터프리터 이미지 | 3.11 적응형 특수화, 3.12 comprehension 개선, 3.13 JIT 실험 |
+| 동시성 모델 | `threading` vs `multiprocessing`, 예외는 1개 중심 | `TaskGroup`, `ExceptionGroup`, subinterpreter, free-threaded 실험 |
+| 타입 시스템 | `TypeVar`, `Generic`, 긴 `Union[...]` | 타입 파라미터 문법, 기본값, 지연 평가 어노테이션 |
+| 도구/메타프로그래밍 | `sys.settrace`, 문자열 forward ref, 별도 TOML 파서 | `sys.monitoring`, `annotationlib`, `tomllib` |
+
+## 3.9에서 3.14로 바뀐 감각
+
+이 시기를 공부할 때는 "기능 목록"보다 "머릿속 모델이 어떻게 바뀌는지"를 보는 편이 좋다.
+
+| 주제 | 3.9 감각 | 3.14 감각 |
+| --- | --- | --- |
+| 분기 | 값 비교와 타입 검사를 손으로 길게 푼다 | 데이터 형태 자체를 패턴으로 매칭한다 |
+| 타입 힌트 | 주석 같은 보조 정보에 가깝다 | API 계약과 도구 연동의 중심으로 간다 |
+| 비동기 실패 | 첫 예외 위주로 본다 | 여러 실패를 구조적으로 보존한다 |
+| 성능 | "Python은 원래 느리다"로 뭉뚱그리기 쉽다 | 인터프리터 특수화, JIT, GC 개선까지 세분화해 본다 |
+| 병렬성 | 스레드는 GIL 때문에 한계, CPU는 프로세스 | free-threaded와 subinterpreter까지 선택지가 늘어난다 |
+| 어노테이션 | 평가 시점과 forward reference가 자주 골칫거리 | 필요한 포맷으로 안전하게 읽어오는 방향으로 간다 |
+
+## 버전별 Deep Dive
+
+---
 
 ## Python 3.10
+
+### 핵심 한 줄
+
+3.10은 "Python 코드가 더 선언적으로 읽히기 시작한 버전"이다.
+
+### 먼저 기억할 3가지
+
+1. `match/case`는 `switch`보다 훨씬 강한 구조 분해 도구다.
+2. `X | Y`, `ParamSpec`, `TypeGuard` 덕분에 typing이 덜 고통스러워졌다.
+3. `zip(strict=True)`는 작지만 실무 버그를 줄이는 좋은 변화다.
+
+### 기능 지도
+
+| 기능 | 왜 들어왔나 | 언제 체감되나 |
+| --- | --- | --- |
+| Structural Pattern Matching | shape-based branching을 짧고 읽기 좋게 만들기 위해 | 이벤트 디스패치, 파서, 상태 머신 |
+| `X | Y` 유니언 | `Union[X, Y]` 문법을 덜 장황하게 만들기 위해 | 함수 시그니처, 데이터 모델 |
+| `ParamSpec` | 데코레이터가 원래 함수 시그니처를 보존하도록 하기 위해 | 로깅/캐싱/트레이싱 데코레이터 |
+| `TypeGuard` | 런타임 검사와 정적 타입 좁히기를 연결하기 위해 | predicate 함수, validation code |
+| `zip(strict=True)` | 길이 불일치를 조용히 삼키는 버그를 줄이기 위해 | ETL, 동기화된 리스트 처리 |
 
 ### 1. Structural Pattern Matching
 
@@ -51,17 +111,23 @@
 - 런타임은 리터럴 비교, 시퀀스/매핑 모양 확인, 클래스 패턴의 경우 `__match_args__` 등을 이용해 매칭한다.
 - 표현식이 아니라 제어문이므로 `match` 자체가 값을 돌려주지는 않는다.
 
-실무 포인트:
+언제 특히 좋나:
 
-- 이벤트 디스패치, 파서, 도메인 상태 머신에서 강력하다.
+- 이벤트 디스패치
+- 파서 구현
+- 도메인 상태 머신
+- API payload 라우팅
+
+주의할 점:
+
 - 단순 enum 분기만 있을 때는 `if/elif`가 더 읽기 좋을 수도 있다.
-- 클래스 패턴은 데이터클래스와 궁합이 좋다.
+- 패턴을 과하게 중첩하면 오히려 이해가 어려워질 수 있다.
 
 예제:
 
 - `examples/py310_pattern_matching.py`
 
-### 2. 타입 표기 ergonomics 개선
+### 2. typing ergonomics 개선
 
 3.10은 "typing이 현실 코드에 덜 거슬리게" 만든 버전이다.
 
@@ -80,21 +146,47 @@
 - 데코레이터가 원래 함수의 인자 타입을 그대로 전달할 수 있다.
 - 사용자 정의 predicate가 타입 체커에게 실제 narrowing 신호를 준다.
 
+실무 포인트:
+
+- 팀이 typing을 적극적으로 쓰는 회사라면 3.10은 사실상 첫 번째 "현대 typing" 버전으로 봐도 된다.
+
 예제:
 
 - `examples/py310_typing_and_zip_strict.py`
 
-### 3. 표준 라이브러리의 작은데 중요한 변화
+### 3. 작지만 실전에서 중요한 변화
 
 - `zip(strict=True)`(PEP 618): 서로 길이가 다른 입력을 조용히 잘라먹지 않고 즉시 실패시킨다.
 - 디버거/프로파일러용 정확한 라인 정보(PEP 626): 트레이싱 도구 정확도를 높였다.
 - 에러 메시지가 더 구체적으로 바뀌기 시작했다.
 
-실무 포인트:
+한 줄 정리:
 
-- 데이터 파이프라인, ETL, 인덱스/레이블 동기화 코드에는 `zip(strict=True)`를 습관처럼 붙일 가치가 있다.
+- 3.10은 화려한 문법 버전처럼 보이지만, 실제로는 "코드 의도를 더 정확히 드러내는 버전"이다.
+
+---
 
 ## Python 3.11
+
+### 핵심 한 줄
+
+3.11은 "성능과 비동기 예외 처리 모델이 같이 업그레이드된 버전"이다.
+
+### 먼저 기억할 3가지
+
+1. Faster CPython은 체감 성능에 꽤 의미 있는 변화를 만들었다.
+2. `ExceptionGroup`과 `except*`는 async 시대의 예외 모델이다.
+3. `TaskGroup`은 `asyncio`에 구조적 동시성 감각을 넣었다.
+
+### 기능 지도
+
+| 기능 | 왜 들어왔나 | 언제 체감되나 |
+| --- | --- | --- |
+| 적응형 특수화 인터프리터 | Python hot path 오버헤드를 줄이기 위해 | 속성 접근, 호출, 루프 |
+| `ExceptionGroup` / `except*` | 여러 동시 실패를 보존하기 위해 | fan-out async, 병렬 배치 |
+| `asyncio.TaskGroup` | task 생명주기를 블록 단위로 묶기 위해 | 서비스 백엔드, 비동기 수집기 |
+| `tomllib` | `pyproject.toml` 시대의 기본 파서 제공 | 설정 파싱, 툴 구현 |
+| 더 정밀한 traceback | 디버깅 효율을 높이기 위해 | 복잡한 표현식 디버깅 |
 
 ### 1. Faster CPython: 적응형 특수화 인터프리터
 
@@ -131,10 +223,11 @@
 - `except* ValueError`는 그룹 전체가 아니라 "그 안의 ValueError 부분집합"만 꺼내 처리한다.
 - 처리되지 않은 나머지 예외는 다시 그룹 형태로 남는다.
 
-실무 포인트:
+왜 실무에서 중요한가:
 
-- fan-out/fan-in 비동기 처리, 배치 작업, 병렬 API 호출에서 반드시 알아야 한다.
-- 기존 `except` 감각으로 보면 어색하지만, 실패를 보존한다는 점이 핵심이다.
+- 실패를 버리지 않는다.
+- 어떤 task가 어떤 이유로 실패했는지 보존된다.
+- 분산 호출, 병렬 수집, 배치 처리 코드에서 디버깅 품질이 올라간다.
 
 예제:
 
@@ -171,9 +264,35 @@
 
 ### 5. 더 정밀한 에러 위치
 
-3.11은 예외 위치와 traceback 품질도 좋아졌다. 특히 긴 표현식 안에서 어느 부분이 실패했는지 더 정확하게 가리킨다. 디버깅 경험이 3.10 이전보다 확실히 좋아진다.
+3.11은 예외 위치와 traceback 품질도 좋아졌다. 특히 긴 표현식 안에서 어느 부분이 실패했는지 더 정확하게 가리킨다.
+
+한 줄 정리:
+
+- 3.11은 "Python이 느리고 async 에러가 답답하다"는 오래된 인식을 꽤 많이 바꾼 버전이다.
+
+---
 
 ## Python 3.12
+
+### 핵심 한 줄
+
+3.12는 "typing이 라이브러리 문법이 아니라 Python 문법처럼 느껴지는 버전"이다.
+
+### 먼저 기억할 3가지
+
+1. `class Box[T]`, `def first[T]`, `type Row[T] = ...`는 3.12 이후 감각이다.
+2. `sys.monitoring`은 툴 제작자에게 매우 큰 변화다.
+3. 3.12는 3.13~3.14의 병렬성/런타임 변화로 이어지는 기반 버전이기도 하다.
+
+### 기능 지도
+
+| 기능 | 왜 들어왔나 | 언제 체감되나 |
+| --- | --- | --- |
+| 타입 파라미터 문법 | generics 보일러플레이트 제거 | 라이브러리 API 설계 |
+| `type` 별칭 문법 | 타입 별칭을 더 선언적으로 표현 | 도메인 타입 모델링 |
+| PEP 701 f-string 정식화 | 파서 일관성 확보 | 코드 생성, 복잡한 문자열 처리 |
+| PEP 709 comprehension 개선 | 자주 쓰는 경로의 오버헤드 절감 | 리스트/딕트/셋 comprehension |
+| `sys.monitoring` | tracing 도구의 고비용 문제 해결 | 디버거/프로파일러/커버리지 |
 
 ### 1. 타입 파라미터 문법과 `type` 별칭
 
@@ -192,6 +311,7 @@
 
 - 제네릭 선언이 함수/클래스 정의부에서 바로 보인다.
 - API 설계가 더 선언적으로 읽힌다.
+- 타입 문법이 "추가 라이브러리"가 아니라 언어 일부처럼 느껴진다.
 
 예제:
 
@@ -239,7 +359,7 @@ PEP 701은 "f-string을 예외 규칙 덩어리"에서 "정식 문법의 일부"
 실무 포인트:
 
 - APM, 코드 커버리지, 샘플러, 디버거를 만드는 사람에게는 큰 변화다.
-- 일반 앱 개발자도 "Python이 관측 가능성(observability)을 언어 차원에서 더 신경 쓰기 시작했다"는 신호로 읽으면 된다.
+- 일반 앱 개발자도 "Python이 observability를 언어 차원에서 더 신경 쓰기 시작했다"는 신호로 읽으면 된다.
 
 예제:
 
@@ -249,7 +369,33 @@ PEP 701은 "f-string을 예외 규칙 덩어리"에서 "정식 문법의 일부"
 
 3.12는 "각 인터프리터가 자신의 GIL을 갖는 방향"을 위한 기반 작업이 들어간 버전이다. 곧바로 모든 코드가 병렬화되는 것은 아니지만, 이후 3.13 free-threaded와 3.14 interpreter API 노출로 이어지는 중요한 중간 단계다.
 
+한 줄 정리:
+
+- 3.12는 문법은 typing 쪽이, 내부는 병렬성 쪽이 중요하다.
+
+---
+
 ## Python 3.13
+
+### 핵심 한 줄
+
+3.13은 "CPython이 앞으로 어디로 갈지"를 보여주는 버전이다.
+
+### 먼저 기억할 3가지
+
+1. free-threaded CPython은 역사적으로 매우 큰 변화다.
+2. JIT는 아직 실험적이지만 방향성은 분명하다.
+3. `locals()` 의미 정리, 타입 기본값, deprecation 신호 강화 같은 세부 변화도 중요하다.
+
+### 기능 지도
+
+| 기능 | 왜 들어왔나 | 언제 체감되나 |
+| --- | --- | --- |
+| free-threaded 빌드 | GIL 한계를 줄이기 위해 | CPU 병렬 실험, 런타임 연구 |
+| 실험적 JIT | hot path 성능 향상 가능성 탐색 | 성능 실험 |
+| `locals()` 의미 정리 | 스코프/프레임 의미를 더 일관되게 | 디버깅, 메타프로그래밍 |
+| 타입 파라미터 기본값 | generic API 사용성 향상 | 라이브러리 타입 설계 |
+| `warnings.deprecated` | 정적/런타임 deprecation 신호 통합 | 라이브러리 마이그레이션 |
 
 ### 1. free-threaded CPython 실험판
 
@@ -322,7 +468,33 @@ Python 함수 내부에서 `locals()`는 오래전부터 직관과 다른 순간
 - 예전에는 "런타임 경고"와 "정적 분석 경고"가 따로 놀기 쉬웠다.
 - deprecation을 API 계약의 일부로 더 구조적으로 표현할 수 있다.
 
+한 줄 정리:
+
+- 3.13은 "지금 당장 다 쓰는 기능"보다 "앞으로 Python이 어떤 런타임이 될 것인가"를 읽는 버전이다.
+
+---
+
 ## Python 3.14
+
+### 핵심 한 줄
+
+3.14는 "프레임워크, 도구, 병렬 실행 모델" 쪽에서 특히 중요한 버전이다.
+
+### 먼저 기억할 3가지
+
+1. 지연 평가 어노테이션은 프레임워크 작성자에게 매우 중요하다.
+2. `t"..."`는 `f-string` 대체가 아니라 다른 계층의 도구다.
+3. `InterpreterPoolExecutor`는 Python 병렬성 선택지를 넓힌다.
+
+### 기능 지도
+
+| 기능 | 왜 들어왔나 | 언제 체감되나 |
+| --- | --- | --- |
+| 지연 평가 어노테이션 | forward ref와 조기 평가 문제 해결 | 프레임워크, DI, ORM |
+| `annotationlib` | 어노테이션을 원하는 포맷으로 읽기 위해 | 메타프로그래밍, 도구 제작 |
+| template string | 보간 구조 자체를 보존하기 위해 | 템플릿, 로깅, i18n |
+| `InterpreterPoolExecutor` | thread/process 사이 선택지 확장 | 병렬 실험, 상태 분리 |
+| incremental cyclic GC | pause 부담 완화 | 지연 시간 민감한 워크로드 |
 
 ### 1. 지연 평가 어노테이션이 기본이 됨
 
@@ -407,6 +579,10 @@ Python 함수 내부에서 `locals()`는 오래전부터 직관과 다른 순간
 
 - 지연 시간 민감한 워크로드에서 stop-the-world 성격의 부담을 완화하려는 흐름으로 읽으면 된다.
 
+한 줄 정리:
+
+- 3.14는 "문자열, 어노테이션, 병렬성, GC"처럼 언어 외곽으로 보이던 주제들이 표면 API로 올라온 버전이다.
+
 ## 지금 바로 체감이 큰 것만 꼽으면
 
 실무 우선순위는 보통 이렇게 잡는 편이 좋다.
@@ -440,22 +616,23 @@ Python 함수 내부에서 `locals()`는 오래전부터 직관과 다른 순간
 
 ## 이 저장소 예제 맵
 
-- 3.10
-  - `examples/py310_pattern_matching.py`
-  - `examples/py310_typing_and_zip_strict.py`
-- 3.11
-  - `examples/py311_exception_groups_and_taskgroup.py`
-  - `examples/py311_tomllib.py`
-- 3.12
-  - `examples/py312_type_params.py`
-  - `examples/py312_sys_monitoring.py`
-- 3.13
-  - `examples/py313_type_defaults_and_deprecated.py`
-  - `examples/py313_runtime_modes.py`
-- 3.14
-  - `examples/py314_annotationlib.py`
-  - `examples/py314_template_strings.py`
-  - `examples/py314_interpreter_pool.py`
+| 버전 | 파일 |
+| --- | --- |
+| 3.10 | `examples/py310_pattern_matching.py`, `examples/py310_typing_and_zip_strict.py` |
+| 3.11 | `examples/py311_exception_groups_and_taskgroup.py`, `examples/py311_tomllib.py` |
+| 3.12 | `examples/py312_type_params.py`, `examples/py312_sys_monitoring.py` |
+| 3.13 | `examples/py313_type_defaults_and_deprecated.py`, `examples/py313_runtime_modes.py` |
+| 3.14 | `examples/py314_annotationlib.py`, `examples/py314_template_strings.py`, `examples/py314_interpreter_pool.py` |
+
+## 마지막 정리
+
+이 구간을 공부할 때 가장 중요한 포인트는 "버전별 기능 암기"가 아니다. 더 중요한 건 아래 다섯 가지다.
+
+1. Python은 3.10 이후 분기와 타입 문법이 훨씬 선언적으로 바뀌었다.
+2. Python은 3.11 이후 실행기 성능과 async 오류 모델이 확실히 좋아졌다.
+3. Python은 3.12 이후 tooling 친화적 인터프리터가 되고 있다.
+4. Python은 3.13 이후 GIL 이후의 런타임을 공개적으로 실험하고 있다.
+5. Python은 3.14에서 프레임워크/도구 제작자가 좋아할 API를 많이 표면화했다.
 
 ## 공식 자료
 
