@@ -3,50 +3,66 @@ layout: home
 
 hero:
   name: Python Handbook
-  text: Python 3.14부터 FastAPI, Pydantic, SQLAlchemy 2.0까지
-  tagline: Pythonic code, typing, CPython runtime, asyncio, web backend, data validation, ORM을 한 흐름으로 읽는 문서 사이트
+  text: Python 3.14 기준으로 다시 읽는 현대 Python
+  tagline: Pythonic code, typing, CPython runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0을 한 흐름으로 묶은 한국어/영어 핸드북
   actions:
     - theme: brand
-      text: Start Reading
+      text: 한국어로 시작하기
       link: /intro/
     - theme: alt
-      text: Explore Runtime
-      link: /runtime/
+      text: Read in English
+      link: /en/
 
 features:
-  - title: Pythonic Python
-    details: data model, descriptor, decorator, context manager, metaclass를 Python 3.14 감각으로 다시 잡습니다.
-  - title: Modern Typing
-    details: Annotated, generics, protocols, narrowing, runtime introspection을 실무 중심으로 정리합니다.
-  - title: CPython Runtime
-    details: bytecode, specialization, memory, GC, GIL, subinterpreter를 내부 동작 관점에서 설명합니다.
-  - title: Asyncio
-    details: event loop, cancellation, TaskGroup, backpressure, testing을 서비스 코드 관점에서 다룹니다.
-  - title: FastAPI and Pydantic
-    details: 잘 쓰는 구조와 validation pipeline, pydantic-core 내부 감각까지 연결합니다.
-  - title: SQLAlchemy 2.0
-    details: Core, ORM, Session, loading strategy, async, migration pattern을 깊게 다룹니다.
+  - title: Bilingual by Default
+    details: 루트는 한국어, `/en/`은 영어로 제공해서 같은 주제를 두 언어로 오갈 수 있습니다.
+  - title: Readable Chapters
+    details: 빠른 요약, 그림, 코드 예시, 체크리스트를 고정 패턴으로 써서 바로 이해할 수 있게 만듭니다.
+  - title: Pythonic to Backend Stack
+    details: metaclass, typing, runtime, asyncio부터 FastAPI, Pydantic, SQLAlchemy 2.0까지 이어집니다.
 ---
 
-## What This Site Is
+## 이 사이트를 어떻게 읽으면 좋은가
 
-이 사이트는 "Python 3.14 기준으로 다시 배우는 현대 Python"을 목표로 한다.
+<div class="quick-takeaway">
+  <p><strong>핵심 방향</strong>: 버전별 릴리즈 노트 모음이 아니라, Python 3.14를 기준선으로 두고 언어 감각부터 런타임, 웹 백엔드 스택까지 연결해서 읽는 핸드북입니다.</p>
+</div>
 
-핵심 방향:
+<div class="reading-grid">
+  <div class="reading-card">
+    <h3>1. Pythonic 감각부터</h3>
+    <p>descriptor, decorator, context manager, metaclass를 순서대로 읽으면서 Python 특유의 객체 모델을 먼저 잡습니다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>2. Typing을 설계 도구로</h3>
+    <p>Annotated, Protocol, generics, narrowing을 문법이 아니라 API 설계와 경계 모델링 관점에서 봅니다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>3. Runtime을 그림으로</h3>
+    <p>frame, bytecode, specialization, GIL, GC를 한 장면으로 묶어서 성능과 동작 이유를 같이 이해합니다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>4. FastAPI 스택으로 연결</h3>
+    <p>asyncio, FastAPI, Pydantic, SQLAlchemy 2.0을 하나의 서비스 구조 안에서 정리합니다.</p>
+  </div>
+</div>
 
-- 버전별 기능 나열보다 주제별 이해를 우선한다.
-- 문법 설명에서 끝내지 않고 내부 동작과 실전 패턴까지 연결한다.
-- FastAPI, Pydantic, SQLAlchemy 2.0을 따로 떼지 않고 Python 본체와 이어서 설명한다.
+## 지금 들어가면 좋은 페이지
 
-## Recommended Path
+1. [입문 개요](/intro/)에서 전체 지도를 먼저 봅니다.
+2. [Execution Model](/runtime/execution-model)에서 "Python이 실제로 어떻게 실행되는가"를 잡습니다.
+3. [Metaclasses](/pythonic/metaclasses)에서 클래스 생성 시점을 이해합니다.
+4. [FastAPI Project Structure](/fastapi/project-structure)에서 서비스 코드 구조를 실전 관점으로 연결합니다.
 
-1. [Intro](/intro/)에서 전체 구조와 읽는 순서를 잡는다.
-2. [Pythonic](/pythonic/)과 [Typing](/typing/)으로 언어 감각을 다시 만든다.
-3. [Runtime](/runtime/)과 [Asyncio](/asyncio/)로 내부 모델을 잡는다.
-4. [FastAPI](/fastapi/), [Pydantic](/pydantic/), [SQLAlchemy](/sqlalchemy/)를 실전 스택으로 읽는다.
+## 문서 패턴
 
-## Current Status
+- 빠른 요약: 이 페이지에서 꼭 남겨야 할 한 문장을 먼저 제시합니다.
+- 그림: 흐름도나 비교 그림으로 개념 관계를 먼저 잡습니다.
+- 코드: 실제로 복붙해서 돌려볼 수 있는 예제를 붙입니다.
+- 체크리스트: 언제 쓰면 좋은지, 어디서 오용되는지 정리합니다.
 
-- 기존 `Python 3.10~3.14` 변화 문서와 `CPython vs Go runtime` 문서는 이미 포함되어 있다.
-- 나머지 섹션은 지금부터 장 단위로 확장하기 위한 문서 뼈대를 제공한다.
-- 이 구조를 기준으로 문서를 하나씩 "Python 핸드북" 형태로 채워가면 된다.
+## 현재 상태
+
+- 한국어 루트와 영어 `/en/` 구조를 모두 열어뒀습니다.
+- 대표 페이지부터 그림과 코드 예시가 있는 형식으로 확장하고 있습니다.
+- 긴 문서는 점점 장 단위로 쪼개면서 읽기 좋게 정리할 예정입니다.

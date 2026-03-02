@@ -1,7 +1,230 @@
 import { defineConfig } from "vitepress";
 
+type LocaleCode = "ko" | "en";
+
+type NavSection = {
+  ko: string;
+  en: string;
+  navPath: string;
+  items: Array<{
+    ko: string;
+    en: string;
+    path: string;
+  }>;
+};
+
+const sections: NavSection[] = [
+  {
+    ko: "입문",
+    en: "Intro",
+    navPath: "/intro/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/intro/" },
+      { ko: "왜 이 문서를 새로 쓰는가", en: "Why This Book", path: "/intro/why-this-book" },
+      { ko: "이 문서를 읽는 법", en: "How To Read", path: "/intro/how-to-read" },
+      {
+        ko: "Python 3.10~3.14 정리",
+        en: "Python 3.10~3.14 Deep Dive",
+        path: "/python-3.10-3.14-deep-dive",
+      },
+    ],
+  },
+  {
+    ko: "Pythonic",
+    en: "Pythonic",
+    navPath: "/pythonic/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/pythonic/" },
+      { ko: "Data Model", en: "Data Model", path: "/pythonic/data-model" },
+      {
+        ko: "Descriptor와 Property",
+        en: "Descriptors and Properties",
+        path: "/pythonic/descriptors-and-properties",
+      },
+      { ko: "Decorator", en: "Decorators", path: "/pythonic/decorators" },
+      { ko: "Context Manager", en: "Context Managers", path: "/pythonic/context-managers" },
+      { ko: "Metaclass", en: "Metaclasses", path: "/pythonic/metaclasses" },
+    ],
+  },
+  {
+    ko: "Typing",
+    en: "Typing",
+    navPath: "/typing/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/typing/" },
+      { ko: "현대 Python Typing", en: "Modern Typing", path: "/typing/modern-typing" },
+      { ko: "Generics", en: "Generics", path: "/typing/generics" },
+      { ko: "Protocol", en: "Protocols", path: "/typing/protocols" },
+      { ko: "Type Narrowing", en: "Type Narrowing", path: "/typing/type-narrowing" },
+      { ko: "런타임 vs 정적 타입", en: "Runtime vs Static", path: "/typing/runtime-vs-static" },
+    ],
+  },
+  {
+    ko: "런타임",
+    en: "Runtime",
+    navPath: "/runtime/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/runtime/" },
+      { ko: "Execution Model", en: "Execution Model", path: "/runtime/execution-model" },
+      { ko: "Object Model", en: "Object Model", path: "/runtime/object-model" },
+      { ko: "Memory와 GC", en: "Memory and GC", path: "/runtime/memory-and-gc" },
+      { ko: "GIL과 Subinterpreter", en: "GIL and Subinterpreters", path: "/runtime/gil-and-subinterpreters" },
+      {
+        ko: "Bytecode와 Specialization",
+        en: "Bytecode and Specialization",
+        path: "/runtime/bytecode-and-specialization",
+      },
+      { ko: "CPython vs Go Runtime", en: "CPython vs Go Runtime", path: "/cpython-vs-go-runtime" },
+    ],
+  },
+  {
+    ko: "Asyncio",
+    en: "Asyncio",
+    navPath: "/asyncio/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/asyncio/" },
+      { ko: "Event Loop와 Task", en: "Event Loop and Tasks", path: "/asyncio/event-loop-and-tasks" },
+      { ko: "Cancellation과 TaskGroup", en: "Cancellation and TaskGroup", path: "/asyncio/cancellation-and-taskgroup" },
+      { ko: "Queue와 Backpressure", en: "Queues and Backpressure", path: "/asyncio/queues-and-backpressure" },
+      { ko: "테스트와 디버깅", en: "Testing and Debugging", path: "/asyncio/testing-and-debugging" },
+    ],
+  },
+  {
+    ko: "FastAPI",
+    en: "FastAPI",
+    navPath: "/fastapi/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/fastapi/" },
+      { ko: "프로젝트 구조", en: "Project Structure", path: "/fastapi/project-structure" },
+      { ko: "의존성 주입", en: "Dependency Injection", path: "/fastapi/dependency-injection" },
+      { ko: "요청/응답 모델링", en: "Request/Response Modeling", path: "/fastapi/request-response-modeling" },
+      { ko: "Lifespan과 테스트", en: "Lifespan and Testing", path: "/fastapi/lifespan-and-testing" },
+      { ko: "성능과 운영", en: "Performance and Ops", path: "/fastapi/performance-and-ops" },
+    ],
+  },
+  {
+    ko: "Pydantic",
+    en: "Pydantic",
+    navPath: "/pydantic/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/pydantic/" },
+      { ko: "Core Schema", en: "Core Schema", path: "/pydantic/core-schema" },
+      { ko: "Validation Pipeline", en: "Validation Pipeline", path: "/pydantic/validation-pipeline" },
+      { ko: "BaseModel vs TypeAdapter", en: "BaseModel vs TypeAdapter", path: "/pydantic/basemodel-vs-typeadapter" },
+      { ko: "Internals", en: "Internals", path: "/pydantic/internals" },
+    ],
+  },
+  {
+    ko: "SQLAlchemy",
+    en: "SQLAlchemy 2.0",
+    navPath: "/sqlalchemy/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/sqlalchemy/" },
+      { ko: "Core vs ORM", en: "Core vs ORM", path: "/sqlalchemy/core-vs-orm" },
+      { ko: "Session과 Unit of Work", en: "Session and Unit of Work", path: "/sqlalchemy/session-and-unit-of-work" },
+      { ko: "관계와 로딩 전략", en: "Relationships and Loading", path: "/sqlalchemy/relationships-and-loading" },
+      { ko: "Async SQLAlchemy", en: "Async SQLAlchemy", path: "/sqlalchemy/async-sqlalchemy" },
+      { ko: "마이그레이션과 패턴", en: "Migrations and Patterns", path: "/sqlalchemy/migrations-and-patterns" },
+    ],
+  },
+  {
+    ko: "플레이북",
+    en: "Playbooks",
+    navPath: "/playbooks/",
+    items: [
+      { ko: "개요", en: "Overview", path: "/playbooks/" },
+      { ko: "API 서비스 템플릿", en: "API Service Template", path: "/playbooks/api-service-template" },
+      {
+        ko: "FastAPI + Pydantic + SQLAlchemy",
+        en: "FastAPI + Pydantic + SQLAlchemy",
+        path: "/playbooks/fastapi-pydantic-sqlalchemy",
+      },
+      { ko: "Typing 리뷰 체크리스트", en: "Typing Review Checklist", path: "/playbooks/typing-review-checklist" },
+    ],
+  },
+];
+
+const withLocalePrefix = (locale: LocaleCode, path: string) =>
+  locale === "en" ? `/en${path}` : path;
+
+const buildNav = (locale: LocaleCode) =>
+  sections.map((section) => ({
+    text: locale === "ko" ? section.ko : section.en,
+    link: withLocalePrefix(locale, section.navPath),
+  }));
+
+const buildSidebar = (locale: LocaleCode) =>
+  sections.map((section) => ({
+    text: locale === "ko" ? section.ko : section.en,
+    items: section.items.map((item) => ({
+      text: locale === "ko" ? item.ko : item.en,
+      link: withLocalePrefix(locale, item.path),
+    })),
+  }));
+
+const searchFor = (locale: LocaleCode) => ({
+  provider: "local" as const,
+  options: {
+    translations:
+      locale === "ko"
+        ? {
+            button: {
+              buttonText: "검색",
+              buttonAriaLabel: "문서 검색",
+            },
+            modal: {
+              displayDetails: "상세 보기",
+              resetButtonTitle: "검색 초기화",
+              backButtonTitle: "검색 닫기",
+              noResultsText: "검색 결과가 없습니다",
+              footer: {
+                selectText: "선택",
+                selectKeyAriaLabel: "enter",
+                navigateText: "이동",
+                navigateUpKeyAriaLabel: "위 화살표",
+                navigateDownKeyAriaLabel: "아래 화살표",
+                closeText: "닫기",
+                closeKeyAriaLabel: "escape",
+              },
+            },
+          }
+        : {
+            button: {
+              buttonText: "Search",
+              buttonAriaLabel: "Search docs",
+            },
+            modal: {
+              displayDetails: "Display detailed list",
+              resetButtonTitle: "Reset search",
+              backButtonTitle: "Close search",
+              noResultsText: "No results for this query",
+              footer: {
+                selectText: "Select",
+                selectKeyAriaLabel: "enter",
+                navigateText: "Navigate",
+                navigateUpKeyAriaLabel: "arrow up",
+                navigateDownKeyAriaLabel: "arrow down",
+                closeText: "Close",
+                closeKeyAriaLabel: "escape",
+              },
+            },
+          },
+  },
+});
+
+const sharedThemeConfig = {
+  siteTitle: "Python Handbook",
+  logo: {
+    light: "/mark.svg",
+    dark: "/mark.svg",
+  },
+  i18nRouting: true,
+  socialLinks: [
+    { icon: "github", link: "https://github.com/jaeyoung0509/python-handbook" },
+  ],
+};
+
 export default defineConfig({
-  lang: "ko-KR",
   title: "Python Handbook",
   description:
     "Python 3.14, typing, CPython runtime, asyncio, FastAPI, Pydantic, and SQLAlchemy 2.0.",
@@ -17,213 +240,86 @@ export default defineConfig({
       {
         property: "og:description",
         content:
-          "Python 3.14부터 typing, runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0까지 깊게 읽는 문서 사이트",
+          "Python 3.14, typing, runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0을 한 흐름으로 읽는 핸드북",
       },
     ],
   ],
+  locales: {
+    root: {
+      label: "한국어",
+      lang: "ko-KR",
+      title: "Python Handbook",
+      description:
+        "Python 3.14, typing, CPython runtime, asyncio, FastAPI, Pydantic, SQLAlchemy 2.0을 한 흐름으로 읽는 한국어 핸드북",
+      themeConfig: {
+        ...sharedThemeConfig,
+        nav: buildNav("ko"),
+        sidebar: buildSidebar("ko"),
+        search: searchFor("ko"),
+        editLink: {
+          pattern: "https://github.com/jaeyoung0509/python-handbook/edit/main/docs/:path",
+          text: "GitHub에서 이 페이지 수정하기",
+        },
+        outline: {
+          level: [2, 3],
+          label: "이 페이지에서",
+        },
+        lastUpdatedText: "마지막 업데이트",
+        sidebarMenuLabel: "메뉴",
+        returnToTopLabel: "맨 위로",
+        darkModeSwitchLabel: "테마",
+        lightModeSwitchTitle: "라이트 모드로 전환",
+        darkModeSwitchTitle: "다크 모드로 전환",
+        skipToContentLabel: "본문으로 건너뛰기",
+        docFooter: {
+          prev: "이전 페이지",
+          next: "다음 페이지",
+        },
+        footer: {
+          message: "VitePress로 빌드한 Python 3.14 핸드북",
+          copyright: "Copyright © 2026 jaeyoung0509",
+        },
+      },
+    },
+    en: {
+      label: "English",
+      lang: "en-US",
+      link: "/en/",
+      title: "Python Handbook",
+      description:
+        "A practical Python 3.14 handbook for typing, CPython internals, asyncio, FastAPI, Pydantic, and SQLAlchemy 2.0.",
+      themeConfig: {
+        ...sharedThemeConfig,
+        nav: buildNav("en"),
+        sidebar: buildSidebar("en"),
+        search: searchFor("en"),
+        editLink: {
+          pattern: "https://github.com/jaeyoung0509/python-handbook/edit/main/docs/:path",
+          text: "Edit this page on GitHub",
+        },
+        outline: {
+          level: [2, 3],
+          label: "On this page",
+        },
+        lastUpdatedText: "Last updated",
+        sidebarMenuLabel: "Menu",
+        returnToTopLabel: "Back to top",
+        darkModeSwitchLabel: "Theme",
+        lightModeSwitchTitle: "Switch to light mode",
+        darkModeSwitchTitle: "Switch to dark mode",
+        skipToContentLabel: "Skip to content",
+        docFooter: {
+          prev: "Previous page",
+          next: "Next page",
+        },
+        footer: {
+          message: "Built with VitePress for a Python 3.14 handbook.",
+          copyright: "Copyright © 2026 jaeyoung0509",
+        },
+      },
+    },
+  },
   markdown: {
     lineNumbers: true,
-  },
-  themeConfig: {
-    siteTitle: "Python Handbook",
-    logo: {
-      light: "/mark.svg",
-      dark: "/mark.svg",
-    },
-    nav: [
-      { text: "Intro", link: "/intro/" },
-      { text: "Pythonic", link: "/pythonic/" },
-      { text: "Typing", link: "/typing/" },
-      { text: "Runtime", link: "/runtime/" },
-      { text: "Asyncio", link: "/asyncio/" },
-      { text: "FastAPI", link: "/fastapi/" },
-      { text: "Pydantic", link: "/pydantic/" },
-      { text: "SQLAlchemy", link: "/sqlalchemy/" },
-      { text: "Playbooks", link: "/playbooks/" },
-    ],
-    sidebar: [
-      {
-        text: "Intro",
-        items: [
-          { text: "Overview", link: "/intro/" },
-          { text: "Why This Book", link: "/intro/why-this-book" },
-          { text: "How To Read", link: "/intro/how-to-read" },
-          {
-            text: "Python 3.10~3.14 Deep Dive",
-            link: "/python-3.10-3.14-deep-dive",
-          },
-        ],
-      },
-      {
-        text: "Pythonic",
-        items: [
-          { text: "Overview", link: "/pythonic/" },
-          { text: "Data Model", link: "/pythonic/data-model" },
-          {
-            text: "Descriptors and Properties",
-            link: "/pythonic/descriptors-and-properties",
-          },
-          { text: "Decorators", link: "/pythonic/decorators" },
-          {
-            text: "Context Managers",
-            link: "/pythonic/context-managers",
-          },
-          { text: "Metaclasses", link: "/pythonic/metaclasses" },
-        ],
-      },
-      {
-        text: "Typing",
-        items: [
-          { text: "Overview", link: "/typing/" },
-          { text: "Modern Typing", link: "/typing/modern-typing" },
-          { text: "Generics", link: "/typing/generics" },
-          { text: "Protocols", link: "/typing/protocols" },
-          { text: "Type Narrowing", link: "/typing/type-narrowing" },
-          {
-            text: "Runtime vs Static",
-            link: "/typing/runtime-vs-static",
-          },
-        ],
-      },
-      {
-        text: "Runtime",
-        items: [
-          { text: "Overview", link: "/runtime/" },
-          { text: "Execution Model", link: "/runtime/execution-model" },
-          { text: "Object Model", link: "/runtime/object-model" },
-          { text: "Memory and GC", link: "/runtime/memory-and-gc" },
-          {
-            text: "GIL and Subinterpreters",
-            link: "/runtime/gil-and-subinterpreters",
-          },
-          {
-            text: "Bytecode and Specialization",
-            link: "/runtime/bytecode-and-specialization",
-          },
-          {
-            text: "CPython vs Go Runtime",
-            link: "/cpython-vs-go-runtime",
-          },
-        ],
-      },
-      {
-        text: "Asyncio",
-        items: [
-          { text: "Overview", link: "/asyncio/" },
-          { text: "Event Loop and Tasks", link: "/asyncio/event-loop-and-tasks" },
-          {
-            text: "Cancellation and TaskGroup",
-            link: "/asyncio/cancellation-and-taskgroup",
-          },
-          {
-            text: "Queues and Backpressure",
-            link: "/asyncio/queues-and-backpressure",
-          },
-          {
-            text: "Testing and Debugging",
-            link: "/asyncio/testing-and-debugging",
-          },
-        ],
-      },
-      {
-        text: "FastAPI",
-        items: [
-          { text: "Overview", link: "/fastapi/" },
-          {
-            text: "Project Structure",
-            link: "/fastapi/project-structure",
-          },
-          {
-            text: "Dependency Injection",
-            link: "/fastapi/dependency-injection",
-          },
-          {
-            text: "Request/Response Modeling",
-            link: "/fastapi/request-response-modeling",
-          },
-          { text: "Lifespan and Testing", link: "/fastapi/lifespan-and-testing" },
-          { text: "Performance and Ops", link: "/fastapi/performance-and-ops" },
-        ],
-      },
-      {
-        text: "Pydantic",
-        items: [
-          { text: "Overview", link: "/pydantic/" },
-          { text: "Core Schema", link: "/pydantic/core-schema" },
-          {
-            text: "Validation Pipeline",
-            link: "/pydantic/validation-pipeline",
-          },
-          {
-            text: "BaseModel vs TypeAdapter",
-            link: "/pydantic/basemodel-vs-typeadapter",
-          },
-          { text: "Internals", link: "/pydantic/internals" },
-        ],
-      },
-      {
-        text: "SQLAlchemy 2.0",
-        items: [
-          { text: "Overview", link: "/sqlalchemy/" },
-          { text: "Core vs ORM", link: "/sqlalchemy/core-vs-orm" },
-          {
-            text: "Session and Unit of Work",
-            link: "/sqlalchemy/session-and-unit-of-work",
-          },
-          {
-            text: "Relationships and Loading",
-            link: "/sqlalchemy/relationships-and-loading",
-          },
-          { text: "Async SQLAlchemy", link: "/sqlalchemy/async-sqlalchemy" },
-          {
-            text: "Migrations and Patterns",
-            link: "/sqlalchemy/migrations-and-patterns",
-          },
-        ],
-      },
-      {
-        text: "Playbooks",
-        items: [
-          { text: "Overview", link: "/playbooks/" },
-          {
-            text: "API Service Template",
-            link: "/playbooks/api-service-template",
-          },
-          {
-            text: "FastAPI + Pydantic + SQLAlchemy",
-            link: "/playbooks/fastapi-pydantic-sqlalchemy",
-          },
-          {
-            text: "Typing Review Checklist",
-            link: "/playbooks/typing-review-checklist",
-          },
-        ],
-      },
-    ],
-    search: {
-      provider: "local",
-    },
-    socialLinks: [
-      { icon: "github", link: "https://github.com/jaeyoung0509/python-handbook" },
-    ],
-    editLink: {
-      pattern: "https://github.com/jaeyoung0509/python-handbook/edit/main/docs/:path",
-      text: "Edit this page on GitHub",
-    },
-    outline: {
-      level: [2, 3],
-      label: "On this page",
-    },
-    lastUpdatedText: "Last updated",
-    sidebarMenuLabel: "Menu",
-    returnToTopLabel: "Back to top",
-    docFooter: {
-      prev: "Previous page",
-      next: "Next page",
-    },
-    footer: {
-      message: "Built with VitePress. Written for Python 3.14.",
-      copyright: "Copyright © 2026 jaeyoung0509",
-    },
   },
 });

@@ -1,9 +1,15 @@
 :root {
+  --vp-font-family-base:
+    "IBM Plex Sans KR", "Pretendard Variable", "Pretendard", "Noto Sans KR",
+    "Segoe UI", sans-serif;
+  --vp-font-family-mono:
+    "JetBrains Mono", "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
   --vp-c-brand-1: #0f766e;
   --vp-c-brand-2: #0d9488;
   --vp-c-brand-3: #14b8a6;
   --vp-c-brand-soft: rgba(15, 118, 110, 0.14);
   --vp-c-text-1: #132122;
+  --vp-layout-max-width: 1440px;
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, #134e4a 0%, #b45309 100%);
   --vp-home-hero-image-background-image:
@@ -20,6 +26,10 @@ html {
 
 body {
   font-feature-settings: "liga" 1, "calt" 1;
+  background:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 22%),
+    linear-gradient(180deg, #fcfdfc 0%, #f7faf9 100%);
 }
 
 .VPHero .name,
@@ -65,4 +75,110 @@ body {
   border: 1px solid rgba(15, 118, 110, 0.12);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(245, 247, 245, 0.92));
+}
+
+.vp-doc .lead {
+  margin: 0 0 18px;
+  font-size: 1.06rem;
+  line-height: 1.75;
+  color: var(--vp-c-text-2);
+}
+
+.quick-takeaway {
+  margin: 20px 0 28px;
+  padding: 18px 20px;
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 253, 245, 0.94));
+  box-shadow: 0 18px 40px rgba(15, 118, 110, 0.06);
+}
+
+.quick-takeaway p {
+  margin: 0;
+}
+
+.reading-grid,
+.doc-checklist {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0 28px;
+}
+
+.reading-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.doc-checklist {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.reading-card,
+.check-card {
+  padding: 16px 18px;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 32px rgba(15, 118, 110, 0.05);
+}
+
+.reading-card h3,
+.check-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.reading-card p,
+.check-card p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+}
+
+.mermaid-diagram {
+  margin: 24px 0 28px;
+  padding: 18px;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 253, 250, 0.94));
+  box-shadow: 0 20px 40px rgba(15, 118, 110, 0.08);
+}
+
+.mermaid-diagram__canvas {
+  overflow-x: auto;
+}
+
+.mermaid-diagram__canvas svg {
+  width: 100%;
+  height: auto;
+  min-width: 520px;
+}
+
+.mermaid-diagram figcaption {
+  margin-top: 12px;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc .code-caption {
+  margin-top: -8px;
+  margin-bottom: 16px;
+  font-size: 0.92rem;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc pre {
+  border-radius: 16px;
+}
+
+.vp-doc .vp-code-group .tabs {
+  border-radius: 16px 16px 0 0;
+}
+
+@media (max-width: 640px) {
+  .mermaid-diagram__canvas svg {
+    min-width: 420px;
+  }
 }
