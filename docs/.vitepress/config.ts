@@ -124,6 +124,11 @@ const sections: NavSection[] = [
       { ko: "개요", en: "Overview", path: "/sqlalchemy/" },
       { ko: "Core vs ORM", en: "Core vs ORM", path: "/sqlalchemy/core-vs-orm" },
       { ko: "Session과 Unit of Work", en: "Session and Unit of Work", path: "/sqlalchemy/session-and-unit-of-work" },
+      {
+        ko: "배포별 Engine 설정",
+        en: "Deployment and Engine Settings",
+        path: "/sqlalchemy/deployment-and-engine-settings",
+      },
       { ko: "관계와 로딩 전략", en: "Relationships and Loading", path: "/sqlalchemy/relationships-and-loading" },
       { ko: "Async SQLAlchemy", en: "Async SQLAlchemy", path: "/sqlalchemy/async-sqlalchemy" },
       { ko: "마이그레이션과 패턴", en: "Migrations and Patterns", path: "/sqlalchemy/migrations-and-patterns" },
@@ -142,9 +147,9 @@ const sections: NavSection[] = [
         path: "/playbooks/testing-with-pytest-fixtures",
       },
       {
-        ko: "Use Case + UoW + Interface",
-        en: "Use Case + UoW + Interface",
-        path: "/playbooks/usecase-uow-and-interfaces",
+        ko: "Use Case + UoW + ABC",
+        en: "Use Case + UoW + ABC",
+        path: "/playbooks/usecase-uow-and-abc",
       },
       {
         ko: "FastAPI + Pydantic + SQLAlchemy",

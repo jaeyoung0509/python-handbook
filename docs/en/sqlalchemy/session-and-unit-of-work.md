@@ -41,6 +41,7 @@ SessionFactory = sessionmaker(
     bind=engine,
     class_=Session,
     autoflush=False,
+    expire_on_commit=False,
 )
 
 
@@ -52,7 +53,17 @@ def get_session() -> Iterator[Session]:
         session.close()
 ```
 
-<p class="code-caption">`sessionmaker` creates fresh sessions. The session is closed when the request or work unit ends. Avoid storing a live session as a module-level singleton.</p>
+<p class="code-caption">`sessionmaker` creates fresh sessions. The session is closed when the request or work unit ends. Avoid storing a live session as a module-level singleton. In API code, `expire_on_commit=False` is a common choice because response DTO assembly and logging after commit become less surprising.</p>
+
+## `sessionmaker()` Defaults Are Part of the Design
+
+| Setting | Common default | Why teams often pick it | Watch out for |
+| --- | --- | --- | --- |
+| `autoflush=False` | often enabled | reduces hidden SQL during reads and boundary code | you must call `flush()` deliberately |
+| `expire_on_commit=False` | often enabled in APIs | post-commit access becomes more predictable | it does not justify long-lived sessions |
+| `class_=Session` | often explicit | keeps sync/async factory intent readable | async code must use `AsyncSession` equivalents |
+
+<p class="code-caption">These are not universal truths, but they are practical defaults for service code. Web APIs often want explicit flush/commit timing and predictable access right after commit. Engine and pool settings depend on the deployment model, so treat them separately in [Deployment and Engine Settings](/en/sqlalchemy/deployment-and-engine-settings).</p>
 
 ## Know the Session API by Behavior
 
@@ -150,32 +161,69 @@ def get_user_service(session: Session = Depends(get_session)) -> RegisterUserSer
 - The same session flows into all repositories used by that request.
 - The dependency closes the session when the request finishes.
 
-## A Class-Based Unit of Work Pattern
+## An `abc.ABC`-Based Class Unit of Work Pattern
 
 Passing the session directly into a service is already a solid default. But once repository groups grow and you want transaction ownership to read as one explicit object, a class-based Unit of Work can make the design easier to scan.
 
 ```py
+from abc import ABC, abstractmethod
 from collections.abc import Callable
+from types import TracebackType
 from typing import Self
 
 from sqlalchemy.orm import Session, sessionmaker
 
 
-class UserRepository:
-    def __init__(self, session: Session) -> None:
-        self.session = session
+class AbstractUserRepository(ABC):
+    @abstractmethod
+    def get_by_email(self, email: str) -> UserModel | None: ...
+
+    @abstractmethod
+    def add(self, user: UserModel) -> None: ...
 
 
-class SqlAlchemyUnitOfWork:
+class AbstractUnitOfWork(ABC):
+    @property
+    @abstractmethod
+    def users(self) -> AbstractUserRepository: ...
+
+    @abstractmethod
+    def __enter__(self) -> Self: ...
+
+    @abstractmethod
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None: ...
+
+    @abstractmethod
+    def flush(self) -> None: ...
+
+    @abstractmethod
+    def commit(self) -> None: ...
+
+    @abstractmethod
+    def rollback(self) -> None: ...
+
+
+class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self.session_factory = session_factory
         self.session: Session | None = None
-        self.users: UserRepository | None = None
+        self._users: SqlAlchemyUserRepository | None = None
+
+    @property
+    def users(self) -> SqlAlchemyUserRepository:
+        if self._users is None:
+            raise RuntimeError("unit of work not entered")
+        return self._users
 
     def __enter__(self) -> Self:
         session = self.session_factory()
         self.session = session
-        self.users = UserRepository(session)
+        self._users = SqlAlchemyUserRepository(session)
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -183,6 +231,11 @@ class SqlAlchemyUnitOfWork:
             if exc is not None:
                 self.session.rollback()
             self.session.close()
+
+    def flush(self) -> None:
+        if self.session is None:
+            raise RuntimeError("unit of work not entered")
+        self.session.flush()
 
     def commit(self) -> None:
         if self.session is None:
@@ -198,33 +251,30 @@ class SqlAlchemyUnitOfWork:
 class RegisterUserService:
     def __init__(
         self,
-        uow_factory: Callable[[], SqlAlchemyUnitOfWork],
+        uow_factory: Callable[[], AbstractUnitOfWork],
     ) -> None:
         self.uow_factory = uow_factory
 
     def execute(self, email: str, name: str) -> UserRead:
         with self.uow_factory() as uow:
-            assert uow.users is not None
-            assert uow.session is not None
+            if uow.users.get_by_email(email) is not None:
+                raise DuplicateEmail(email)
 
             record = UserModel(email=email, name=name)
             uow.users.add(record)
-            uow.session.flush()
+            uow.flush()
+            result = UserRead(id=record.id, email=record.email, name=record.name)
             uow.commit()
-
-            return UserRead(
-                id=record.id,
-                email=record.email,
-                name=record.name,
-            )
+            return result
 ```
 
-<p class="code-caption">The point is that the Unit of Work owns the session plus the repository set. The service decides when to commit, while session creation, repository wiring, and cleanup stay inside one object. This repository now includes a runnable example of the same pattern in `examples/sqlalchemy_class_based_uow.py`.</p>
+<p class="code-caption">The Unit of Work owns the session plus the repository set. The service decides when to commit, while session creation, repository wiring, and cleanup stay inside one object. If your team prefers explicit runtime contracts over structural typing, this style is often easier to scan in reviews. This repository now includes a runnable example of the same pattern in `examples/usecase_with_uow_abc.py`.</p>
 
 ## When a Class-Based UoW Fits Well
 
 - when several repositories should always share one transaction
 - when you want service signatures to express "one unit of work" rather than "a raw session"
+- when your team prefers explicit `abc.ABC` contracts over structural typing
 - when tests benefit from swapping in a fake UoW for use-case branching
 
 ## Patterns to Avoid with a Class-Based UoW

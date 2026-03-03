@@ -25,20 +25,26 @@
     <h3>Async는 언제 이득인가</h3>
     <p>전체 스택이 async이고 I/O 동시성이 중요한 경우에만 의미가 크다. 세션 공유 규칙은 오히려 더 엄격해진다.</p>
   </div>
+  <div class="reading-card">
+    <h3>설정은 어디에 맞춰 바꾸나</h3>
+    <p>Lambda, Kubernetes, worker, batch는 process lifetime과 connection budget이 다르다. 같은 pool 설정을 복붙하면 바로 문제로 이어진다.</p>
+  </div>
 </div>
 
 ## 추천 읽기 순서
 
 1. [Session and Unit of Work](/sqlalchemy/session-and-unit-of-work)
-2. [Relationships and Loading](/sqlalchemy/relationships-and-loading)
-3. [Async SQLAlchemy](/sqlalchemy/async-sqlalchemy)
-4. [Core vs ORM](/sqlalchemy/core-vs-orm)
-5. [Migrations and Patterns](/sqlalchemy/migrations-and-patterns)
+2. [Deployment and Engine Settings](/sqlalchemy/deployment-and-engine-settings)
+3. [Relationships and Loading](/sqlalchemy/relationships-and-loading)
+4. [Async SQLAlchemy](/sqlalchemy/async-sqlalchemy)
+5. [Core vs ORM](/sqlalchemy/core-vs-orm)
+6. [Migrations and Patterns](/sqlalchemy/migrations-and-patterns)
 
 ## 이 파트의 실전 규칙
 
 - Session은 요청 또는 use case 범위로 짧게 유지한다.
 - repository는 `commit()` 하지 않는다.
+- engine과 pool 설정은 배포 환경의 process model에 맞춰 잡는다.
 - write path와 read path를 구분해서 로딩 전략과 응답 DTO를 설계한다.
 - ORM model, Pydantic schema, domain 개념을 하나의 클래스에 몰아넣지 않는다.
 - async라면 `AsyncSession`을 task 간에 공유하지 않는다.

@@ -176,7 +176,7 @@ async def create_user(
   </div>
 </div>
 
-인터페이스 기반 use case와 class-based UoW 조합은 [Use Case + UoW + Interface](/playbooks/usecase-uow-and-interfaces)에서 별도로 더 깊게 다룬다.
+`abc.ABC` 기반 use case와 class-based UoW 조합은 [Use Case + UoW + ABC](/playbooks/usecase-uow-and-abc)에서 별도로 더 깊게 다룬다.
 
 ## 하지 않는 편이 좋은 것
 

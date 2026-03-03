@@ -43,7 +43,7 @@ uv run ruff check .
 | Dataclass | `dataclass_patterns.py` | 값 객체, `default_factory`, `kw_only`, 패턴 매칭 조합을 빨리 익히기 좋음 |
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
-| FastAPI / SQLAlchemy | `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_interfaces.py` | 서비스 경계, ORM 로딩 전략, class-based UoW, Protocol 기반 use case를 같이 확인할 수 있음 |
+| FastAPI / SQLAlchemy | `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
 | Testing | `tests/test_fastapi_fixtures_and_teardown.py` | fixture setup/teardown, override cleanup, TestClient lifecycle을 실제 테스트로 확인 |
 
 ## 버전별 예제 맵
@@ -164,11 +164,11 @@ uv run ruff check .
 - `flush()`는 commit 전에 PK를 확보한다.
 - UoW가 session close를 소유한다.
 
-### `usecase_with_uow_interfaces.py`
+### `usecase_with_uow_abc.py`
 
 무엇을 보여주나:
 
-- `Protocol` 기반 port
+- `abc.ABC` 기반 port
 - use case가 concrete SQLAlchemy 대신 UoW port에 의존하는 구조
 - commit 뒤 외부 부수효과를 실행하는 패턴
 
@@ -176,18 +176,46 @@ uv run ruff check .
 
 - SOLID의 DIP를 Python 서비스 코드에 어떻게 "과하지 않게" 적용할지 보여준다.
 - 모든 계층을 interface로 만드는 나쁜 패턴과, 진짜 경계만 추상화하는 좋은 패턴 차이를 이해하기 좋다.
+- 팀이 `Protocol`보다 명시적 abstract base class를 선호할 때 어떤 모양이 읽기 좋은지 바로 볼 수 있다.
 
 실행:
 
 ```bash
-./.venv/bin/python examples/usecase_with_uow_interfaces.py
+./.venv/bin/python examples/usecase_with_uow_abc.py
 ```
 
 체크 포인트:
 
 - 첫 등록 뒤 welcome notifier가 실행된다.
 - 중복 이메일은 `DuplicateEmail`로 막힌다.
-- use case는 notifier와 UoW port만 알고, SQLAlchemy 세부 구현은 바깥에 남는다.
+- use case는 notifier와 UoW ABC만 알고, SQLAlchemy 세부 구현은 바깥에 남는다.
+
+### `sqlalchemy_deployment_profiles.py`
+
+무엇을 보여주나:
+
+- Lambda direct DB
+- Lambda + RDS Proxy
+- Kubernetes sync API
+- Kubernetes async API
+- batch/worker
+
+왜 중요한가:
+
+- SQLAlchemy 설정은 배포 환경의 process model에 따라 달라져야 한다.
+- `pool_size`, `max_overflow`가 DB connection budget에 어떤 영향을 주는지 감을 잡기 좋다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/sqlalchemy_deployment_profiles.py
+```
+
+체크 포인트:
+
+- 환경별로 `QueuePool`과 `NullPool` 선택이 어떻게 달라지는지 본다.
+- session 기본값으로 `autoflush=False`, `expire_on_commit=False`를 왜 자주 쓰는지 확인한다.
+- Kubernetes 예시에서 총 연결 수 계산을 직접 본다.
 
 ### `sqlalchemy_loading_strategies.py`
 

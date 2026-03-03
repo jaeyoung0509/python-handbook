@@ -1,16 +1,17 @@
-# Use case + Protocol interfaces + SQLAlchemy Unit of Work.
-# Use case + Protocol 인터페이스 + SQLAlchemy Unit of Work.
-# Why: dependency inversion is most useful at real boundaries such as unit of work ownership and external side effects.
-# 왜: DIP는 unit of work 경계와 외부 부수효과 같은 "진짜 경계"에서 가장 가치가 크다.
-# Use when: designing use cases that should stay testable without abstracting every internal class.
-# 언제 쓰나: 내부 모든 클래스를 인터페이스화하지 않으면서 use case를 테스트 가능하게 유지하고 싶을 때 좋다.
+# Use case + abc.ABC ports + SQLAlchemy Unit of Work.
+# Use case + abc.ABC 기반 포트 + SQLAlchemy Unit of Work.
+# Why: explicit abstract base classes make service boundaries visible at runtime and in code review.
+# 왜: 명시적 추상 베이스 클래스는 서비스 경계를 런타임과 코드 리뷰에서 더 분명하게 보여준다.
+# Use when: your team prefers concrete abstract classes over Protocol-based structural typing.
+# 언제 쓰나: 팀이 Protocol 기반 구조적 타이핑보다 명시적 추상 클래스를 더 선호할 때 적합하다.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
 from types import TracebackType
-from typing import Protocol, Self
+from typing import Self
 
 from sqlalchemy import String, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
@@ -48,31 +49,55 @@ class DuplicateEmail(Exception):
         super().__init__(email)
 
 
-class UserRepositoryPort(Protocol):
-    def get_by_email(self, email: str) -> UserRecord | None: ...
-    def add(self, user: UserRecord) -> None: ...
+class AbstractUserRepository(ABC):
+    @abstractmethod
+    def get_by_email(self, email: str) -> UserRecord | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def add(self, user: UserRecord) -> None:
+        raise NotImplementedError
 
 
-class UnitOfWorkPort(Protocol):
-    users: UserRepositoryPort
+class AbstractUnitOfWork(ABC):
+    @property
+    @abstractmethod
+    def users(self) -> AbstractUserRepository:
+        raise NotImplementedError
 
-    def __enter__(self) -> Self: ...
+    @abstractmethod
+    def __enter__(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
     def __exit__(
         self,
         exc_type: type[BaseException] | None,
         exc: BaseException | None,
         tb: TracebackType | None,
-    ) -> None: ...
-    def flush(self) -> None: ...
-    def commit(self) -> None: ...
-    def rollback(self) -> None: ...
+    ) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def flush(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def commit(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def rollback(self) -> None:
+        raise NotImplementedError
 
 
-class WelcomeNotifier(Protocol):
-    def send(self, email: str, name: str) -> None: ...
+class AbstractWelcomeNotifier(ABC):
+    @abstractmethod
+    def send(self, email: str, name: str) -> None:
+        raise NotImplementedError
 
 
-class SqlAlchemyUserRepository:
+class SqlAlchemyUserRepository(AbstractUserRepository):
     def __init__(self, session: Session) -> None:
         self.session = session
 
@@ -84,7 +109,7 @@ class SqlAlchemyUserRepository:
         self.session.add(user)
 
 
-class SqlAlchemyUnitOfWork:
+class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self._session_factory = session_factory
         self._session: Session | None = None
@@ -129,7 +154,7 @@ class SqlAlchemyUnitOfWork:
         self._session.rollback()
 
 
-class ConsoleWelcomeNotifier:
+class ConsoleWelcomeNotifier(AbstractWelcomeNotifier):
     def send(self, email: str, name: str) -> None:
         print(f"send welcome email -> {email} ({name})")
 
@@ -137,8 +162,8 @@ class ConsoleWelcomeNotifier:
 class RegisterUserUseCase:
     def __init__(
         self,
-        uow_factory: Callable[[], UnitOfWorkPort],
-        notifier: WelcomeNotifier,
+        uow_factory: Callable[[], AbstractUnitOfWork],
+        notifier: AbstractWelcomeNotifier,
     ) -> None:
         self.uow_factory = uow_factory
         self.notifier = notifier
@@ -154,8 +179,8 @@ class RegisterUserUseCase:
             result = UserRead(id=record.id, email=record.email, name=record.name)
             uow.commit()
 
-        # External side effects are safer after commit.
-        # 외부 부수효과는 commit 뒤로 미루는 편이 더 안전하다.
+        # Run side effects only after the transaction becomes durable.
+        # 트랜잭션이 확정된 뒤에만 외부 부수효과를 실행한다.
         self.notifier.send(result.email, result.name)
         return result
 

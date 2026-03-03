@@ -176,7 +176,7 @@ async def create_user(
   </div>
 </div>
 
-The more interface-driven use-case plus class-based UoW pattern is covered separately in [Use Case + UoW + Interface](/en/playbooks/usecase-uow-and-interfaces).
+The `abc.ABC`-based use-case plus class-based UoW pattern is covered separately in [Use Case + UoW + ABC](/en/playbooks/usecase-uow-and-abc).
 
 ## Avoid These Patterns
 
