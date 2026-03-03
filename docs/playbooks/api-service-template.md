@@ -83,6 +83,8 @@ app = create_app()
 - 로깅은 route마다 직접 `logger = ...`로 찍기보다 request id, domain event, error boundary 전략을 먼저 정한다.
 - settings 객체는 dependency나 app factory를 통해 주입하는 편이 테스트에 유리하다.
 
+`settings.py`와 `pydantic-settings`를 어떤 기준으로 설계할지는 [Settings and Pydantic Settings](/playbooks/settings-and-pydantic-settings)에서, 배포 대상을 어떻게 고를지는 [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)에서 더 깊게 다룬다.
+
 ## 테스트 구조도 처음부터 나눠둔다
 
 ### unit test

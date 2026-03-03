@@ -65,6 +65,8 @@ def client(app: FastAPI) -> Generator[TestClient, None, None]:
 
 pytest 공식 문서도 teardown/finalization 기본 패턴으로 `yield fixture`를 먼저 권장한다. `addfinalizer()`는 teardown 대상을 동적으로 등록해야 할 때 유용하지만, 일상적인 서비스 테스트에서는 `yield`가 더 읽기 쉽고 안전하다.
 
+`ABC + Fake UoW` 단위 테스트 패턴은 [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)에서 별도로 더 깊게 다룬다.
+
 ## 하지 않는 편이 좋은 것
 
 - giant `autouse` fixture 하나에 모든 setup을 몰아넣는다.

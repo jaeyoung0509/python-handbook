@@ -14,6 +14,10 @@
     <p>It proposes a reference layout for routers, services, repositories, schemas, settings, logging, and tests.</p>
   </div>
   <div class="reading-card">
+    <h3>How should configuration be designed?</h3>
+    <p>It explains how to split `settings.py`, `pydantic-settings`, `.env`, secret sources, and test overrides into a clean configuration boundary.</p>
+  </div>
+  <div class="reading-card">
     <h3>How do FastAPI, Pydantic, and SQLAlchemy stay decoupled?</h3>
     <p>It separates request DTOs, transactions, ORM entities, and response DTOs so the API can evolve cleanly.</p>
   </div>
@@ -26,6 +30,10 @@
     <p>It covers yield fixtures, dependency override cleanup, database isolation, and client lifecycles as real service-testing patterns.</p>
   </div>
   <div class="reading-card">
+    <h3>How do you choose Lambda vs Kubernetes?</h3>
+    <p>It compares traffic shape, database connection strategy, long-lived connections, and operational surface area instead of treating hosting as an afterthought.</p>
+  </div>
+  <div class="reading-card">
     <h3>Where does theory meet service design?</h3>
     <p>It connects typing, runtime, and framework knowledge to concrete API architecture decisions.</p>
   </div>
@@ -34,17 +42,23 @@
 ## Recommended Reading Order
 
 1. [API Service Template](/en/playbooks/api-service-template)
-2. [Testing with Fixtures](/en/playbooks/testing-with-pytest-fixtures)
-3. [Use Case + UoW + ABC](/en/playbooks/usecase-uow-and-abc)
-4. [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
-5. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
+2. [Settings and Pydantic Settings](/en/playbooks/settings-and-pydantic-settings)
+3. [Testing with Fixtures](/en/playbooks/testing-with-pytest-fixtures)
+4. [ABC + Fake UoW Testing](/en/playbooks/testing-abc-and-fake-uow)
+5. [Use Case + UoW + ABC](/en/playbooks/usecase-uow-and-abc)
+6. [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
+7. [Lambda vs Kubernetes](/en/playbooks/lambda-vs-kubernetes)
+8. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
 
 ## How to Use This Part
 
 - Start with `API Service Template` when creating a new service skeleton.
+- Start with `Settings and Pydantic Settings` if you need a clean config boundary for env vars, secrets, and test overrides.
 - Start with `Testing with Fixtures` if you need a clean fixture and teardown baseline for service tests.
+- Start with `ABC + Fake UoW Testing` if you want fast unit tests around use-case branching without touching a real database.
 - Start with `Use Case + UoW + ABC` if you want a concrete SOLID-aware use-case boundary with SQLAlchemy and explicit abstract base classes.
 - Start with `FastAPI + Pydantic + SQLAlchemy` if you already have a service and want cleaner boundaries.
+- Start with `Lambda vs Kubernetes` if the hosting decision is still open and you need a workload-driven rubric.
 - Use `Typing Review Checklist` as a team review baseline.
 
 ## Good Companion Chapters

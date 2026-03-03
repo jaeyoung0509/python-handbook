@@ -142,9 +142,19 @@ const sections: NavSection[] = [
       { ko: "개요", en: "Overview", path: "/playbooks/" },
       { ko: "API 서비스 템플릿", en: "API Service Template", path: "/playbooks/api-service-template" },
       {
+        ko: "Settings와 Pydantic Settings",
+        en: "Settings and Pydantic Settings",
+        path: "/playbooks/settings-and-pydantic-settings",
+      },
+      {
         ko: "Testing with Fixtures",
         en: "Testing with Fixtures",
         path: "/playbooks/testing-with-pytest-fixtures",
+      },
+      {
+        ko: "ABC + Fake UoW 테스트",
+        en: "ABC + Fake UoW Testing",
+        path: "/playbooks/testing-abc-and-fake-uow",
       },
       {
         ko: "Use Case + UoW + ABC",
@@ -155,6 +165,11 @@ const sections: NavSection[] = [
         ko: "FastAPI + Pydantic + SQLAlchemy",
         en: "FastAPI + Pydantic + SQLAlchemy",
         path: "/playbooks/fastapi-pydantic-sqlalchemy",
+      },
+      {
+        ko: "Lambda vs Kubernetes",
+        en: "Lambda vs Kubernetes",
+        path: "/playbooks/lambda-vs-kubernetes",
       },
       { ko: "Typing 리뷰 체크리스트", en: "Typing Review Checklist", path: "/playbooks/typing-review-checklist" },
     ],

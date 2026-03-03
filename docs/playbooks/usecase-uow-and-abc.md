@@ -230,6 +230,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 - [Session and Unit of Work](/sqlalchemy/session-and-unit-of-work)
 - [Deployment and Engine Settings](/sqlalchemy/deployment-and-engine-settings)
+- [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)
 - [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
 
 ## 공식 자료

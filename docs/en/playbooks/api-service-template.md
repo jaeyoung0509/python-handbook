@@ -83,6 +83,8 @@ app = create_app()
 - define logging strategy around request IDs, domain events, and error boundaries early
 - pass settings through factories or dependencies so tests can replace them cleanly
 
+For deeper guidance on `settings.py` and `pydantic-settings`, see [Settings and Pydantic Settings](/en/playbooks/settings-and-pydantic-settings). For hosting tradeoffs, see [Lambda vs Kubernetes](/en/playbooks/lambda-vs-kubernetes).
+
 ## Split the Test Layout Early
 
 ### unit tests

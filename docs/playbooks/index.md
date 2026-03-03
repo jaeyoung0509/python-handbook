@@ -14,6 +14,10 @@
     <p>router, service, repository, schema, settings, logging, tests를 어디에 두고 어떻게 연결할지 제안한다.</p>
   </div>
   <div class="reading-card">
+    <h3>환경변수와 설정은 어떻게 설계하나</h3>
+    <p>`settings.py`, `pydantic-settings`, `.env`, secret source, dependency override를 어떤 기준으로 나눌지 정리한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>FastAPI + Pydantic + SQLAlchemy를 어떻게 덜 꼬이게 붙이나</h3>
     <p>request DTO, transaction, ORM entity, response DTO 경계를 분리해 API가 길게 살아남는 구조를 잡는다.</p>
   </div>
@@ -26,6 +30,10 @@
     <p>yield fixture, dependency override cleanup, DB 격리, client lifecycle을 어떻게 나눌지 실전 패턴으로 정리한다.</p>
   </div>
   <div class="reading-card">
+    <h3>Lambda와 Kubernetes는 어떻게 고르나</h3>
+    <p>트래픽 모양, DB 연결 방식, long-lived connection, 운영 표면적을 기준으로 선택하는 틀을 제안한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>이론과 실전은 어디서 만나나</h3>
     <p>descriptor, typing, runtime, asyncio 지식을 실제 API 서비스 설계와 연결하는 관점을 정리한다.</p>
   </div>
@@ -34,17 +42,23 @@
 ## 추천 읽기 순서
 
 1. [API Service Template](/playbooks/api-service-template)
-2. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
-3. [Use Case + UoW + ABC](/playbooks/usecase-uow-and-abc)
-4. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
-5. [Typing Review Checklist](/playbooks/typing-review-checklist)
+2. [Settings and Pydantic Settings](/playbooks/settings-and-pydantic-settings)
+3. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
+4. [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)
+5. [Use Case + UoW + ABC](/playbooks/usecase-uow-and-abc)
+6. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
+7. [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)
+8. [Typing Review Checklist](/playbooks/typing-review-checklist)
 
 ## 이 파트의 사용법
 
 - 새 프로젝트를 시작할 때는 `API Service Template`부터 본다.
+- 환경 변수, `.env`, secret source, `get_settings()` 경계를 잡고 싶다면 `Settings and Pydantic Settings`를 바로 본다.
 - fixture, teardown, override cleanup 기준이 필요하면 `Testing with Fixtures`를 바로 본다.
+- use case를 DB 없이 빨리 검증하는 테스트가 필요하면 `ABC + Fake UoW Testing`을 본다.
 - use case와 SQLAlchemy UoW를 `abc.ABC` 기반 경계와 함께 보고 싶다면 `Use Case + UoW + ABC`를 본다.
 - 이미 FastAPI/SQLAlchemy 프로젝트가 있다면 `FastAPI + Pydantic + SQLAlchemy`를 먼저 본다.
+- 배포 대상을 Lambda와 Kubernetes 중에서 비교해야 한다면 `Lambda vs Kubernetes`를 본다.
 - 팀 코드 리뷰 기준을 만들고 싶다면 `Typing Review Checklist`를 기준 문서로 둔다.
 
 ## 같이 읽으면 좋은 페이지

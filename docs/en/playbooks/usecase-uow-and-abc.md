@@ -229,6 +229,7 @@ This pattern is implemented in `examples/usecase_with_uow_abc.py`.
 
 - [Session and Unit of Work](/en/sqlalchemy/session-and-unit-of-work)
 - [Deployment and Engine Settings](/en/sqlalchemy/deployment-and-engine-settings)
+- [ABC + Fake UoW Testing](/en/playbooks/testing-abc-and-fake-uow)
 - [FastAPI + Pydantic + SQLAlchemy](/en/playbooks/fastapi-pydantic-sqlalchemy)
 
 ## Official References

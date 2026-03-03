@@ -44,6 +44,7 @@ uv run ruff check .
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
 | FastAPI / SQLAlchemy | `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
+| Settings | `pydantic_settings_patterns.py` | `settings.py`, env source priority, `.env`, secrets, `pydantic-settings` 감각을 빠르게 익히기 좋음 |
 | Testing | `tests/test_fastapi_fixtures_and_teardown.py` | fixture setup/teardown, override cleanup, TestClient lifecycle을 실제 테스트로 확인 |
 
 ## 버전별 예제 맵
@@ -217,6 +218,33 @@ uv run ruff check .
 - session 기본값으로 `autoflush=False`, `expire_on_commit=False`를 왜 자주 쓰는지 확인한다.
 - Kubernetes 예시에서 총 연결 수 계산을 직접 본다.
 
+### `pydantic_settings_patterns.py`
+
+무엇을 보여주나:
+
+- `pydantic-settings`
+- `env_prefix`
+- `env_nested_delimiter`
+- `.env`와 실제 환경 변수 우선순위
+- secret dir와 `@lru_cache`
+
+왜 중요한가:
+
+- 서비스 설정은 코드 곳곳의 `os.getenv()`가 아니라 typed boundary로 다뤄야 한다.
+- local, test, Kubernetes, Lambda에서 source priority를 어떻게 이해해야 하는지 감을 잡기 좋다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/pydantic_settings_patterns.py
+```
+
+체크 포인트:
+
+- 같은 인자로 `get_settings()`를 두 번 부르면 cache hit가 난다.
+- 실제 환경 변수가 `.env`보다 우선한다.
+- secret 값은 secret dir fallback으로도 공급될 수 있다.
+
 ### `sqlalchemy_loading_strategies.py`
 
 무엇을 보여주나:
@@ -265,6 +293,47 @@ uv run pytest tests/test_fastapi_fixtures_and_teardown.py
 - seed 데이터가 fixture에서 준비된다.
 - `/meta`는 override된 dependency 값 `"test"`를 본다.
 - teardown은 fixture 쪽에서 소유하고 test body는 소비만 한다.
+
+### `tests/test_abc_fake_uow_pytest.py`
+
+무엇을 보여주나:
+
+- `abc.ABC` 기반 경계
+- `FakeUnitOfWork`
+- `RecordingNotifier`
+- pytest fixture graph
+
+실행:
+
+```bash
+uv run pytest tests/test_abc_fake_uow_pytest.py
+```
+
+체크 포인트:
+
+- 성공 경로는 commit과 notifier 호출을 남긴다.
+- 실패 경로는 rollback 상태만 남기고 notifier 호출을 생략한다.
+- DB 없이도 use case branching을 빠르게 검증할 수 있다.
+
+### `tests/test_pydantic_settings_patterns.py`
+
+무엇을 보여주나:
+
+- `monkeypatch.setenv()`
+- `tmp_path`
+- `_env_file`
+- `_secrets_dir`
+
+실행:
+
+```bash
+uv run pytest tests/test_pydantic_settings_patterns.py
+```
+
+체크 포인트:
+
+- 실제 환경 변수가 `.env`보다 우선한다.
+- secret dir가 env 부재 시 fallback source가 된다.
 
 ## 문서와 같이 읽기
 

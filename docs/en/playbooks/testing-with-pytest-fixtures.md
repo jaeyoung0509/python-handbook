@@ -65,6 +65,8 @@ def client(app: FastAPI) -> Generator[TestClient, None, None]:
 
 The pytest docs explicitly present `yield` fixtures as the cleaner and more straightforward teardown option. `addfinalizer()` is still useful for dynamically registered cleanup, but most application tests are easier to read and maintain with `yield`.
 
+The complementary `ABC + Fake UoW` unit-testing pattern is covered separately in [ABC + Fake UoW Testing](/en/playbooks/testing-abc-and-fake-uow).
+
 ## Patterns to Avoid
 
 - one giant `autouse` fixture that hides the whole environment
