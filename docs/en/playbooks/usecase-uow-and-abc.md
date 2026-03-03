@@ -171,6 +171,114 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         self._session.rollback()
 ```
 
+## How Session Injection Should Work in FastAPI
+
+The most important wiring rule in the `ABC + UoW` pattern is this:
+
+1. create the engine and `sessionmaker` once at process scope
+2. let request-time dependencies provide a `sessionmaker` or `uow_factory`, not a live `Session`
+3. let `SqlAlchemyUnitOfWork.__enter__()` and `__exit__()` own actual session creation and cleanup
+
+The reason is ownership. If the UoW claims transaction ownership but FastAPI dependencies also open and close a separate live `Session`, the lifecycle becomes split and harder to reason about.
+
+### 1. Create engine and sessionmaker in lifespan
+
+```py
+from collections.abc import Iterator
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> Iterator[None]:
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,
+    )
+    app.state.session_factory = sessionmaker(
+        bind=engine,
+        class_=Session,
+        autoflush=False,
+        expire_on_commit=False,
+    )
+    try:
+        yield
+    finally:
+        engine.dispose()
+```
+
+### 2. Let dependencies assemble the sessionmaker and use case
+
+```py
+from typing import Annotated
+
+from fastapi import Depends, Request
+from sqlalchemy.orm import Session, sessionmaker
+
+
+def get_session_factory(request: Request) -> sessionmaker[Session]:
+    return request.app.state.session_factory
+
+
+def get_register_user_use_case(
+    session_factory: Annotated[sessionmaker[Session], Depends(get_session_factory)],
+    notifier: Annotated[AbstractWelcomeNotifier, Depends(get_notifier)],
+) -> RegisterUserUseCase:
+    return RegisterUserUseCase(
+        uow_factory=lambda: SqlAlchemyUnitOfWork(session_factory),
+        notifier=notifier,
+    )
+```
+
+### 3. Routes receive only the use case
+
+```py
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
+
+router = APIRouter()
+
+
+@router.post("/users", status_code=status.HTTP_201_CREATED)
+def register_user(
+    payload: RegisterUserRequest,
+    use_case: Annotated[RegisterUserUseCase, Depends(get_register_user_use_case)],
+) -> UserResponse:
+    result = use_case.execute(
+        RegisterUserCommand(email=payload.email, name=payload.name)
+    )
+    return UserResponse(id=result.id, email=result.email, name=result.name)
+```
+
+<p class="code-caption">The route should not know about session ownership directly. The dependency layer assembles `sessionmaker -> UoW factory -> use case`, and the UoW keeps transaction ownership coherent from start to finish.</p>
+
+## How This Differs from Injecting a Live Session
+
+### Inject a live Session when
+
+- the service itself owns `with session.begin():`
+- you are not using a separate UoW object
+- session ownership is already obvious in the service layer
+
+### Inject a sessionmaker or UoW factory when
+
+- a class-based UoW owns session creation and cleanup
+- the use case opens its transaction boundary with `with self.uow_factory() as uow:`
+- several repositories should clearly share one transaction boundary
+
+If you are using a UoW, injecting a sessionmaker or factory is usually cleaner than injecting a live Session.
+
+## Patterns to Avoid in This Wiring
+
+- opening a live `Session` in `get_session()` while the UoW also creates another one internally
+- reusing one singleton UoW instance across requests
+- letting the use case receive `engine` or `Request` objects directly
+- committing inside dependency wiring and leaking transaction policy out of the use case
+
 ## Testing Gets Easier With a Fake UoW
 
 ```py
