@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="Attribute lookup is not a simple dict lookup. Descriptor priority changes the result."
-  chart="flowchart LR; A[obj.attr] --> B[data descriptor on class?]; B -->|yes| C[descriptor __get__]; B -->|no| D[instance __dict__]; D -->|found| E[value]; D -->|missing| F[non-data descriptor or class var]; F --> G[__getattr__ fallback];"
+  chart="flowchart LR; A[&quot;obj.attr&quot;] --> B[&quot;data descriptor on class?&quot;]; B -->|yes| C[&quot;descriptor __get__&quot;]; B -->|no| D[&quot;instance __dict__&quot;]; D -->|found| E[&quot;value&quot;]; D -->|missing| F[&quot;non-data descriptor or class var&quot;]; F --> G[&quot;__getattr__ fallback&quot;];"
 />
 
 ## `property` Is Already a Descriptor

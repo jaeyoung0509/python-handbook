@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="문법은 결국 객체 모델과 연결된다. 연산자, attribute access, method call은 전부 type과 dunder method를 통해 해석된다."
-  chart="flowchart LR; A[Python syntax] --> B[Type object]; B --> C[dunder methods and slots]; C --> D[attribute access]; C --> E[operator behavior]; C --> F[method binding];"
+  chart="flowchart LR; A[&quot;Python syntax&quot;] --> B[&quot;Type object&quot;]; B --> C[&quot;dunder methods and slots&quot;]; C --> D[&quot;attribute access&quot;]; C --> E[&quot;operator behavior&quot;]; C --> F[&quot;method binding&quot;];"
 />
 
 ## 왜 중요한가

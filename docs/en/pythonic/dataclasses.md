@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="A dataclass does not replace the class model. It keeps the class and generates methods that make value-oriented usage much lighter."
-  chart="flowchart LR; A[Annotated class body] --> B[@dataclass decorator]; B --> C[Generated __init__, __repr__, __eq__]; B --> D[Optional frozen, slots, kw_only, match_args]; C --> E[Value object or internal payload];"
+  chart="flowchart LR; A[&quot;Annotated class body&quot;] --> B[&quot;@dataclass decorator&quot;]; B --> C[&quot;Generated __init__, __repr__, __eq__&quot;]; B --> D[&quot;Optional frozen, slots, kw_only, match_args&quot;]; C --> E[&quot;Value object or internal payload&quot;];"
 />
 
 ## When Dataclasses Fit Extremely Well

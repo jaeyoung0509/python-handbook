@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="A context manager acquires or prepares something on entry and guarantees cleanup on exit, whether the body succeeds or fails."
-  chart="flowchart LR; A[enter with block] --> B[__enter__ or async __aenter__]; B --> C[body execution]; C --> D[normal exit or exception]; D --> E[__exit__ or async __aexit__];"
+  chart="flowchart LR; A[&quot;enter with block&quot;] --> B[&quot;__enter__ or async __aenter__&quot;]; B --> C[&quot;body execution&quot;]; C --> D[&quot;normal exit or exception&quot;]; D --> E[&quot;__exit__ or async __aexit__&quot;];"
 />
 
 ## A Small Class-Based Context Manager

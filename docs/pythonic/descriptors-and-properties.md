@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="instance attribute access는 단순 dict lookup이 아니다. descriptor 종류에 따라 우선순위가 다르다."
-  chart="flowchart LR; A[obj.attr] --> B[data descriptor on class?]; B -->|yes| C[descriptor __get__]; B -->|no| D[instance __dict__]; D -->|found| E[value]; D -->|missing| F[non-data descriptor or class var]; F --> G[__getattr__ fallback];"
+  chart="flowchart LR; A[&quot;obj.attr&quot;] --> B[&quot;data descriptor on class?&quot;]; B -->|yes| C[&quot;descriptor __get__&quot;]; B -->|no| D[&quot;instance __dict__&quot;]; D -->|found| E[&quot;value&quot;]; D -->|missing| F[&quot;non-data descriptor or class var&quot;]; F --> G[&quot;__getattr__ fallback&quot;];"
 />
 
 ## `property`도 사실 descriptor다

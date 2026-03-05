@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="context manager는 들어갈 때 자원을 준비하고, 블록이 정상 종료든 예외 종료든 나갈 때 정리를 보장한다."
-  chart="flowchart LR; A[enter with block] --> B[__enter__ or async __aenter__]; B --> C[body execution]; C --> D[normal exit or exception]; D --> E[__exit__ or async __aexit__];"
+  chart="flowchart LR; A[&quot;enter with block&quot;] --> B[&quot;__enter__ or async __aenter__&quot;]; B --> C[&quot;body execution&quot;]; C --> D[&quot;normal exit or exception&quot;]; D --> E[&quot;__exit__ or async __aexit__&quot;];"
 />
 
 ## 가장 단순한 class 기반 context manager

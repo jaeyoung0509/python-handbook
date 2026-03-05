@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="A decorator takes a callable or class, returns a new callable or class, and inserts extra behavior around the original contract."
-  chart="flowchart LR; A[original function] --> B[decorator]; B --> C[wrapper function]; C --> D[extra behavior before or after call]; D --> E[delegate to original];"
+  chart="flowchart LR; A[&quot;original function&quot;] --> B[&quot;decorator&quot;]; B --> C[&quot;wrapper function&quot;]; C --> D[&quot;extra behavior before or after call&quot;]; D --> E[&quot;delegate to original&quot;];"
 />
 
 ## Baseline Pattern With `wraps` and `ParamSpec`

@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="decorator는 원래 callable을 받아 새로운 callable 또는 class를 돌려주는 구조다. 핵심은 원래 contract를 얼마나 보존하느냐다."
-  chart="flowchart LR; A[original function] --> B[decorator]; B --> C[wrapper function]; C --> D[extra behavior before or after call]; D --> E[delegate to original];"
+  chart="flowchart LR; A[&quot;original function&quot;] --> B[&quot;decorator&quot;]; B --> C[&quot;wrapper function&quot;]; C --> D[&quot;extra behavior before or after call&quot;]; D --> E[&quot;delegate to original&quot;];"
 />
 
 ## `wraps`와 `ParamSpec`를 같이 쓰는 기본형

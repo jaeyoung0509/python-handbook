@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="dataclass는 클래스 자체를 다른 모델로 바꾸는 것이 아니라, 기존 클래스에 생성자와 비교/표현 메서드를 붙여 값 중심 객체로 쓰기 쉽게 만든다."
-  chart="flowchart LR; A[Annotated class body] --> B[@dataclass decorator]; B --> C[Generated __init__, __repr__, __eq__]; B --> D[Optional frozen, slots, kw_only, match_args]; C --> E[Value object or internal payload];"
+  chart="flowchart LR; A[&quot;Annotated class body&quot;] --> B[&quot;@dataclass decorator&quot;]; B --> C[&quot;Generated __init__, __repr__, __eq__&quot;]; B --> D[&quot;Optional frozen, slots, kw_only, match_args&quot;]; C --> E[&quot;Value object or internal payload&quot;];"
 />
 
 ## 언제 매우 잘 맞나

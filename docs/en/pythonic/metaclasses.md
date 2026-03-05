@@ -10,7 +10,7 @@
 
 <MermaidDiagram
   caption="A class statement looks declarative, but Python actually executes the class body, builds a namespace, and then constructs a class object."
-  chart="flowchart LR; A[Class Statement] --> B[Execute class body]; B --> C[Namespace dict]; C --> D[Metaclass __new__]; D --> E[Class object]; E --> F[__set_name__]; E --> G[__init_subclass__ on subclasses];"
+  chart="flowchart LR; A[&quot;Class Statement&quot;] --> B[&quot;Execute class body&quot;]; B --> C[&quot;Namespace dict&quot;]; C --> D[&quot;Metaclass __new__&quot;]; D --> E[&quot;Class object&quot;]; E --> F[&quot;__set_name__&quot;]; E --> G[&quot;__init_subclass__ on subclasses&quot;];"
 />
 
 ## Why It Matters
