@@ -30,6 +30,10 @@
     <p>Click, Requests, SQLAlchemy, Pydantic, FastAPI의 실제 코드 블록을 읽고 "왜 이 설계가 Pythonic한가"를 구조적으로 해석한다.</p>
   </div>
   <div class="reading-card">
+    <h3>메타프로그래밍은 어디까지 써야 하나</h3>
+    <p>`__init_subclass__`, `__set_name__`, class decorator, metaclass, import hook 중 어떤 도구를 언제 쓰는지 비용 중심으로 판단한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>자원 경계는 어떻게 표현하나</h3>
     <p>context manager는 Python에서 scope와 cleanup을 가장 명확하게 표현하는 방식이다.</p>
   </div>
@@ -41,9 +45,10 @@
 2. [Dataclasses](/pythonic/dataclasses)
 3. [Descriptors and Properties](/pythonic/descriptors-and-properties)
 4. [Open-source Pythonic Deep Dives](/pythonic/opensource-pythonic-patterns)
-5. [Decorators](/pythonic/decorators)
-6. [Context Managers](/pythonic/context-managers)
-7. [Metaclasses](/pythonic/metaclasses)
+5. [Metaprogramming Advanced](/pythonic/metaprogramming-advanced)
+6. [Decorators](/pythonic/decorators)
+7. [Context Managers](/pythonic/context-managers)
+8. [Metaclasses](/pythonic/metaclasses)
 
 ## 실전 연결
 
@@ -52,3 +57,4 @@
 - Pydantic field annotation과 descriptor-like field access
 - SQLAlchemy instrumented attribute와 class construction
 - 오픈소스 코드에서 decorator/context manager/factory 패턴 읽기
+- 메타프로그래밍 도구 선택(훅 우선순위) 기준 만들기

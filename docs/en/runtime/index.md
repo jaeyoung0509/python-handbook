@@ -25,6 +25,10 @@
     <h3>Why did Python 3.11+ get faster?</h3>
     <p>Adaptive specialization changes the cost model of hot bytecode paths.</p>
   </div>
+  <div class="reading-card">
+    <h3>How deep should we go into internals?</h3>
+    <p>Use frame/code object, refcount+cycle GC, and `dis`/`ast`/`tracemalloc`/`gc` labs to build layered runtime intuition.</p>
+  </div>
 </div>
 
 ## Recommended Order
@@ -34,4 +38,5 @@
 3. [Memory and GC](/en/runtime/memory-and-gc)
 4. [GIL and Subinterpreters](/en/runtime/gil-and-subinterpreters)
 5. [Bytecode and Specialization](/en/runtime/bytecode-and-specialization)
-6. [CPython vs Go Runtime](/en/cpython-vs-go-runtime)
+6. [CPython Internals Advanced](/en/runtime/cpython-internals-advanced)
+7. [CPython vs Go Runtime](/en/cpython-vs-go-runtime)

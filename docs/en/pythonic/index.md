@@ -30,6 +30,10 @@
     <p>Read real snippets from Click, Requests, SQLAlchemy, Pydantic, and FastAPI to see how Pythonic design choices are encoded in production code.</p>
   </div>
   <div class="reading-card">
+    <h3>How far should metaprogramming go?</h3>
+    <p>Choose between `__init_subclass__`, `__set_name__`, class decorators, metaclasses, and import hooks with an explicit cost model.</p>
+  </div>
+  <div class="reading-card">
     <h3>How do you express scope?</h3>
     <p>Context managers are the clearest Pythonic way to express resource ownership and cleanup boundaries.</p>
   </div>
@@ -41,9 +45,10 @@
 2. [Dataclasses](/en/pythonic/dataclasses)
 3. [Descriptors and Properties](/en/pythonic/descriptors-and-properties)
 4. [Open-source Pythonic Deep Dives](/en/pythonic/opensource-pythonic-patterns)
-5. [Decorators](/en/pythonic/decorators)
-6. [Context Managers](/en/pythonic/context-managers)
-7. [Metaclasses](/en/pythonic/metaclasses)
+5. [Metaprogramming Advanced](/en/pythonic/metaprogramming-advanced)
+6. [Decorators](/en/pythonic/decorators)
+7. [Context Managers](/en/pythonic/context-managers)
+8. [Metaclasses](/en/pythonic/metaclasses)
 
 ## Practical Connections
 
@@ -52,3 +57,4 @@
 - Pydantic field annotations and field access behavior
 - SQLAlchemy instrumented attributes and class construction hooks
 - reading decorator/context manager/factory patterns in real open-source code
+- building a cost-aware tool-selection model for metaprogramming hooks

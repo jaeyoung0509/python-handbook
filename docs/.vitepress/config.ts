@@ -47,6 +47,11 @@ const sections: NavSection[] = [
         en: "Open-source Pythonic Deep Dives",
         path: "/pythonic/opensource-pythonic-patterns",
       },
+      {
+        ko: "메타프로그래밍 심화",
+        en: "Metaprogramming Advanced",
+        path: "/pythonic/metaprogramming-advanced",
+      },
       { ko: "Decorator", en: "Decorators", path: "/pythonic/decorators" },
       { ko: "Context Manager", en: "Context Managers", path: "/pythonic/context-managers" },
       { ko: "Metaclass", en: "Metaclasses", path: "/pythonic/metaclasses" },
@@ -79,6 +84,11 @@ const sections: NavSection[] = [
         ko: "Bytecode와 Specialization",
         en: "Bytecode and Specialization",
         path: "/runtime/bytecode-and-specialization",
+      },
+      {
+        ko: "CPython Internals Advanced",
+        en: "CPython Internals Advanced",
+        path: "/runtime/cpython-internals-advanced",
       },
       { ko: "CPython vs Go Runtime", en: "CPython vs Go Runtime", path: "/cpython-vs-go-runtime" },
     ],

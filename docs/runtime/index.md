@@ -25,6 +25,10 @@
     <h3>3.11 이후 왜 빨라졌나</h3>
     <p>adaptive interpreter와 specialization이 hot path의 opcode를 더 구체적으로 바꿔주기 때문이다.</p>
   </div>
+  <div class="reading-card">
+    <h3>CPython 내부를 어디까지 봐야 하나</h3>
+    <p>frame/code object, refcount+cycle GC, `dis`/`ast`/`tracemalloc`/`gc` 실험으로 내부 동작을 계층별로 읽는다.</p>
+  </div>
 </div>
 
 ## 추천 순서
@@ -34,4 +38,5 @@
 3. [Memory and GC](/runtime/memory-and-gc)
 4. [GIL and Subinterpreters](/runtime/gil-and-subinterpreters)
 5. [Bytecode and Specialization](/runtime/bytecode-and-specialization)
-6. [CPython vs Go Runtime](/cpython-vs-go-runtime)
+6. [CPython Internals Advanced](/runtime/cpython-internals-advanced)
+7. [CPython vs Go Runtime](/cpython-vs-go-runtime)

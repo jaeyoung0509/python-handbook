@@ -37,9 +37,9 @@ uv run ruff check .
 
 | 파트 | 먼저 볼 예제 | 왜 먼저 보나 |
 | --- | --- | --- |
-| Pythonic | `py310_pattern_matching.py` | Python 문법이 데이터 shape와 제어 흐름을 얼마나 자연스럽게 표현하는지 바로 체감 |
+| Pythonic | `py310_pattern_matching.py`, `metaprogramming_hooks_lab.py` | Python 문법의 표현력과 메타프로그래밍 훅 선택 감각을 함께 익히기 좋음 |
 | Typing | `py310_typing_and_zip_strict.py`, `py312_type_params.py` | modern typing 문법과 boundary 설계 감각을 같이 잡기 좋음 |
-| Runtime | `py312_sys_monitoring.py`, `py313_runtime_modes.py`, `py314_interpreter_pool.py` | CPython 런타임이 어떤 방향으로 진화하는지 보여줌 |
+| Runtime | `py312_sys_monitoring.py`, `py313_runtime_modes.py`, `py314_interpreter_pool.py`, `cpython_runtime_labs.py` | CPython 런타임 방향성과 내부 실험(dis/ast/gc/tracemalloc)을 함께 보여줌 |
 | Dataclass | `dataclass_patterns.py` | 값 객체, `default_factory`, `kw_only`, 패턴 매칭 조합을 빨리 익히기 좋음 |
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
@@ -113,6 +113,32 @@ uv run ruff check .
 ```bash
 ./.venv/bin/python examples/dataclass_patterns.py
 ```
+
+### `metaprogramming_hooks_lab.py`
+
+무엇을 보여주나:
+
+- `__set_name__` descriptor binding
+- `__init_subclass__` 등록 패턴
+- class decorator 후처리
+- metaclass 정책 강제
+
+왜 중요한가:
+
+- 메타프로그래밍에서 "가장 작은 도구부터 고르는 기준"을 실행 코드로 체감할 수 있다.
+- 선언형 API를 만들 때 어느 훅을 써야 팀 비용이 낮은지 감이 생긴다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/metaprogramming_hooks_lab.py
+```
+
+체크 포인트:
+
+- descriptor가 attribute access를 제어한다.
+- subclass 등록이 metaclass 없이도 가능하다.
+- class decorator와 metaclass의 책임 차이가 보인다.
 
 ### `fastapi_service_template_example.py`
 
@@ -271,6 +297,33 @@ uv run ruff check .
 - `selectinload()`는 대체로 2번 쿼리로 안정적인 목록 로딩을 보여준다.
 - `joinedload()`는 한 번의 쿼리지만 collection에서는 `unique()` 처리가 필요하다.
 
+### `cpython_runtime_labs.py`
+
+무엇을 보여주나:
+
+- `ast.parse()`와 AST dump
+- `dis.dis()` 바이트코드 관찰
+- cycle 객체 + `gc.collect()`
+- `tracemalloc` 상위 할당 라인 추적
+- `sys.monitoring` 이벤트 샘플
+
+왜 중요한가:
+
+- CPython 내부 동작을 개념이 아니라 관찰 가능한 실험으로 이해할 수 있다.
+- runtime 파트 학습 후 "어디서 비용이 생기는지"를 직접 확인하기 좋다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/cpython_runtime_labs.py
+```
+
+체크 포인트:
+
+- 함수 실행이 bytecode 형태로 보인다.
+- cycle GC가 refcount와 다른 역할을 한다.
+- 할당 hotspot을 파일/라인 기준으로 볼 수 있다.
+
 ## 테스트 예제
 
 ### `tests/test_fastapi_fixtures_and_teardown.py`
@@ -342,4 +395,6 @@ uv run pytest tests/test_pydantic_settings_patterns.py
 - Pydantic 예제와 같이 읽기: `/pydantic/core-schema`, `/pydantic/validation-pipeline`
 - Asyncio 예제와 같이 읽기: `/asyncio/cancellation-and-taskgroup`, `/asyncio/queues-and-backpressure`
 - Dataclass 예제와 같이 읽기: `/pythonic/dataclasses`
+- 메타프로그래밍 예제와 같이 읽기: `/pythonic/metaprogramming-advanced`
+- CPython 실험 예제와 같이 읽기: `/runtime/cpython-internals-advanced`
 - Testing 예제와 같이 읽기: `/fastapi/lifespan-and-testing`, `/playbooks/testing-with-pytest-fixtures`
