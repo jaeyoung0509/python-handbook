@@ -42,6 +42,11 @@ const sections: NavSection[] = [
         en: "Descriptors and Properties",
         path: "/pythonic/descriptors-and-properties",
       },
+      {
+        ko: "오픈소스 Pythonic 딥다이브",
+        en: "Open-source Pythonic Deep Dives",
+        path: "/pythonic/opensource-pythonic-patterns",
+      },
       { ko: "Decorator", en: "Decorators", path: "/pythonic/decorators" },
       { ko: "Context Manager", en: "Context Managers", path: "/pythonic/context-managers" },
       { ko: "Metaclass", en: "Metaclasses", path: "/pythonic/metaclasses" },

@@ -26,6 +26,10 @@
     <p>Both extend behavior, but they act at different times and with very different costs.</p>
   </div>
   <div class="reading-card">
+    <h3>How do open-source projects stay Pythonic?</h3>
+    <p>Read real snippets from Click, Requests, SQLAlchemy, Pydantic, and FastAPI to see how Pythonic design choices are encoded in production code.</p>
+  </div>
+  <div class="reading-card">
     <h3>How do you express scope?</h3>
     <p>Context managers are the clearest Pythonic way to express resource ownership and cleanup boundaries.</p>
   </div>
@@ -36,9 +40,10 @@
 1. [Data Model](/en/pythonic/data-model)
 2. [Dataclasses](/en/pythonic/dataclasses)
 3. [Descriptors and Properties](/en/pythonic/descriptors-and-properties)
-4. [Decorators](/en/pythonic/decorators)
-5. [Context Managers](/en/pythonic/context-managers)
-6. [Metaclasses](/en/pythonic/metaclasses)
+4. [Open-source Pythonic Deep Dives](/en/pythonic/opensource-pythonic-patterns)
+5. [Decorators](/en/pythonic/decorators)
+6. [Context Managers](/en/pythonic/context-managers)
+7. [Metaclasses](/en/pythonic/metaclasses)
 
 ## Practical Connections
 
@@ -46,3 +51,4 @@
 - dataclass-based internal commands and value objects
 - Pydantic field annotations and field access behavior
 - SQLAlchemy instrumented attributes and class construction hooks
+- reading decorator/context manager/factory patterns in real open-source code
