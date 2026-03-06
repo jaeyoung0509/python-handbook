@@ -10,6 +10,13 @@ const props = defineProps<{
 const { isDark } = useData();
 const container = ref<HTMLElement | null>(null);
 
+const decodeChart = (chart: string): string =>
+  chart
+    .replaceAll("&quot;", '"')
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">");
+
 const renderDiagram = async () => {
   if (!container.value || !props.chart.trim()) {
     return;
@@ -22,15 +29,21 @@ const renderDiagram = async () => {
     theme: isDark.value ? "dark" : "default",
   });
 
-  const diagramId = `mermaid-${Math.random().toString(36).slice(2, 10)}`;
-  const { svg, bindFunctions } = await mermaid.render(diagramId, props.chart.trim());
-
   if (!container.value) {
     return;
   }
 
-  container.value.innerHTML = svg;
-  bindFunctions?.(container.value);
+  try {
+    const diagramId = `mermaid-${Math.random().toString(36).slice(2, 10)}`;
+    const chart = decodeChart(props.chart.trim());
+    const { svg, bindFunctions } = await mermaid.render(diagramId, chart);
+
+    container.value.innerHTML = svg;
+    bindFunctions?.(container.value);
+  } catch (error) {
+    console.error("Failed to render Mermaid diagram", error);
+    container.value.textContent = "Mermaid diagram failed to render. Check chart syntax.";
+  }
 };
 
 onMounted(() => {
