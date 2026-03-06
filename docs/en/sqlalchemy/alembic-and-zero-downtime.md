@@ -63,6 +63,12 @@ Autogenerate does not solve:
 
 So `alembic revision --autogenerate` is a starting point, not the final answer.
 
+Renames are one of the most common traps.
+
+- Alembic usually cannot infer that "this is only a rename" from metadata diff alone.
+- a change like `full_name -> display_name` can show up as `drop_column + add_column`
+- in production that difference is critical, because a real rename needs expand, dual read, backfill, and contract thinking rather than blindly executing the draft
+
 ## 4) Why naming conventions matter first
 
 If the database invents constraint names for you, diffs and rollback work become harder to read.
@@ -129,6 +135,14 @@ An `ALTER TABLE` and a backfill touching millions of rows do not have the same o
 
 Many teams embed heavy backfills directly inside one migration revision. That can be much riskier than using a separate batch job or operational worker step.
 
+Lock behavior also depends heavily on the actual database engine.
+
+- PostgreSQL may rewrite a table or take strong locks for some `ALTER TABLE` operations. Even index creation may need a special path such as `CONCURRENTLY`.
+- MySQL or InnoDB online DDL behavior varies by version and operation. "online" does not automatically mean "no user-visible impact".
+- SQLite often rebuilds tables for schema changes, which makes it convenient for local development but a weak proxy for production zero-downtime behavior.
+
+Migration risk has to be assessed against the real production engine, not only the ORM layer.
+
 ## 8) Why not to auto-run migrations during app startup
 
 It may feel convenient in development, but production costs are high.
@@ -156,7 +170,7 @@ Recommended rule:
 
 - did you review the autogenerate output instead of trusting it blindly?
 - was destructive work split into rollout phases?
-- is downgrade realistic?
+- is downgrade truly realistic, or is app rollback / forward fix the real plan?
 - did you consider long-lock risk?
 
 ### Before deployment
@@ -164,6 +178,12 @@ Recommended rule:
 - is old app plus new schema safe?
 - can new app plus old schema appear even briefly?
 - does this interact badly with readiness, draining, or worker restarts?
+
+Operational rollback is also not the same thing as a template `downgrade()` function.
+
+- after destructive migrations, you may not be able to reconstruct the original data exactly
+- once a backfill has enforced new invariants, rolling back only the schema may not restore the previous state
+- in practice, rollback often depends more on app rollback, feature flags, or forward fixes than on returning to an older Alembic revision
 
 ## 10) Alembic quality follows SQLAlchemy modeling quality
 

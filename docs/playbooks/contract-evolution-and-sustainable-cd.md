@@ -84,6 +84,12 @@
 - service/use case는 가능한 한 같은 domain model을 유지한다.
 - version마다 business logic를 포크하기보다, request/response translation을 둔다.
 
+여기서 public boundary와 internal boundary를 섞지 않는 편이 중요하다.
+
+- public API는 소비자 업그레이드 속도를 통제하기 어렵기 때문에 deprecation window와 version 정책이 중요하다.
+- 반대로 internal service call, internal admin API, 같은 저장소 안의 module interface까지 모두 public API처럼 versioning하면 change surface만 불필요하게 넓어진다.
+- 내부 경계는 additive DTO, deploy 순서 조정, adapter, feature flag로 푸는 편이 대개 유지비가 낮다.
+
 ### API version을 꼭 고려해야 하는 때
 
 - 외부 client가 길게 살아남는다.
@@ -107,6 +113,12 @@
 | 날짜 기반 version | SaaS/public API, 긴 deprecation 정책 | 변경 시점을 명확히 기록 | 팀이 version semantics를 엄격히 관리해야 한다 |
 
 핵심은 version scheme보다 운영 원칙이다. API version을 올려도 core service까지 `v1_service`, `v2_service`로 쪼개지면 유지비가 급격히 오른다.
+
+deprecation window도 소비자 성격에 맞게 잡아야 한다.
+
+- 같은 팀이 통제하는 internal consumer면 보통 짧은 window와 강한 cutover가 가능하다.
+- 모바일 앱, partner integration, public API처럼 업그레이드 속도를 통제하기 어려우면 window를 더 길게 잡아야 한다.
+- version removal 날짜보다 먼저 "누가 아직 old version을 쓰는가"를 측정할 log, metric, access report가 있어야 한다.
 
 ## 6) Event versioning: 가장 늦게, 가장 오래 아픈 계약
 
@@ -135,6 +147,16 @@ event는 비동기이고, 소비자가 나중에 다시 붙을 수 있으며, hi
 | dual publish | migration bridge가 짧게 필요 | consumer 이행이 쉽다 | 반드시 임시 전략이어야 하며 outbox 기반이 안전하다 |
 
 Kafka/Avro/Protobuf 같은 schema registry를 쓴다면 compatibility mode를 팀 규칙으로 먼저 정하는 편이 좋다. `BACKWARD`, `FORWARD`, `FULL_TRANSITIVE`는 단순 옵션이 아니라 "누구를 먼저 배포할 수 있는가"를 바꾼다.
+
+### producer와 consumer 배포 순서를 어떻게 잡나
+
+Schema Registry를 쓴다면 compatibility mode의 의미를 운영 순서로 번역해서 이해해야 한다.
+
+- `BACKWARD` 계열은 "새 consumer가 이전 schema로 기록된 data를 읽을 수 있는가"에 가깝다. 이 경우 old consumer가 새 event를 읽는 보장은 없으므로 consumer를 먼저 올리고 producer를 나중에 전환하는 쪽이 기본이다.
+- `FORWARD` 계열은 "old consumer가 새 schema로 기록된 data를 읽을 수 있는가"에 가깝다. 반대로 producer를 먼저 올리고, old data 처리 조건을 확인한 뒤 consumer를 전환하는 순서를 더 자주 쓴다.
+- `FULL` 계열은 양방향 호환성이 있어 producer/consumer를 비교적 독립적으로 올릴 수 있다. 그래도 semantic change까지 자동으로 안전해지는 것은 아니다.
+
+즉, registry compatibility는 payload decoding 보장에 가깝고, event 의미 변화나 consumer business rule 변화까지 대신 검토해 주지는 않는다.
 
 ## 7) Backfill, replay, rebuild를 구분해야 한다
 
@@ -185,6 +207,13 @@ validation 예시는 이 정도가 기본이다.
 - contract는 old path를 지우는 시점이다.
 
 둘을 같은 배포에 넣으면 rollback이 훨씬 어려워진다.
+
+contract removal 직전에 최소한 아래는 관측되는 편이 좋다.
+
+- old API version 또는 old event consumer traffic이 deprecation window 동안 사실상 0에 수렴했는가
+- backfill mismatch count와 `NULL` count가 허용 기준 이하인가
+- feature flag를 다시 되돌리는 rollback path가 아직 남아 있는가
+- partner 또는 모바일 같은 외부 소비자에게 실제 종료 일정을 공지했는가
 
 ## 9) 하지 않는 편이 좋은 것
 

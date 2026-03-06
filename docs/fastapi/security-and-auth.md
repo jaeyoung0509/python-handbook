@@ -57,6 +57,11 @@ JWT는 "stateless"라는 장점이 있지만, 실제 운영에서는 아래를 �
 - refresh 전략
 - revoke 또는 force logout 필요 시 어떻게 할지
 
+특히 JWT는 "서버가 세션을 안 들고 있어도 된다"는 뜻이지, "즉시 revoke가 공짜다"는 뜻이 아니다.
+
+- 강제 로그아웃, 계정 잠금, credential 유출 대응이 필요하면 denylist, token version, session record, 아주 짧은 access token TTL 같은 서버 측 상태가 다시 필요해진다.
+- 그래서 browser first-party 앱에서는 cookie session이나 BFF 패턴이 더 단순한 경우도 많다.
+
 ## 3) FastAPI dependency는 어디까지 책임져야 하나
 
 좋은 baseline은 아래 네 층이다.
@@ -122,6 +127,12 @@ def require_admin(
 - audience / issuer 검증
 - client별 storage 전략
 
+브라우저 저장 위치는 특히 신중해야 한다.
+
+- `localStorage`와 `sessionStorage`는 구현이 쉽지만, XSS가 나면 토큰 유출 표면이 커진다.
+- browser app에서 access token을 꼭 직접 다뤄야 한다면 in-memory 보관과 짧은 TTL, refresh 경로를 같이 설계해야 한다.
+- first-party web app이라면 `HttpOnly` cookie나 BFF(Backend for Frontend) 구조가 더 보수적인 기본값이 될 수 있다.
+
 ## 5) CORS와 CSRF는 다른 문제다
 
 이 둘을 자주 혼동한다.
@@ -145,6 +156,13 @@ def require_admin(
 - secret rotation 경로를 미리 만들어 둔다.
 
 FastAPI 문서 자체는 security primitives를 제공하지만, password hashing 알고리즘 선택과 운영 정책은 애플리케이션 책임이다.
+
+OAuth2와 OIDC를 섞지 않는 것도 중요하다.
+
+- OAuth2는 delegated authorization, 즉 다른 애플리케이션에 제한된 권한을 위임하는 프레임워크에 가깝다.
+- OIDC는 그 위에 identity layer를 얹어 "누가 로그인했는가"를 다룬다.
+- social login, enterprise SSO, 외부 identity provider 연동이 필요하면 검증된 OIDC provider를 쓰는 편이 거의 항상 낫다.
+- password reset, MFA, device management, federation까지 직접 구현하려 들면 auth보다 account platform을 새로 만드는 일이 된다.
 
 ## 7) authorization은 role만으로 끝나지 않는다
 

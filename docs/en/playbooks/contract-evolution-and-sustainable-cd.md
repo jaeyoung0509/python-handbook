@@ -84,6 +84,12 @@ That means:
 - the service or use-case layer tries to keep one stable domain model
 - request and response translation happens at the edges instead of forking business logic everywhere
 
+It also helps to keep public and internal boundaries separate in your head.
+
+- public APIs need real deprecation windows because you usually cannot control consumer upgrade timing
+- internal service calls, admin APIs, or module boundaries inside one codebase do not all deserve public-style versioning
+- for internal boundaries, additive DTO changes, deployment ordering, adapters, and feature flags are often cheaper than version tags everywhere
+
 ### When API versioning is justified
 
 - external clients live a long time
@@ -107,6 +113,12 @@ That means:
 | date-based version | SaaS or public APIs with long deprecation policy | change timing stays explicit | version semantics must stay disciplined |
 
 The deeper rule matters more than the scheme: once versioning leaks into `v1_service`, `v2_service`, and duplicated business rules, maintenance cost rises fast.
+
+Deprecation windows should match the kind of consumer you actually have.
+
+- tightly controlled internal consumers can often tolerate short windows and hard cutovers
+- mobile apps, partner integrations, and public APIs usually need longer windows
+- before announcing removal dates, you need logs, metrics, or access reports that show who still depends on the old contract
 
 ## 6) Event versioning: the contract that hurts longest
 
@@ -135,6 +147,16 @@ Events are asynchronous, consumers can reconnect late, and historical replay may
 | dual publish | short-lived migration bridge | easy consumer transition | should stay temporary and is safest with outbox support |
 
 If you use Kafka, Avro, or Protobuf with a schema registry, choose compatibility mode deliberately. `BACKWARD`, `FORWARD`, and `FULL_TRANSITIVE` are not cosmetic settings. They directly affect which side can be deployed first.
+
+### How rollout order changes for producers and consumers
+
+When a schema registry is involved, it helps to translate compatibility mode into rollout order.
+
+- `BACKWARD` modes are about whether a new consumer can read data written with an older schema. In that setup, older consumers are not guaranteed to read data written with the new schema, so consumer upgrades usually come first.
+- `FORWARD` modes are about whether older consumers can read data written with the new schema. That often supports producer-first rollout, provided you also account for historical data still in the topic.
+- `FULL` modes give both directions of compatibility, which makes producer and consumer rollout more independent. They still do not make semantic changes safe by magic.
+
+Registry compatibility is mostly about payload decoding. It does not replace review of business meaning, ordering rules, or consumer logic.
 
 ## 7) Backfill, replay, and rebuild are different jobs
 
@@ -185,6 +207,13 @@ The critical distinction is between `cutover` and `contract`.
 - contract means the old path is physically removed
 
 Putting both in the same release makes rollback much harder.
+
+Before removing the old contract, it is worth confirming at least these signals:
+
+- old API-version traffic or old event-consumer traffic has effectively fallen to zero during the deprecation window
+- backfill mismatch counts and `NULL` counts are within the agreed threshold
+- the feature flag or routing rollback path still exists
+- external consumers such as partners or mobile clients were actually notified of the removal schedule
 
 ## 9) Common mistakes to avoid
 

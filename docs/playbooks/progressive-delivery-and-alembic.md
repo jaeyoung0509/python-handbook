@@ -73,10 +73,23 @@ CI에서 가장 흔한 실수는 revision 파일 생성만 확인하고 끝내�
 - feature flag 또는 config로 읽기/쓰기 기준을 새 column으로 전환
 - metrics, error rate, lag를 확인
 
+cutover는 단순 config flip이 아니라 승인 가능한 gate로 보는 편이 낫다.
+
+- `new_column IS NULL`가 사실상 0인지
+- old/new representation mismatch query가 허용 기준 이하인지
+- app error rate, p95/p99 latency, downstream consumer lag가 안정적인지
+- rollback 시 feature flag 또는 routing만으로 즉시 되돌릴 수 있는지
+
 ### 단계 6. later contract migration
 
 - old app이 완전히 사라진 다음 old column / old constraint 제거
 - 보통 다음 릴리스나 충분한 안정화 뒤에 수행
+
+rollback 의미도 단계별로 다르다.
+
+- cutover 이전 또는 직후의 rollback은 보통 app rollback, traffic shift 중단, feature flag off로 푸는 편이 맞다.
+- contract 이후에는 "DB downgrade"보다 forward fix가 현실적인 경우가 많다.
+- 그래서 contract 직전의 관측 기간이 실제 rollback 가능성을 지키는 마지막 구간이 된다.
 
 ## 4) GitHub Actions에서 gate를 어떻게 두면 좋은가
 
@@ -183,6 +196,14 @@ WHERE display_name IS NULL
 ### 5. throttled
 
 - replica lag, lock, DB CPU를 보며 batch size나 sleep을 조절할 수 있어야 한다.
+
+### cutover gate와 contract gate는 다르다
+
+운영에서 자주 생기는 실수는 traffic promotion과 contract migration을 같은 승인 단위로 묶는 것이다.
+
+- cutover gate에서는 backfill 완료율, mismatch query 결과, error budget 소모, read/write path 전환 여부를 본다.
+- contract gate에서는 old pod, old worker, old cron, old client traffic이 실제로 사라졌는지 본다.
+- shared DB에서는 "트래픽이 새 버전으로 갔다"와 "old contract를 지워도 된다"가 같은 뜻이 아니다.
 
 ## 7) Python backfill worker 기본형
 

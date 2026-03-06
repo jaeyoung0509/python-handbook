@@ -73,10 +73,23 @@ The safest baseline looks like this.
 - switch reads or writes to the new column via feature flag or config
 - watch metrics, error rate, and lag
 
+Treat cutover as an explicit gate, not just a config flip.
+
+- confirm `new_column IS NULL` is effectively zero
+- confirm old/new representation mismatch queries are within threshold
+- confirm app error rate, p95/p99 latency, and downstream consumer lag are stable
+- confirm you can still roll back immediately by flipping flags or routing, without touching schema
+
 ### Step 6. later contract migration
 
 - remove old columns or constraints only after the old app is fully gone
 - usually in a later release after stabilization
+
+Rollback also changes meaning across these stages.
+
+- before or right after cutover, rollback usually means app rollback, traffic-promotion pause, or feature-flag off
+- after contract, a literal schema downgrade is often less realistic than a forward fix
+- that is why the observation window before contract is the last easy rollback boundary
 
 ## 4) A good GitHub Actions gate layout
 
@@ -183,6 +196,14 @@ WHERE display_name IS NULL
 ### 5. Throttled
 
 - batch size or pause intervals should be adjustable from operational signals such as DB CPU, lock pressure, or replica lag
+
+### Cutover gates and contract gates are not the same
+
+A common mistake is to bundle traffic promotion and contract migration into one approval step.
+
+- at the cutover gate, check backfill completion, mismatch-query results, error-budget burn, and whether reads and writes are actually using the new path
+- at the contract gate, check that old pods, workers, cron jobs, and old-client traffic are truly gone
+- in shared-database systems, "most traffic is on the new version" and "the old contract can be deleted" are not the same statement
 
 ## 7) A Python backfill worker baseline
 

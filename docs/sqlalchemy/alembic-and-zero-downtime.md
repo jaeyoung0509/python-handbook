@@ -63,6 +63,12 @@ autogenerate가 대신 못 해주는 것:
 
 즉, `alembic revision --autogenerate`는 시작점이지 끝이 아니다.
 
+특히 rename은 가장 흔한 함정이다.
+
+- Alembic은 보통 "이 column이 이름만 바뀌었다"는 의도를 자동으로 모른다.
+- 그래서 `full_name -> display_name` 같은 변경이 `drop_column + add_column`처럼 보일 수 있다.
+- 운영에서는 이 차이가 치명적이다. rename 의도라면 expand/dual read/backfill/contract로 쪼개야지, autogenerate 결과를 그대로 실행하면 안 된다.
+
 ## 4) naming convention을 먼저 잡아야 하는 이유
 
 constraint 이름을 DB가 자동 생성하게 두면 migration diff와 운영 rollback이 읽기 어려워진다.
@@ -129,6 +135,14 @@ metadata = MetaData(
 
 많은 팀이 schema migration revision 안에 무거운 data migration을 한 번에 넣는데, 운영 리스크가 커진다. 경우에 따라서는 별도 batch job 또는 one-off worker로 분리하는 편이 낫다.
 
+또 하나 놓치기 쉬운 점은 lock 특성이 DB engine마다 다르다는 것이다.
+
+- PostgreSQL은 작업 종류에 따라 table rewrite나 강한 lock이 걸릴 수 있다. 예를 들어 일부 `ALTER TABLE`은 `ACCESS EXCLUSIVE` lock을 유발하고, index 생성도 `CONCURRENTLY` 같은 별도 전략이 필요할 수 있다.
+- MySQL/InnoDB도 버전과 연산 종류에 따라 `INSTANT`, `INPLACE`, table copy 여부가 달라진다. "online DDL"이 항상 무중단을 뜻하지는 않는다.
+- SQLite는 많은 schema 변경이 table rebuild 성격이라, 로컬 개발에서는 편해도 운영 zero-downtime 리허설 환경으로는 대표성이 약하다.
+
+즉, migration 위험 평가는 ORM이 아니라 실제 운영 엔진 기준으로 해야 한다.
+
 ## 8) 앱 startup에서 migration을 자동 실행하지 않는 편이 좋은 이유
 
 개발 환경에서는 편해 보여도 운영에서는 문제가 된다.
@@ -156,7 +170,7 @@ metadata = MetaData(
 
 - autogenerate 결과를 그대로 믿지 않았는가
 - destructive change가 rollout 단계로 쪼개졌는가
-- downgrade가 현실적인가
+- downgrade가 정말 현실적인가, 아니면 app rollback / forward fix가 더 맞는가
 - 장시간 lock 가능성을 검토했는가
 
 ### 배포 전
@@ -164,6 +178,12 @@ metadata = MetaData(
 - old app / new schema 조합이 안전한가
 - new app / old schema 조합이 잠시라도 생길 수 있는가
 - readiness / drain / worker restart 순서와 충돌하지 않는가
+
+운영 rollback도 `downgrade()` 함수와 같은 뜻이 아니다.
+
+- destructive migration 뒤에는 원래 데이터를 정확히 복원할 수 없을 수 있다.
+- backfill이 이미 새 invariant를 만들어 버리면, schema만 내린다고 원상복구가 되지 않는다.
+- 그래서 실제 rollback은 app rollback, feature flag off, forward fix에 더 자주 의존한다.
 
 ## 10) SQLAlchemy model 설계와 Alembic은 연결된다
 

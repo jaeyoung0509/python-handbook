@@ -57,6 +57,11 @@ Even with JWTs you still need answers for:
 - refresh strategy
 - revocation or forced logout requirements
 
+JWT especially gets misread here. "Stateless" does not mean "instant revocation is free".
+
+- if you need forced logout, account lock, or rapid response to credential leakage, you usually need server-side state again through deny lists, token versions, session records, or very short access-token TTLs
+- for first-party browser apps, session cookies or a BFF pattern can easily be the simpler operational choice
+
 ## 3) How far should FastAPI dependencies go?
 
 A solid baseline is to separate four layers:
@@ -122,6 +127,12 @@ Recommended checks:
 - issuer and audience validation
 - deliberate client-side storage rules
 
+Browser storage deserves explicit caution.
+
+- `localStorage` and `sessionStorage` are convenient, but an XSS issue can turn them into a token-exfiltration path
+- if a browser app must handle access tokens directly, memory-only storage plus short TTLs and a clear refresh path is usually safer than treating storage as an afterthought
+- for first-party web apps, `HttpOnly` cookies or a BFF design are often the more conservative default
+
 ## 5) CORS and CSRF are not the same problem
 
 Teams confuse these all the time.
@@ -145,6 +156,13 @@ Teams confuse these all the time.
 - design a rotation path early
 
 FastAPI provides security primitives, but hashing policy and secret operations still belong to the application.
+
+It also helps not to blur OAuth2 and OIDC.
+
+- OAuth2 is mainly a delegated-authorization framework
+- OIDC adds an identity layer on top so you can reason about who signed in
+- for social login, enterprise SSO, or external identity-provider integration, a proven OIDC provider is almost always cheaper than building the stack yourself
+- once you start implementing password reset, MFA, device management, and federation yourself, you are no longer "adding auth", you are building an account platform
 
 ## 7) Authorization is rarely just a role check
 
