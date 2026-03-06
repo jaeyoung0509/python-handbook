@@ -97,6 +97,7 @@
 - [Deployment and Engine Settings](/en/sqlalchemy/deployment-and-engine-settings)
 - [Performance and Ops](/en/fastapi/performance-and-ops)
 - [Settings and Pydantic Settings](/en/playbooks/settings-and-pydantic-settings)
+- [Progressive Delivery + Alembic](/en/playbooks/progressive-delivery-and-alembic)
 
 ## Official References
 

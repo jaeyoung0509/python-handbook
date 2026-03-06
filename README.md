@@ -42,7 +42,7 @@ flowchart LR
 - Playbooks (Korean): [docs/playbooks/index.md](docs/playbooks/index.md)
 - Playbooks (English): [docs/en/playbooks/index.md](docs/en/playbooks/index.md)
 - Examples guide: [examples/README.md](examples/README.md)
-- Key tests: [tests/test_abc_fake_uow_pytest.py](tests/test_abc_fake_uow_pytest.py), [tests/test_pydantic_settings_patterns.py](tests/test_pydantic_settings_patterns.py), [tests/test_fastapi_fixtures_and_teardown.py](tests/test_fastapi_fixtures_and_teardown.py)
+- Key tests: [tests/test_abc_fake_uow_pytest.py](tests/test_abc_fake_uow_pytest.py), [tests/test_pydantic_settings_patterns.py](tests/test_pydantic_settings_patterns.py), [tests/test_fastapi_fixtures_and_teardown.py](tests/test_fastapi_fixtures_and_teardown.py), [tests/test_idempotency_and_contracts.py](tests/test_idempotency_and_contracts.py)
 
 ## What This Repository Is
 
@@ -56,15 +56,15 @@ The goal is to make the repository useful in three ways at once:
 
 ## Main Sections
 
-- `Intro`: how to read the handbook, the CGI/WSGI/ASGI evolution, and the Python 3.10 to 3.14 transition
+- `Intro`: how to read the handbook, import/packaging/environment fundamentals, the CGI/WSGI/ASGI evolution, and the Python 3.10 to 3.14 transition
 - `Pythonic`: data model, descriptors, decorators, context managers, dataclasses, metaclasses
 - `Typing`: modern typing, generics, protocols, narrowing, static vs runtime typing
 - `Runtime`: execution model, object model, GC, GIL, subinterpreters, specialization
 - `Asyncio`: event loop, task groups, cancellation, queues, backpressure, testing
-- `FastAPI`: ASGI/Uvicorn, structure, DI, request and response modeling, lifespan, background task boundaries, websockets/streaming, Redis pub/sub, reconnect protocol, proxy and shutdown ops, observability
+- `FastAPI`: ASGI/Uvicorn, structure, DI, request and response modeling, security/auth, lifespan, background task boundaries, websockets/streaming, Redis pub/sub, reconnect protocol, proxy and shutdown ops, observability
 - `Pydantic`: core schema, validation pipeline, `BaseModel` vs `TypeAdapter`, internals
-- `SQLAlchemy`: session/UoW, engine settings, relationships, async usage, migration patterns
-- `Playbooks`: settings, testing, UoW, deployment choices, service design patterns
+- `SQLAlchemy`: session/UoW, engine settings, relationships, async usage, migration patterns, Alembic, zero-downtime rollout
+- `Playbooks`: settings, testing, contract and property-based testing, UoW, idempotency, outbox, deployment choices, progressive delivery, and service design patterns
 
 ## Repository Layout
 
@@ -113,6 +113,7 @@ Run a few example files:
 
 ```bash
 ./.venv/bin/python examples/py310_pattern_matching.py
+./.venv/bin/python examples/import_packaging_environment_lab.py
 ./.venv/bin/python examples/usecase_with_uow_abc.py
 ./.venv/bin/python examples/pydantic_settings_patterns.py
 ```
@@ -160,16 +161,22 @@ If you open this repository in VS Code and use the project virtual environment, 
 The handbook is meant to be read with code, not separately from it.
 
 - [`examples/README.md`](examples/README.md) explains what each example demonstrates and when to read it
-- `examples/` contains runnable scripts for version features, runtime behavior, FastAPI, SQLAlchemy, dataclasses, settings, and asyncio
-- `tests/` contains focused pytest examples for fixtures, settings, and `ABC + Fake UoW` patterns
+- `examples/` contains runnable scripts for import/package behavior, version features, runtime behavior, FastAPI, security/auth, SQLAlchemy, migration rollout, dataclasses, settings, and asyncio
+- `tests/` contains focused pytest examples for fixtures, settings, `ABC + Fake UoW`, idempotency invariants, and ASGI contract testing
 
 Good starting points:
 
 - `examples/usecase_with_uow_abc.py`
+- `examples/import_packaging_environment_lab.py`
+- `examples/fastapi_security_auth_lab.py`
+- `examples/alembic_zero_downtime_lab.py`
+- `examples/idempotency_outbox_lab.py`
+- `examples/progressive_delivery_backfill_lab.py`
 - `examples/sqlalchemy_deployment_profiles.py`
 - `examples/pydantic_settings_patterns.py`
 - `tests/test_abc_fake_uow_pytest.py`
 - `tests/test_fastapi_fixtures_and_teardown.py`
+- `tests/test_idempotency_and_contracts.py`
 
 ## Bilingual Docs
 

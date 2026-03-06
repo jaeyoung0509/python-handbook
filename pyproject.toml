@@ -16,6 +16,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "alembic>=1.17.1",
+    "hypothesis>=6.147.0",
     "pytest>=9.0.2",
     "ruff>=0.15.4",
     "ty>=0.0.20",

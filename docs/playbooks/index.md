@@ -30,8 +30,24 @@
     <p>yield fixture, dependency override cleanup, DB 격리, client lifecycle을 어떻게 나눌지 실전 패턴으로 정리한다.</p>
   </div>
   <div class="reading-card">
+    <h3>fixture 다음 테스트 층은 무엇인가</h3>
+    <p>HTTP contract, websocket protocol, property-based test, idempotency invariant를 어느 도구로 잡을지 정리한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>Lambda와 Kubernetes는 어떻게 고르나</h3>
     <p>트래픽 모양, DB 연결 방식, long-lived connection, 운영 표면적을 기준으로 선택하는 틀을 제안한다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>점진 배포 중 schema는 어떻게 안전하게 바꾸나</h3>
+    <p>rolling, blue-green, canary, Lambda alias 환경에서 Alembic, backfill, feature flag 순서를 어떻게 잡을지 정리한다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>Schema, API, event는 어떻게 같이 진화시키나</h3>
+    <p>DB migration, API versioning, event versioning, backfill/replay를 하나의 contract evolution 관점으로 묶어 본다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>retry와 duplicate delivery는 어떻게 다루나</h3>
+    <p>idempotency key, outbox, publisher retry, dedupe를 같은 그림으로 묶어 본다.</p>
   </div>
   <div class="reading-card">
     <h3>이론과 실전은 어디서 만나나</h3>
@@ -44,21 +60,29 @@
 1. [API Service Template](/playbooks/api-service-template)
 2. [Settings and Pydantic Settings](/playbooks/settings-and-pydantic-settings)
 3. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
-4. [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)
-5. [Use Case + UoW + ABC](/playbooks/usecase-uow-and-abc)
-6. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
-7. [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)
-8. [Typing Review Checklist](/playbooks/typing-review-checklist)
+4. [Testing Beyond Fixtures](/playbooks/testing-beyond-fixtures)
+5. [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)
+6. [Use Case + UoW + ABC](/playbooks/usecase-uow-and-abc)
+7. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
+8. [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)
+9. [Progressive Delivery + Alembic](/playbooks/progressive-delivery-and-alembic)
+10. [계약 진화와 지속가능한 CD](/playbooks/contract-evolution-and-sustainable-cd)
+11. [Idempotency와 Outbox](/playbooks/idempotency-and-outbox)
+12. [Typing Review Checklist](/playbooks/typing-review-checklist)
 
 ## 이 파트의 사용법
 
 - 새 프로젝트를 시작할 때는 `API Service Template`부터 본다.
 - 환경 변수, `.env`, secret source, `get_settings()` 경계를 잡고 싶다면 `Settings and Pydantic Settings`를 바로 본다.
 - fixture, teardown, override cleanup 기준이 필요하면 `Testing with Fixtures`를 바로 본다.
+- fixture 다음 단계로 contract/property/protocol 테스트를 확장하고 싶다면 `Testing Beyond Fixtures`를 바로 본다.
 - use case를 DB 없이 빨리 검증하는 테스트가 필요하면 `ABC + Fake UoW Testing`을 본다.
 - use case와 SQLAlchemy UoW를 `abc.ABC` 기반 경계와 함께 보고 싶다면 `Use Case + UoW + ABC`를 본다.
 - 이미 FastAPI/SQLAlchemy 프로젝트가 있다면 `FastAPI + Pydantic + SQLAlchemy`를 먼저 본다.
 - 배포 대상을 Lambda와 Kubernetes 중에서 비교해야 한다면 `Lambda vs Kubernetes`를 본다.
+- rolling, blue-green, canary, Lambda alias 배포에서 Alembic과 backfill 순서를 잡고 싶다면 `Progressive Delivery + Alembic`을 본다.
+- DB schema, public API, async event를 한 묶음의 contract evolution 문제로 정리하고 싶다면 `계약 진화와 지속가능한 CD`를 본다.
+- retry-safe create API, idempotency key, outbox publish를 같이 설계하고 싶다면 `Idempotency와 Outbox`를 본다.
 - 팀 코드 리뷰 기준을 만들고 싶다면 `Typing Review Checklist`를 기준 문서로 둔다.
 
 ## 같이 읽으면 좋은 페이지

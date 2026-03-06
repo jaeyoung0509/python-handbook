@@ -37,15 +37,16 @@ uv run ruff check .
 
 | 파트 | 먼저 볼 예제 | 왜 먼저 보나 |
 | --- | --- | --- |
+| Intro | `import_packaging_environment_lab.py` | `python -m`, import cache, `pyproject.toml`, virtualenv 같은 fundamentals를 코드로 바로 체감하기 좋음 |
 | Pythonic | `py310_pattern_matching.py`, `metaprogramming_hooks_lab.py` | Python 문법의 표현력과 메타프로그래밍 훅 선택 감각을 함께 익히기 좋음 |
 | Typing | `py310_typing_and_zip_strict.py`, `py312_type_params.py` | modern typing 문법과 boundary 설계 감각을 같이 잡기 좋음 |
 | Runtime | `py312_sys_monitoring.py`, `py313_runtime_modes.py`, `py314_interpreter_pool.py`, `cpython_runtime_labs.py` | CPython 런타임 방향성과 내부 실험(dis/ast/gc/tracemalloc)을 함께 보여줌 |
 | Dataclass | `dataclass_patterns.py` | 값 객체, `default_factory`, `kw_only`, 패턴 매칭 조합을 빨리 익히기 좋음 |
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
-| FastAPI / SQLAlchemy | `asgi_lifecycle_lab.py`, `fastapi_background_tasks_patterns.py`, `fastapi_realtime_and_middleware_lab.py`, `websocket_auth_and_rooms_lab.py`, `websocket_redis_pubsub_lab.py`, `websocket_client_protocol_reconnect_lab.py`, `uvicorn_proxy_and_health_lab.py`, `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | ASGI 메시지 흐름, BackgroundTasks 경계, realtime transport, websocket 실전 패턴, Redis pub/sub, reconnect protocol, middleware, proxy/health, 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
+| FastAPI / SQLAlchemy | `asgi_lifecycle_lab.py`, `fastapi_security_auth_lab.py`, `fastapi_background_tasks_patterns.py`, `fastapi_realtime_and_middleware_lab.py`, `websocket_auth_and_rooms_lab.py`, `websocket_redis_pubsub_lab.py`, `websocket_client_protocol_reconnect_lab.py`, `uvicorn_proxy_and_health_lab.py`, `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py`, `alembic_zero_downtime_lab.py` | ASGI 메시지 흐름, authn/authz 경계, BackgroundTasks 경계, realtime transport, websocket 실전 패턴, Redis pub/sub, reconnect protocol, middleware, proxy/health, 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정, zero-downtime migration rollout 감각을 같이 확인할 수 있음 |
 | Settings | `pydantic_settings_patterns.py` | `settings.py`, env source priority, `.env`, secrets, `pydantic-settings` 감각을 빠르게 익히기 좋음 |
-| Testing | `tests/test_fastapi_fixtures_and_teardown.py` | fixture setup/teardown, override cleanup, TestClient lifecycle을 실제 테스트로 확인 |
+| Playbooks / Testing | `idempotency_outbox_lab.py`, `progressive_delivery_backfill_lab.py`, `tests/test_fastapi_fixtures_and_teardown.py`, `tests/test_idempotency_and_contracts.py` | retry-safe create path, outbox, chunked resumable backfill, fixture setup/teardown, ASGI contract test, property-based idempotency invariant를 함께 익히기 좋음 |
 
 ## 버전별 예제 맵
 
@@ -140,6 +141,33 @@ uv run ruff check .
 - subclass 등록이 metaclass 없이도 가능하다.
 - class decorator와 metaclass의 책임 차이가 보인다.
 
+### `import_packaging_environment_lab.py`
+
+무엇을 보여주나:
+
+- `python file.py`와 `python -m package` 차이
+- `sys.modules` import cache
+- `pyproject.toml` metadata
+- virtualenv 감지 신호
+
+왜 중요한가:
+
+- import, packaging, environment 문제는 Python fundamentals에서 가장 자주 팀을 괴롭힌다.
+- 상대 import, editable install, interpreter mismatch 문제를 더 구조적으로 보게 해준다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/import_packaging_environment_lab.py
+```
+
+체크 포인트:
+
+- 파일 경로 실행과 모듈 실행이 다르게 동작한다.
+- 같은 모듈 import는 cache를 재사용한다.
+- `pyproject.toml`가 entry point와 metadata를 선언한다.
+- `sys.prefix` / `sys.base_prefix`로 virtualenv 감각을 잡을 수 있다.
+
 ### `asgi_lifecycle_lab.py`
 
 무엇을 보여주나:
@@ -192,6 +220,32 @@ uv run ruff check .
 - async webhook은 `background-async`로 분류된다.
 - invoice PDF 같은 일은 `queue-worker`로 분류된다.
 - 결제 승인처럼 응답에 영향을 주는 일은 `inline-await`로 남는다.
+
+### `fastapi_security_auth_lab.py`
+
+무엇을 보여주나:
+
+- bearer token auth
+- cookie session auth
+- CSRF 방어 필요성
+- admin-only authorization dependency
+
+왜 중요한가:
+
+- FastAPI security는 dependency 몇 줄보다 authn/authz 경계 설계가 더 중요하다.
+- cookie와 bearer token이 같은 문제가 아니라는 점을 실행 예제로 바로 볼 수 있다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/fastapi_security_auth_lab.py
+```
+
+체크 포인트:
+
+- member token은 admin route에서 `403`이 난다.
+- cookie session은 profile 조회에 쓸 수 있다.
+- cookie 기반 write는 CSRF token이 없으면 막힌다.
 
 ### `fastapi_realtime_and_middleware_lab.py`
 
@@ -432,6 +486,86 @@ uv run ruff check .
 - session 기본값으로 `autoflush=False`, `expire_on_commit=False`를 왜 자주 쓰는지 확인한다.
 - Kubernetes 예시에서 총 연결 수 계산을 직접 본다.
 
+### `alembic_zero_downtime_lab.py`
+
+무엇을 보여주나:
+
+- additive schema expand
+- dual write
+- backfill
+- contract를 마지막으로 미루는 이유
+
+왜 중요한가:
+
+- migration은 모델 diff보다 rollout compatibility가 더 중요하다.
+- old app / new schema / new app / old schema 조합을 어떻게 안전하게 통과할지 감을 준다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/alembic_zero_downtime_lab.py
+```
+
+체크 포인트:
+
+- 새 column은 먼저 nullable로 추가된다.
+- 새 앱은 dual write를 한다.
+- backfill 뒤 new app은 `display_name` 기준으로 읽을 수 있다.
+- old column drop은 마지막에 해야 한다.
+
+### `progressive_delivery_backfill_lab.py`
+
+무엇을 보여주나:
+
+- checkpoint table
+- chunked backfill
+- worker interruption 뒤 resume
+- operational backfill을 Alembic DDL과 분리하는 감각
+
+왜 중요한가:
+
+- 실서비스의 큰 backfill은 migration revision보다 별도 job으로 굴리는 경우가 많다.
+- rolling/blue-green/canary 모두 shared DB를 쓰면 resumable backfill discipline이 중요해진다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/progressive_delivery_backfill_lab.py
+```
+
+체크 포인트:
+
+- 첫 batch 뒤 checkpoint가 저장된다.
+- worker가 중단돼도 다음 실행이 이어서 진행된다.
+- batch별 commit으로 긴 transaction을 피한다.
+- schema expand와 data backfill이 다른 단계라는 점이 드러난다.
+
+### `idempotency_outbox_lab.py`
+
+무엇을 보여주나:
+
+- class-based UoW
+- idempotency key + payload fingerprint
+- outbox message 저장
+- conflicting retry 거부
+
+왜 중요한가:
+
+- retry-safe create API와 reliable publish는 실서비스에서 거의 항상 같이 등장한다.
+- `BackgroundTasks`와 transactional outbox의 차이를 구조적으로 이해하게 해준다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/idempotency_outbox_lab.py
+```
+
+체크 포인트:
+
+- 같은 key + 같은 payload는 기존 응답을 재사용한다.
+- 같은 key + 다른 payload는 에러로 거부된다.
+- order 저장과 outbox 저장이 같은 UoW에 들어간다.
+
 ### `pydantic_settings_patterns.py`
 
 무엇을 보여주나:
@@ -576,17 +710,41 @@ uv run pytest tests/test_pydantic_settings_patterns.py
 - 실제 환경 변수가 `.env`보다 우선한다.
 - secret dir가 env 부재 시 fallback source가 된다.
 
+### `tests/test_idempotency_and_contracts.py`
+
+무엇을 보여주나:
+
+- property-based idempotency invariant
+- same-key conflict 검증
+- `httpx.ASGITransport` contract test
+
+실행:
+
+```bash
+uv run pytest tests/test_idempotency_and_contracts.py
+```
+
+체크 포인트:
+
+- 같은 key + 같은 payload는 operation을 한 번만 실행한다.
+- 같은 key + 다른 payload는 conflict가 난다.
+- ASGI transport가 `/health` contract를 직접 검증한다.
+
 ## 문서와 같이 읽기
 
 - FastAPI 예제와 같이 읽기: `/fastapi/project-structure`, `/fastapi/dependency-injection`, `/playbooks/api-service-template`
 - ASGI/Uvicorn 예제와 같이 읽기: `/intro/web-gateway-evolution`, `/fastapi/asgi-and-uvicorn`, `/fastapi/background-tasks-and-offloading`
 - Realtime/운영 예제와 같이 읽기: `/fastapi/websockets-streaming-and-middleware`, `/fastapi/proxy-health-and-shutdown`
+- Security 예제와 같이 읽기: `/fastapi/security-and-auth`
 - WebSocket 실전 패턴과 같이 읽기: `/fastapi/websocket-practical-patterns`
 - Multi-worker/reconnect 예제와 같이 읽기: `/fastapi/websocket-redis-pubsub`, `/fastapi/websocket-client-protocol-and-reconnect`
 - SQLAlchemy 예제와 같이 읽기: `/sqlalchemy/session-and-unit-of-work`, `/sqlalchemy/relationships-and-loading`
+- Alembic 예제와 같이 읽기: `/sqlalchemy/alembic-and-zero-downtime`
+- Progressive delivery 예제와 같이 읽기: `/playbooks/progressive-delivery-and-alembic`
 - Pydantic 예제와 같이 읽기: `/pydantic/core-schema`, `/pydantic/validation-pipeline`
 - Asyncio 예제와 같이 읽기: `/asyncio/cancellation-and-taskgroup`, `/asyncio/queues-and-backpressure`
 - Dataclass 예제와 같이 읽기: `/pythonic/dataclasses`
 - 메타프로그래밍 예제와 같이 읽기: `/pythonic/metaprogramming-advanced`
+- Import/packaging 예제와 같이 읽기: `/intro/import-packaging-and-environments`
 - CPython 실험 예제와 같이 읽기: `/runtime/cpython-internals-advanced`
-- Testing 예제와 같이 읽기: `/fastapi/lifespan-and-testing`, `/playbooks/testing-with-pytest-fixtures`
+- Testing 예제와 같이 읽기: `/fastapi/lifespan-and-testing`, `/playbooks/testing-with-pytest-fixtures`, `/playbooks/testing-beyond-fixtures`, `/playbooks/idempotency-and-outbox`

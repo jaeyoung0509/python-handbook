@@ -29,6 +29,10 @@
     <h3>How should settings change by deployment target?</h3>
     <p>Lambda, Kubernetes, workers, and batch jobs do not share the same process lifetime or connection budget. Copy-pasting one pool configuration is a fast way to overload the database.</p>
   </div>
+  <div class="reading-card">
+    <h3>How do migrations stay safe?</h3>
+    <p>You need Alembic revision-graph discipline plus additive rollout, backfill, and contract sequencing to avoid downtime.</p>
+  </div>
 </div>
 
 ## Recommended Reading Order
@@ -39,6 +43,7 @@
 4. [Async SQLAlchemy](/en/sqlalchemy/async-sqlalchemy)
 5. [Core vs ORM](/en/sqlalchemy/core-vs-orm)
 6. [Migrations and Patterns](/en/sqlalchemy/migrations-and-patterns)
+7. [Alembic and Zero-Downtime Migrations](/en/sqlalchemy/alembic-and-zero-downtime)
 
 ## Working Rules for Real Services
 
@@ -48,6 +53,7 @@
 - Design read and write paths differently.
 - Do not collapse ORM entities, Pydantic schemas, and domain concepts into one class.
 - In async code, never share an `AsyncSession` across concurrent tasks.
+- Split destructive migrations into additive rollout and contract phases.
 
 ## Good Companion Chapters
 

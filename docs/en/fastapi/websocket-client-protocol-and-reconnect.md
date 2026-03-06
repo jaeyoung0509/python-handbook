@@ -141,6 +141,7 @@ Using both makes it easier to distinguish:
 1. [WebSocket Practical Patterns](/en/fastapi/websocket-practical-patterns)
 2. [Redis Pub/Sub and Multi-worker Broadcast](/en/fastapi/websocket-redis-pubsub)
 3. [WebSockets, Streaming, and Middleware](/en/fastapi/websockets-streaming-and-middleware)
+4. [Contract Evolution and Sustainable CD](/en/playbooks/contract-evolution-and-sustainable-cd)
 
 ## Official References
 

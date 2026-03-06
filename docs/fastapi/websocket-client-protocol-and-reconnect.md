@@ -147,6 +147,7 @@ Redis pub/sub처럼 history가 없는 fan-out만 쓰는 경우, websocket reconn
 1. [WebSocket 실전 패턴](/fastapi/websocket-practical-patterns)
 2. [Redis Pub/Sub과 Multi-worker Broadcast](/fastapi/websocket-redis-pubsub)
 3. [WebSocket, Streaming, Middleware](/fastapi/websockets-streaming-and-middleware)
+4. [계약 진화와 지속가능한 CD](/playbooks/contract-evolution-and-sustainable-cd)
 
 ## 공식 자료
 

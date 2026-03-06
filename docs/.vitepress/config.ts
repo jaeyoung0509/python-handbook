@@ -23,6 +23,11 @@ const sections: NavSection[] = [
       { ko: "왜 이 문서를 새로 쓰는가", en: "Why This Book", path: "/intro/why-this-book" },
       { ko: "이 문서를 읽는 법", en: "How To Read", path: "/intro/how-to-read" },
       {
+        ko: "Import, Packaging, Environment",
+        en: "Import, Packaging, and Environment",
+        path: "/intro/import-packaging-and-environments",
+      },
+      {
         ko: "웹 게이트웨이 진화: CGI, WSGI, ASGI",
         en: "Web Gateway Evolution: CGI, WSGI, ASGI",
         path: "/intro/web-gateway-evolution",
@@ -120,6 +125,7 @@ const sections: NavSection[] = [
       { ko: "프로젝트 구조", en: "Project Structure", path: "/fastapi/project-structure" },
       { ko: "의존성 주입", en: "Dependency Injection", path: "/fastapi/dependency-injection" },
       { ko: "요청/응답 모델링", en: "Request/Response Modeling", path: "/fastapi/request-response-modeling" },
+      { ko: "Security와 Auth", en: "Security and Auth", path: "/fastapi/security-and-auth" },
       { ko: "Lifespan과 테스트", en: "Lifespan and Testing", path: "/fastapi/lifespan-and-testing" },
       {
         ko: "BackgroundTasks와 오프로딩",
@@ -183,6 +189,11 @@ const sections: NavSection[] = [
       { ko: "관계와 로딩 전략", en: "Relationships and Loading", path: "/sqlalchemy/relationships-and-loading" },
       { ko: "Async SQLAlchemy", en: "Async SQLAlchemy", path: "/sqlalchemy/async-sqlalchemy" },
       { ko: "마이그레이션과 패턴", en: "Migrations and Patterns", path: "/sqlalchemy/migrations-and-patterns" },
+      {
+        ko: "Alembic과 Zero-Downtime Migration",
+        en: "Alembic and Zero-Downtime Migrations",
+        path: "/sqlalchemy/alembic-and-zero-downtime",
+      },
     ],
   },
   {
@@ -203,6 +214,11 @@ const sections: NavSection[] = [
         path: "/playbooks/testing-with-pytest-fixtures",
       },
       {
+        ko: "Testing Beyond Fixtures",
+        en: "Testing Beyond Fixtures",
+        path: "/playbooks/testing-beyond-fixtures",
+      },
+      {
         ko: "ABC + Fake UoW 테스트",
         en: "ABC + Fake UoW Testing",
         path: "/playbooks/testing-abc-and-fake-uow",
@@ -221,6 +237,21 @@ const sections: NavSection[] = [
         ko: "Lambda vs Kubernetes",
         en: "Lambda vs Kubernetes",
         path: "/playbooks/lambda-vs-kubernetes",
+      },
+      {
+        ko: "Progressive Delivery + Alembic",
+        en: "Progressive Delivery + Alembic",
+        path: "/playbooks/progressive-delivery-and-alembic",
+      },
+      {
+        ko: "계약 진화와 지속가능한 CD",
+        en: "Contract Evolution and Sustainable CD",
+        path: "/playbooks/contract-evolution-and-sustainable-cd",
+      },
+      {
+        ko: "Idempotency와 Outbox",
+        en: "Idempotency and Outbox",
+        path: "/playbooks/idempotency-and-outbox",
       },
       { ko: "Typing 리뷰 체크리스트", en: "Typing Review Checklist", path: "/playbooks/typing-review-checklist" },
     ],

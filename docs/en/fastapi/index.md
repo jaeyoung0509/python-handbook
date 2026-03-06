@@ -18,6 +18,10 @@
     <p>They should wire sessions, settings, and clients. They should not become a hidden business layer.</p>
   </div>
   <div class="reading-card">
+    <h3>Where should security stop?</h3>
+    <p>Separate credential parsing, principal restoration, and authorization policy so routes do not become oversized policy blobs.</p>
+  </div>
+  <div class="reading-card">
     <h3>Why learn ASGI and Uvicorn first?</h3>
     <p>FastAPI is not the server. If you do not understand scopes, receive/send events, workers, and lifespan, production behavior will stay opaque.</p>
   </div>
@@ -65,20 +69,22 @@
 2. [Project Structure](/en/fastapi/project-structure)
 3. [Dependency Injection](/en/fastapi/dependency-injection)
 4. [Request/Response Modeling](/en/fastapi/request-response-modeling)
-5. [Lifespan and Testing](/en/fastapi/lifespan-and-testing)
-6. [Background Tasks and Offloading](/en/fastapi/background-tasks-and-offloading)
-7. [WebSockets, Streaming, and Middleware](/en/fastapi/websockets-streaming-and-middleware)
-8. [WebSocket Practical Patterns](/en/fastapi/websocket-practical-patterns)
-9. [Redis Pub/Sub and Multi-worker Broadcast](/en/fastapi/websocket-redis-pubsub)
-10. [Client Protocol and Reconnect](/en/fastapi/websocket-client-protocol-and-reconnect)
-11. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
-12. [Performance and Ops](/en/fastapi/performance-and-ops)
-13. [Observability](/en/fastapi/observability)
+5. [Security and Auth](/en/fastapi/security-and-auth)
+6. [Lifespan and Testing](/en/fastapi/lifespan-and-testing)
+7. [Background Tasks and Offloading](/en/fastapi/background-tasks-and-offloading)
+8. [WebSockets, Streaming, and Middleware](/en/fastapi/websockets-streaming-and-middleware)
+9. [WebSocket Practical Patterns](/en/fastapi/websocket-practical-patterns)
+10. [Redis Pub/Sub and Multi-worker Broadcast](/en/fastapi/websocket-redis-pubsub)
+11. [Client Protocol and Reconnect](/en/fastapi/websocket-client-protocol-and-reconnect)
+12. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
+13. [Performance and Ops](/en/fastapi/performance-and-ops)
+14. [Observability](/en/fastapi/observability)
 
 ## Working Rules for Real Services
 
 - Keep routes thin and transport-oriented.
 - Separate the ASGI server's responsibilities from the FastAPI app's responsibilities.
+- Do not collapse authn, authz, and business policy into the same dependency or route function.
 - Do not collapse request DTOs, domain commands, ORM entities, and response DTOs into one type.
 - Use lifespan or `yield` dependencies for resource ownership.
 - Use `BackgroundTasks` only for short in-process follow-up work, not for durable or heavy jobs.
