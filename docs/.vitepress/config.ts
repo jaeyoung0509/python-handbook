@@ -23,6 +23,11 @@ const sections: NavSection[] = [
       { ko: "왜 이 문서를 새로 쓰는가", en: "Why This Book", path: "/intro/why-this-book" },
       { ko: "이 문서를 읽는 법", en: "How To Read", path: "/intro/how-to-read" },
       {
+        ko: "웹 게이트웨이 진화: CGI, WSGI, ASGI",
+        en: "Web Gateway Evolution: CGI, WSGI, ASGI",
+        path: "/intro/web-gateway-evolution",
+      },
+      {
         ko: "Python 3.10~3.14 정리",
         en: "Python 3.10~3.14 Deep Dive",
         path: "/python-3.10-3.14-deep-dive",
@@ -111,10 +116,26 @@ const sections: NavSection[] = [
     navPath: "/fastapi/",
     items: [
       { ko: "개요", en: "Overview", path: "/fastapi/" },
+      { ko: "ASGI와 Uvicorn", en: "ASGI and Uvicorn", path: "/fastapi/asgi-and-uvicorn" },
       { ko: "프로젝트 구조", en: "Project Structure", path: "/fastapi/project-structure" },
       { ko: "의존성 주입", en: "Dependency Injection", path: "/fastapi/dependency-injection" },
       { ko: "요청/응답 모델링", en: "Request/Response Modeling", path: "/fastapi/request-response-modeling" },
       { ko: "Lifespan과 테스트", en: "Lifespan and Testing", path: "/fastapi/lifespan-and-testing" },
+      {
+        ko: "BackgroundTasks와 오프로딩",
+        en: "Background Tasks and Offloading",
+        path: "/fastapi/background-tasks-and-offloading",
+      },
+      {
+        ko: "WebSocket, Streaming, Middleware",
+        en: "WebSockets, Streaming, and Middleware",
+        path: "/fastapi/websockets-streaming-and-middleware",
+      },
+      {
+        ko: "Proxy, Health, Shutdown",
+        en: "Proxy, Health, and Shutdown",
+        path: "/fastapi/proxy-health-and-shutdown",
+      },
       { ko: "성능과 운영", en: "Performance and Ops", path: "/fastapi/performance-and-ops" },
       { ko: "Observability", en: "Observability", path: "/fastapi/observability" },
     ],

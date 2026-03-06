@@ -43,7 +43,7 @@ uv run ruff check .
 | Dataclass | `dataclass_patterns.py` | 값 객체, `default_factory`, `kw_only`, 패턴 매칭 조합을 빨리 익히기 좋음 |
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
-| FastAPI / SQLAlchemy | `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
+| FastAPI / SQLAlchemy | `asgi_lifecycle_lab.py`, `fastapi_background_tasks_patterns.py`, `fastapi_realtime_and_middleware_lab.py`, `uvicorn_proxy_and_health_lab.py`, `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | ASGI 메시지 흐름, BackgroundTasks 경계, realtime transport, middleware, proxy/health, 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
 | Settings | `pydantic_settings_patterns.py` | `settings.py`, env source priority, `.env`, secrets, `pydantic-settings` 감각을 빠르게 익히기 좋음 |
 | Testing | `tests/test_fastapi_fixtures_and_teardown.py` | fixture setup/teardown, override cleanup, TestClient lifecycle을 실제 테스트로 확인 |
 
@@ -139,6 +139,113 @@ uv run ruff check .
 - descriptor가 attribute access를 제어한다.
 - subclass 등록이 metaclass 없이도 가능하다.
 - class decorator와 metaclass의 책임 차이가 보인다.
+
+### `asgi_lifecycle_lab.py`
+
+무엇을 보여주나:
+
+- `scope`, `receive`, `send`
+- `lifespan.startup` / `lifespan.shutdown`
+- `http.response.start` / `http.response.body`
+- ASGI app이 response object 대신 message를 보내는 구조
+
+왜 중요한가:
+
+- FastAPI가 "어떤 request object를 직접 받는 프레임워크"가 아니라 ASGI contract 위에 올라간다는 점이 선명해진다.
+- `CGI -> WSGI -> ASGI` 역사에서 왜 ASGI가 connection/event 모델로 바뀌었는지 코드로 체감할 수 있다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/asgi_lifecycle_lab.py
+```
+
+체크 포인트:
+
+- lifespan과 http가 다른 scope type으로 보인다.
+- 앱은 event를 `receive()`로 읽고 `send()`로 response message를 쓴다.
+- Uvicorn 같은 ASGI server가 실제로 하는 역할을 추상적으로 이해할 수 있다.
+
+### `fastapi_background_tasks_patterns.py`
+
+무엇을 보여주나:
+
+- `BackgroundTasks` + sync task
+- `BackgroundTasks` + async task
+- inline await가 필요한 작업
+- queue/worker로 빼야 하는 작업 분류
+
+왜 중요한가:
+
+- "동기 함수를 background에 넣어도 되는가", "async로 감싸면 해결되는가" 같은 실무 질문에 기준선을 준다.
+- `BackgroundTasks`가 durable queue가 아니라는 점을 코드와 출력으로 같이 확인할 수 있다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/fastapi_background_tasks_patterns.py
+```
+
+체크 포인트:
+
+- audit log는 `background-sync`로 분류된다.
+- async webhook은 `background-async`로 분류된다.
+- invoice PDF 같은 일은 `queue-worker`로 분류된다.
+- 결제 승인처럼 응답에 영향을 주는 일은 `inline-await`로 남는다.
+
+### `fastapi_realtime_and_middleware_lab.py`
+
+무엇을 보여주나:
+
+- `StreamingResponse`
+- SSE (`text/event-stream`)
+- WebSocket echo
+- pure ASGI middleware가 HTTP와 WebSocket scope를 보는 방식
+
+왜 중요한가:
+
+- realtime transport를 "그냥 route 종류 하나 더"가 아니라 연결 수명 모델로 이해하게 해준다.
+- middleware가 request object보다 더 아래 ASGI 레벨에서 어떻게 응답 header를 다루는지 보인다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/fastapi_realtime_and_middleware_lab.py
+```
+
+체크 포인트:
+
+- plain stream과 SSE의 `content-type`이 다르다.
+- WebSocket은 별도 메시지 loop를 가진다.
+- pure ASGI middleware는 HTTP와 WebSocket scope를 모두 관찰한다.
+
+### `uvicorn_proxy_and_health_lab.py`
+
+무엇을 보여주나:
+
+- `root_path`
+- `TrustedHostMiddleware`
+- `HTTPSRedirectMiddleware`
+- readiness 전환
+- 배포 프로필별 Uvicorn 플래그 감각
+
+왜 중요한가:
+
+- 로컬에서는 멀쩡한데 proxy 뒤 배포에서 어긋나는 문제를 어디서 봐야 하는지 감을 준다.
+- readiness를 내려서 drain하는 종료 흐름과 host/scheme 보호 장치를 같이 볼 수 있다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/uvicorn_proxy_and_health_lab.py
+```
+
+체크 포인트:
+
+- HTTP 요청은 HTTPS redirect를 받는다.
+- `root_path`가 scope에 들어간다.
+- drain 뒤 readiness가 `503`으로 내려간다.
+- 허용되지 않은 host는 거부된다.
 
 ### `fastapi_service_template_example.py`
 
@@ -391,6 +498,8 @@ uv run pytest tests/test_pydantic_settings_patterns.py
 ## 문서와 같이 읽기
 
 - FastAPI 예제와 같이 읽기: `/fastapi/project-structure`, `/fastapi/dependency-injection`, `/playbooks/api-service-template`
+- ASGI/Uvicorn 예제와 같이 읽기: `/intro/web-gateway-evolution`, `/fastapi/asgi-and-uvicorn`, `/fastapi/background-tasks-and-offloading`
+- Realtime/운영 예제와 같이 읽기: `/fastapi/websockets-streaming-and-middleware`, `/fastapi/proxy-health-and-shutdown`
 - SQLAlchemy 예제와 같이 읽기: `/sqlalchemy/session-and-unit-of-work`, `/sqlalchemy/relationships-and-loading`
 - Pydantic 예제와 같이 읽기: `/pydantic/core-schema`, `/pydantic/validation-pipeline`
 - Asyncio 예제와 같이 읽기: `/asyncio/cancellation-and-taskgroup`, `/asyncio/queues-and-backpressure`

@@ -56,12 +56,12 @@ The goal is to make the repository useful in three ways at once:
 
 ## Main Sections
 
-- `Intro`: how to read the handbook and the Python 3.10 to 3.14 transition
+- `Intro`: how to read the handbook, the CGI/WSGI/ASGI evolution, and the Python 3.10 to 3.14 transition
 - `Pythonic`: data model, descriptors, decorators, context managers, dataclasses, metaclasses
 - `Typing`: modern typing, generics, protocols, narrowing, static vs runtime typing
 - `Runtime`: execution model, object model, GC, GIL, subinterpreters, specialization
 - `Asyncio`: event loop, task groups, cancellation, queues, backpressure, testing
-- `FastAPI`: structure, DI, request and response modeling, lifespan, observability, ops
+- `FastAPI`: ASGI/Uvicorn, structure, DI, request and response modeling, lifespan, background task boundaries, websockets/streaming, proxy and shutdown ops, observability
 - `Pydantic`: core schema, validation pipeline, `BaseModel` vs `TypeAdapter`, internals
 - `SQLAlchemy`: session/UoW, engine settings, relationships, async usage, migration patterns
 - `Playbooks`: settings, testing, UoW, deployment choices, service design patterns
