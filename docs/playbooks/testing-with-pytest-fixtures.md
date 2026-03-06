@@ -61,6 +61,99 @@ def client(app: FastAPI) -> Generator[TestClient, None, None]:
 - 필요하면 nested SAVEPOINT
 - 테스트 속도와 격리를 동시에 노릴 수 있다
 
+## testcontainers를 쓸 때는 "container 수명"과 "테스트 격리"를 분리한다
+
+`testcontainers`를 쓰기 시작하면 흔히 두 가지를 한 fixture에 섞는다.
+
+- PostgreSQL container를 띄우는 일
+- 각 테스트가 서로 안 섞이게 DB 상태를 초기화하는 일
+
+이 둘은 성격이 다르다.
+
+- container lifecycle은 보통 바깥 fixture다.
+- schema 준비, seed, rollback, truncate는 안쪽 fixture다.
+
+### 권장 기본형
+
+- container는 `session` scope 또는 `module` scope
+- engine / session factory는 그 안쪽 fixture
+- 테스트 격리는 function-scoped transaction rollback 또는 truncate/seed
+
+컨테이너를 매 테스트마다 띄우면 격리는 단순하지만 대체로 너무 느리다. 반대로 container를 길게 공유하면서 DB reset 전략이 없으면 flaky test가 된다.
+
+### 읽기 좋은 예
+
+```py
+from collections.abc import Generator
+
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, sessionmaker
+from testcontainers.postgres import PostgresContainer
+
+
+@pytest.fixture(scope="session")
+def postgres_container() -> Generator[PostgresContainer, None, None]:
+    with PostgresContainer("postgres:17") as container:
+        yield container
+
+
+@pytest.fixture(scope="session")
+def engine(postgres_container: PostgresContainer) -> Generator[Engine, None, None]:
+    test_engine = create_engine(postgres_container.get_connection_url())
+    Base.metadata.create_all(test_engine)
+    try:
+        yield test_engine
+    finally:
+        Base.metadata.drop_all(test_engine)
+        test_engine.dispose()
+
+
+@pytest.fixture
+def db_session(engine: Engine) -> Generator[Session, None, None]:
+    connection = engine.connect()
+    transaction = connection.begin()
+    testing_session = sessionmaker(
+        bind=connection,
+        class_=Session,
+        autoflush=False,
+        expire_on_commit=False,
+    )()
+
+    try:
+        yield testing_session
+    finally:
+        testing_session.close()
+        transaction.rollback()
+        connection.close()
+```
+
+<p class="code-caption">포인트는 container가 가장 바깥 수명주기를 소유하고, function-scoped `db_session`이 각 테스트의 격리를 책임진다는 점이다. startup cost와 isolation concern을 한 fixture에 섞지 않는다.</p>
+
+### FastAPI까지 붙이면 보통 이렇게 간다
+
+1. `postgres_container`가 실제 Postgres를 띄운다.
+2. `engine` fixture가 schema 또는 migration을 준비한다.
+3. `db_session` fixture가 테스트 단위 rollback 경계를 잡는다.
+4. `app` fixture가 `dependency_overrides`로 그 세션 또는 session factory를 주입한다.
+5. `client` fixture가 `TestClient`를 열고 닫는다.
+
+### 언제 migration을 실제로 태우나
+
+- repository/ORM query shape만 검증하면 `metadata.create_all()`로도 충분할 수 있다.
+- Alembic revision, index, constraint, DB-specific DDL까지 확인하고 싶다면 container 위에서 실제 migration을 올리는 편이 맞다.
+
+즉, "실제 Postgres를 쓴다"와 "실제 migration 경로를 검증한다"도 별도 결정이다.
+
+### 실무 팁
+
+- container는 너무 안쪽 scope로 두지 않는다.
+- 대신 테스트 격리는 transaction rollback, truncate, seed fixture에서 만든다.
+- app override cleanup은 여전히 `yield` 아래에서 정리한다.
+- startup이 무거운 container는 테스트 세트 전체에서 공유하고, 함수 단위 자원은 그 안에서 짧게 만든다.
+- 비동기 스택이라면 async engine/session fixture를 따로 두고, container fixture만 공용으로 두는 편이 읽기 쉽다.
+
 ## `yield fixture`가 기본인 이유
 
 pytest 공식 문서도 teardown/finalization 기본 패턴으로 `yield fixture`를 먼저 권장한다. `addfinalizer()`는 teardown 대상을 동적으로 등록해야 할 때 유용하지만, 일상적인 서비스 테스트에서는 `yield`가 더 읽기 쉽고 안전하다.
@@ -74,6 +167,7 @@ pytest 공식 문서도 teardown/finalization 기본 패턴으로 `yield fixture
 - session이나 client를 모듈 전역으로 재사용한다.
 - fixture가 무엇을 cleanup하는지 숨긴다.
 - 외부 API stub과 DB seed를 하나의 fixture에 섞는다.
+- container startup과 test-level DB reset을 하나의 giant fixture에 욱여넣는다.
 
 ## 실전 테스트 레이아웃 예
 
@@ -115,6 +209,10 @@ tests/
     <p>schema recreate인지 rollback인지 팀 기준이 있어야 flaky test가 줄어든다.</p>
   </div>
   <div class="check-card">
+    <h3>container scope와 reset 전략이 분리돼 있다</h3>
+    <p>`testcontainers`를 쓴다면 container lifetime과 test-level isolation을 별도 fixture로 나눈다.</p>
+  </div>
+  <div class="check-card">
     <h3>autouse는 최소화한다</h3>
     <p>숨은 fixture는 테스트 읽기를 어렵게 하므로 공통 인프라에만 제한적으로 쓴다.</p>
   </div>
@@ -125,3 +223,4 @@ tests/
 - [pytest fixtures](https://docs.pytest.org/en/stable/how-to/fixtures.html)
 - [pytest fixture finalization](https://docs.pytest.org/en/stable/how-to/fixtures.html#teardown-cleanup-aka-fixture-finalization)
 - [FastAPI Testing](https://fastapi.tiangolo.com/tutorial/testing/)
+- [testcontainers-python](https://testcontainers-python.readthedocs.io/en/latest/)
