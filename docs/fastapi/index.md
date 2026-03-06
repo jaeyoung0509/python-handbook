@@ -34,6 +34,10 @@
     <p>요청 한 번으로 끝나지 않는 연결과 chunked response를 다뤄야 한다. middleware, timeout, shutdown도 연결 수명 기준으로 다시 봐야 한다.</p>
   </div>
   <div class="reading-card">
+    <h3>실시간 서비스는 어떻게 설계해야 하나</h3>
+    <p>connect 시 인증, room membership, disconnect cleanup, 재연결 전략, multi-worker broadcast 경계를 같이 설계해야 한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>테스트는 무엇을 검증해야 하나</h3>
     <p>단순 상태 코드보다 lifespan 자원 초기화, dependency override, transaction 격리, serialization 경계를 먼저 검증해야 한다.</p>
   </div>
@@ -56,9 +60,10 @@
 5. [Lifespan and Testing](/fastapi/lifespan-and-testing)
 6. [BackgroundTasks와 오프로딩](/fastapi/background-tasks-and-offloading)
 7. [WebSocket, Streaming, Middleware](/fastapi/websockets-streaming-and-middleware)
-8. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
-9. [Performance and Ops](/fastapi/performance-and-ops)
-10. [Observability](/fastapi/observability)
+8. [WebSocket 실전 패턴](/fastapi/websocket-practical-patterns)
+9. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
+10. [Performance and Ops](/fastapi/performance-and-ops)
+11. [Observability](/fastapi/observability)
 
 ## FastAPI 파트의 실전 규칙
 
@@ -68,6 +73,7 @@
 - `yield` dependency 또는 lifespan으로 자원 수명주기를 닫는다.
 - `BackgroundTasks`는 작은 in-process 후처리에만 쓰고, retry/내구성이 필요한 일은 별도 worker로 뺀다.
 - WebSocket과 streaming은 일반 request/response보다 긴 연결 수명을 가진다고 보고 설계한다.
+- WebSocket은 auth on connect, room cleanup, multi-worker broadcast 전략까지 같이 설계한다.
 - reverse proxy, health endpoint, graceful shutdown은 앱 코드 바깥의 운영 경계로 같이 본다.
 - endpoint는 `async`라고 해서 sync I/O를 숨기지 않는다.
 - 성능 문제는 프레임워크보다 query shape, serialization, pool, worker model에서 먼저 찾는다.

@@ -132,6 +132,11 @@ const sections: NavSection[] = [
         path: "/fastapi/websockets-streaming-and-middleware",
       },
       {
+        ko: "WebSocket 실전 패턴",
+        en: "WebSocket Practical Patterns",
+        path: "/fastapi/websocket-practical-patterns",
+      },
+      {
         ko: "Proxy, Health, Shutdown",
         en: "Proxy, Health, and Shutdown",
         path: "/fastapi/proxy-health-and-shutdown",

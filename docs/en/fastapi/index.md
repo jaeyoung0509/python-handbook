@@ -34,6 +34,10 @@
     <p>They are not one-shot request/response paths. Connection lifetime, middleware behavior, timeouts, and shutdown rules all matter more.</p>
   </div>
   <div class="reading-card">
+    <h3>How should real-time services be designed?</h3>
+    <p>Plan auth on connect, room membership, disconnect cleanup, reconnect behavior, and multi-worker broadcast boundaries together.</p>
+  </div>
+  <div class="reading-card">
     <h3>What should tests prove?</h3>
     <p>Resource lifecycles, dependency overrides, transaction isolation, and response contracts are usually more important than route internals.</p>
   </div>
@@ -56,9 +60,10 @@
 5. [Lifespan and Testing](/en/fastapi/lifespan-and-testing)
 6. [Background Tasks and Offloading](/en/fastapi/background-tasks-and-offloading)
 7. [WebSockets, Streaming, and Middleware](/en/fastapi/websockets-streaming-and-middleware)
-8. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
-9. [Performance and Ops](/en/fastapi/performance-and-ops)
-10. [Observability](/en/fastapi/observability)
+8. [WebSocket Practical Patterns](/en/fastapi/websocket-practical-patterns)
+9. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
+10. [Performance and Ops](/en/fastapi/performance-and-ops)
+11. [Observability](/en/fastapi/observability)
 
 ## Working Rules for Real Services
 
@@ -68,6 +73,7 @@
 - Use lifespan or `yield` dependencies for resource ownership.
 - Use `BackgroundTasks` only for short in-process follow-up work, not for durable or heavy jobs.
 - Treat websockets and streaming as long-lived connection paths, not ordinary request handlers.
+- Design WebSocket auth, room cleanup, and multi-worker broadcast strategy explicitly instead of treating them as incidental route details.
 - Treat reverse proxies, health endpoints, and graceful shutdown as explicit operational boundaries.
 - Do not hide sync blocking work inside `async` endpoints.
 - Look at query shape, serialization cost, pool contention, and observability before blaming framework overhead.
