@@ -169,13 +169,16 @@ class ChatMessage(BaseModel):
 ## 이 저장소 예제
 
 - `examples/websocket_auth_and_rooms_lab.py`
+- `examples/websocket_redis_pubsub_lab.py`
+- `examples/websocket_client_protocol_reconnect_lab.py`
 - `examples/fastapi_realtime_and_middleware_lab.py`
 
 ## 같이 읽으면 좋은 페이지
 
 1. [WebSocket, Streaming, Middleware](/fastapi/websockets-streaming-and-middleware)
-2. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
-3. [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)
+2. [Redis Pub/Sub과 Multi-worker Broadcast](/fastapi/websocket-redis-pubsub)
+3. [Client Protocol과 Reconnect](/fastapi/websocket-client-protocol-and-reconnect)
+4. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
 
 ## 공식 자료
 

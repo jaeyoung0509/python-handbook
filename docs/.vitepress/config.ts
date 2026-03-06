@@ -137,6 +137,16 @@ const sections: NavSection[] = [
         path: "/fastapi/websocket-practical-patterns",
       },
       {
+        ko: "Redis Pub/Sub과 Multi-worker Broadcast",
+        en: "Redis Pub/Sub and Multi-worker Broadcast",
+        path: "/fastapi/websocket-redis-pubsub",
+      },
+      {
+        ko: "Client Protocol과 Reconnect",
+        en: "Client Protocol and Reconnect",
+        path: "/fastapi/websocket-client-protocol-and-reconnect",
+      },
+      {
         ko: "Proxy, Health, Shutdown",
         en: "Proxy, Health, and Shutdown",
         path: "/fastapi/proxy-health-and-shutdown",

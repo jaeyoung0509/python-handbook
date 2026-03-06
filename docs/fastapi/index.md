@@ -38,6 +38,14 @@
     <p>connect 시 인증, room membership, disconnect cleanup, 재연결 전략, multi-worker broadcast 경계를 같이 설계해야 한다.</p>
   </div>
   <div class="reading-card">
+    <h3>worker가 여러 개면 broadcast는 어떻게 되나</h3>
+    <p>in-memory room manager만으로는 안 된다. Redis pub/sub 같은 외부 fan-out 계층이 왜 필요한지, 어디서 한계가 생기는지 봐야 한다.</p>
+  </div>
+  <div class="reading-card">
+    <h3>클라이언트 재연결은 어디까지 책임져야 하나</h3>
+    <p>server hello, protocol version, event id, resume cursor, backoff 기준을 같이 설계해야 reconnect가 안정적이다.</p>
+  </div>
+  <div class="reading-card">
     <h3>테스트는 무엇을 검증해야 하나</h3>
     <p>단순 상태 코드보다 lifespan 자원 초기화, dependency override, transaction 격리, serialization 경계를 먼저 검증해야 한다.</p>
   </div>
@@ -61,9 +69,11 @@
 6. [BackgroundTasks와 오프로딩](/fastapi/background-tasks-and-offloading)
 7. [WebSocket, Streaming, Middleware](/fastapi/websockets-streaming-and-middleware)
 8. [WebSocket 실전 패턴](/fastapi/websocket-practical-patterns)
-9. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
-10. [Performance and Ops](/fastapi/performance-and-ops)
-11. [Observability](/fastapi/observability)
+9. [Redis Pub/Sub과 Multi-worker Broadcast](/fastapi/websocket-redis-pubsub)
+10. [Client Protocol과 Reconnect](/fastapi/websocket-client-protocol-and-reconnect)
+11. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
+12. [Performance and Ops](/fastapi/performance-and-ops)
+13. [Observability](/fastapi/observability)
 
 ## FastAPI 파트의 실전 규칙
 
@@ -74,6 +84,8 @@
 - `BackgroundTasks`는 작은 in-process 후처리에만 쓰고, retry/내구성이 필요한 일은 별도 worker로 뺀다.
 - WebSocket과 streaming은 일반 request/response보다 긴 연결 수명을 가진다고 보고 설계한다.
 - WebSocket은 auth on connect, room cleanup, multi-worker broadcast 전략까지 같이 설계한다.
+- single-worker와 multi-worker에서 room/broadcast 설계가 달라진다는 점을 먼저 인정한다.
+- reconnect는 client 재시도만의 문제가 아니라 protocol version, event id, resume 규약 문제로 본다.
 - reverse proxy, health endpoint, graceful shutdown은 앱 코드 바깥의 운영 경계로 같이 본다.
 - endpoint는 `async`라고 해서 sync I/O를 숨기지 않는다.
 - 성능 문제는 프레임워크보다 query shape, serialization, pool, worker model에서 먼저 찾는다.

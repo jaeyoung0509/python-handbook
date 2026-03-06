@@ -61,7 +61,7 @@ The goal is to make the repository useful in three ways at once:
 - `Typing`: modern typing, generics, protocols, narrowing, static vs runtime typing
 - `Runtime`: execution model, object model, GC, GIL, subinterpreters, specialization
 - `Asyncio`: event loop, task groups, cancellation, queues, backpressure, testing
-- `FastAPI`: ASGI/Uvicorn, structure, DI, request and response modeling, lifespan, background task boundaries, websockets/streaming, proxy and shutdown ops, observability
+- `FastAPI`: ASGI/Uvicorn, structure, DI, request and response modeling, lifespan, background task boundaries, websockets/streaming, Redis pub/sub, reconnect protocol, proxy and shutdown ops, observability
 - `Pydantic`: core schema, validation pipeline, `BaseModel` vs `TypeAdapter`, internals
 - `SQLAlchemy`: session/UoW, engine settings, relationships, async usage, migration patterns
 - `Playbooks`: settings, testing, UoW, deployment choices, service design patterns

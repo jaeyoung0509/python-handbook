@@ -167,13 +167,16 @@ Why:
 ## Repository examples
 
 - `examples/websocket_auth_and_rooms_lab.py`
+- `examples/websocket_redis_pubsub_lab.py`
+- `examples/websocket_client_protocol_reconnect_lab.py`
 - `examples/fastapi_realtime_and_middleware_lab.py`
 
 ## Companion chapters
 
 1. [WebSockets, Streaming, and Middleware](/en/fastapi/websockets-streaming-and-middleware)
-2. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
-3. [Lambda vs Kubernetes](/en/playbooks/lambda-vs-kubernetes)
+2. [Redis Pub/Sub and Multi-worker Broadcast](/en/fastapi/websocket-redis-pubsub)
+3. [Client Protocol and Reconnect](/en/fastapi/websocket-client-protocol-and-reconnect)
+4. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
 
 ## Official References
 

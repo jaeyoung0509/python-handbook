@@ -43,7 +43,7 @@ uv run ruff check .
 | Dataclass | `dataclass_patterns.py` | 값 객체, `default_factory`, `kw_only`, 패턴 매칭 조합을 빨리 익히기 좋음 |
 | Asyncio | `py311_exception_groups_and_taskgroup.py`, `asyncio_backpressure_and_cancellation.py` | 구조적 동시성, cancellation, backpressure를 함께 익히기 좋음 |
 | Pydantic | `pydantic_validation_pipeline.py` | core schema, strict/lax, validator/serializer 흐름을 한 번에 보여줌 |
-| FastAPI / SQLAlchemy | `asgi_lifecycle_lab.py`, `fastapi_background_tasks_patterns.py`, `fastapi_realtime_and_middleware_lab.py`, `websocket_auth_and_rooms_lab.py`, `uvicorn_proxy_and_health_lab.py`, `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | ASGI 메시지 흐름, BackgroundTasks 경계, realtime transport, websocket 실전 패턴, middleware, proxy/health, 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
+| FastAPI / SQLAlchemy | `asgi_lifecycle_lab.py`, `fastapi_background_tasks_patterns.py`, `fastapi_realtime_and_middleware_lab.py`, `websocket_auth_and_rooms_lab.py`, `websocket_redis_pubsub_lab.py`, `websocket_client_protocol_reconnect_lab.py`, `uvicorn_proxy_and_health_lab.py`, `fastapi_service_template_example.py`, `sqlalchemy_loading_strategies.py`, `sqlalchemy_class_based_uow.py`, `usecase_with_uow_abc.py`, `sqlalchemy_deployment_profiles.py` | ASGI 메시지 흐름, BackgroundTasks 경계, realtime transport, websocket 실전 패턴, Redis pub/sub, reconnect protocol, middleware, proxy/health, 서비스 경계, ORM 로딩 전략, class-based UoW, ABC 기반 use case, 배포별 엔진 설정 감각을 같이 확인할 수 있음 |
 | Settings | `pydantic_settings_patterns.py` | `settings.py`, env source priority, `.env`, secrets, `pydantic-settings` 감각을 빠르게 익히기 좋음 |
 | Testing | `tests/test_fastapi_fixtures_and_teardown.py` | fixture setup/teardown, override cleanup, TestClient lifecycle을 실제 테스트로 확인 |
 
@@ -274,6 +274,59 @@ uv run ruff check .
 - 두 번째 연결이 들어오면 room fan-out이 양쪽에 전달된다.
 - disconnect 뒤 room state가 정리된다.
 - 잘못된 token은 policy violation close code로 끊긴다.
+
+### `websocket_redis_pubsub_lab.py`
+
+무엇을 보여주나:
+
+- local-only room broadcast의 한계
+- broker-backed multi-worker fan-out
+- `PubSubEnvelope`
+- `RedisPubSubBroker` adapter shape
+
+왜 중요한가:
+
+- single-worker에서는 보이지 않던 websocket room fan-out 문제가 multi-worker에서 왜 터지는지 직관적으로 보여준다.
+- Redis를 "socket 저장소"가 아니라 "worker 간 fan-out 버스"로 이해하게 해준다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/websocket_redis_pubsub_lab.py
+```
+
+체크 포인트:
+
+- local-only에서는 다른 worker inbox가 비어 있다.
+- broker-backed에서는 두 worker inbox 모두 메시지를 본다.
+- 코드 안에 실제 `redis.asyncio` adapter shape가 들어 있다.
+
+### `websocket_client_protocol_reconnect_lab.py`
+
+무엇을 보여주나:
+
+- `server.hello`
+- `client.join`
+- `room.joined`
+- `chat.message` + `event_id`
+- `resume_from` 기반 replay
+
+왜 중요한가:
+
+- reconnect 문제를 단순 소켓 재연결이 아니라 protocol 계약 문제로 보게 해준다.
+- event id와 replay가 없으면 왜 중복/누락 처리에 약해지는지 감이 생긴다.
+
+실행:
+
+```bash
+./.venv/bin/python examples/websocket_client_protocol_reconnect_lab.py
+```
+
+체크 포인트:
+
+- 첫 연결은 `server.hello`를 받는다.
+- 재연결 후 `resume_from` 기준으로 놓친 이벤트를 replay받는다.
+- backoff 샘플 값이 같이 출력된다.
 
 ### `fastapi_service_template_example.py`
 
@@ -529,6 +582,7 @@ uv run pytest tests/test_pydantic_settings_patterns.py
 - ASGI/Uvicorn 예제와 같이 읽기: `/intro/web-gateway-evolution`, `/fastapi/asgi-and-uvicorn`, `/fastapi/background-tasks-and-offloading`
 - Realtime/운영 예제와 같이 읽기: `/fastapi/websockets-streaming-and-middleware`, `/fastapi/proxy-health-and-shutdown`
 - WebSocket 실전 패턴과 같이 읽기: `/fastapi/websocket-practical-patterns`
+- Multi-worker/reconnect 예제와 같이 읽기: `/fastapi/websocket-redis-pubsub`, `/fastapi/websocket-client-protocol-and-reconnect`
 - SQLAlchemy 예제와 같이 읽기: `/sqlalchemy/session-and-unit-of-work`, `/sqlalchemy/relationships-and-loading`
 - Pydantic 예제와 같이 읽기: `/pydantic/core-schema`, `/pydantic/validation-pipeline`
 - Asyncio 예제와 같이 읽기: `/asyncio/cancellation-and-taskgroup`, `/asyncio/queues-and-backpressure`

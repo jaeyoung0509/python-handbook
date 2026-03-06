@@ -38,6 +38,14 @@
     <p>Plan auth on connect, room membership, disconnect cleanup, reconnect behavior, and multi-worker broadcast boundaries together.</p>
   </div>
   <div class="reading-card">
+    <h3>What happens when there are multiple workers?</h3>
+    <p>In-memory room managers stop being enough. You need to understand why Redis pub/sub or another external fan-out layer becomes necessary.</p>
+  </div>
+  <div class="reading-card">
+    <h3>What makes reconnect reliable?</h3>
+    <p>Reconnect is not only about retrying. It also needs a protocol version, event IDs, resume cursors, and clear server hello behavior.</p>
+  </div>
+  <div class="reading-card">
     <h3>What should tests prove?</h3>
     <p>Resource lifecycles, dependency overrides, transaction isolation, and response contracts are usually more important than route internals.</p>
   </div>
@@ -61,9 +69,11 @@
 6. [Background Tasks and Offloading](/en/fastapi/background-tasks-and-offloading)
 7. [WebSockets, Streaming, and Middleware](/en/fastapi/websockets-streaming-and-middleware)
 8. [WebSocket Practical Patterns](/en/fastapi/websocket-practical-patterns)
-9. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
-10. [Performance and Ops](/en/fastapi/performance-and-ops)
-11. [Observability](/en/fastapi/observability)
+9. [Redis Pub/Sub and Multi-worker Broadcast](/en/fastapi/websocket-redis-pubsub)
+10. [Client Protocol and Reconnect](/en/fastapi/websocket-client-protocol-and-reconnect)
+11. [Proxy, Health, and Shutdown](/en/fastapi/proxy-health-and-shutdown)
+12. [Performance and Ops](/en/fastapi/performance-and-ops)
+13. [Observability](/en/fastapi/observability)
 
 ## Working Rules for Real Services
 
@@ -74,6 +84,8 @@
 - Use `BackgroundTasks` only for short in-process follow-up work, not for durable or heavy jobs.
 - Treat websockets and streaming as long-lived connection paths, not ordinary request handlers.
 - Design WebSocket auth, room cleanup, and multi-worker broadcast strategy explicitly instead of treating them as incidental route details.
+- Accept that room and broadcast architecture changes once you move from a single worker to multiple workers.
+- Treat reconnect as a protocol problem involving versioning, event IDs, and resume rules, not only as a client retry loop.
 - Treat reverse proxies, health endpoints, and graceful shutdown as explicit operational boundaries.
 - Do not hide sync blocking work inside `async` endpoints.
 - Look at query shape, serialization cost, pool contention, and observability before blaming framework overhead.
