@@ -18,6 +18,10 @@
     <p>세션, 설정, 외부 클라이언트 같은 리소스 wiring을 맡고, business branching은 service에 남겨둬야 한다.</p>
   </div>
   <div class="reading-card">
+    <h3>security는 어디서 끊어야 하나</h3>
+    <p>credential parsing, principal 복원, authorization policy를 분리해야 route가 비대해지지 않는다.</p>
+  </div>
+  <div class="reading-card">
     <h3>왜 ASGI와 Uvicorn을 먼저 알아야 하나</h3>
     <p>FastAPI는 서버가 아니라 ASGI app이다. `scope`, `receive`, `send`, worker, lifespan이 어떻게 움직이는지 알아야 운영 문제가 풀린다.</p>
   </div>
@@ -65,20 +69,22 @@
 2. [Project Structure](/fastapi/project-structure)
 3. [Dependency Injection](/fastapi/dependency-injection)
 4. [Request/Response Modeling](/fastapi/request-response-modeling)
-5. [Lifespan and Testing](/fastapi/lifespan-and-testing)
-6. [BackgroundTasks와 오프로딩](/fastapi/background-tasks-and-offloading)
-7. [WebSocket, Streaming, Middleware](/fastapi/websockets-streaming-and-middleware)
-8. [WebSocket 실전 패턴](/fastapi/websocket-practical-patterns)
-9. [Redis Pub/Sub과 Multi-worker Broadcast](/fastapi/websocket-redis-pubsub)
-10. [Client Protocol과 Reconnect](/fastapi/websocket-client-protocol-and-reconnect)
-11. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
-12. [Performance and Ops](/fastapi/performance-and-ops)
-13. [Observability](/fastapi/observability)
+5. [Security와 Auth](/fastapi/security-and-auth)
+6. [Lifespan and Testing](/fastapi/lifespan-and-testing)
+7. [BackgroundTasks와 오프로딩](/fastapi/background-tasks-and-offloading)
+8. [WebSocket, Streaming, Middleware](/fastapi/websockets-streaming-and-middleware)
+9. [WebSocket 실전 패턴](/fastapi/websocket-practical-patterns)
+10. [Redis Pub/Sub과 Multi-worker Broadcast](/fastapi/websocket-redis-pubsub)
+11. [Client Protocol과 Reconnect](/fastapi/websocket-client-protocol-and-reconnect)
+12. [Proxy, Health, Shutdown](/fastapi/proxy-health-and-shutdown)
+13. [Performance and Ops](/fastapi/performance-and-ops)
+14. [Observability](/fastapi/observability)
 
 ## FastAPI 파트의 실전 규칙
 
 - route는 transport adapter처럼 얇게 유지한다.
 - FastAPI app와 ASGI server(Uvicorn)의 책임을 분리해서 본다.
+- authn, authz, business rule을 같은 dependency 또는 route 함수에 몰아넣지 않는다.
 - request DTO, domain command, ORM entity, response DTO를 한 타입으로 합치지 않는다.
 - `yield` dependency 또는 lifespan으로 자원 수명주기를 닫는다.
 - `BackgroundTasks`는 작은 in-process 후처리에만 쓰고, retry/내구성이 필요한 일은 별도 worker로 뺀다.

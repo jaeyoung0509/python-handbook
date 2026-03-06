@@ -29,6 +29,10 @@
     <h3>설정은 어디에 맞춰 바꾸나</h3>
     <p>Lambda, Kubernetes, worker, batch는 process lifetime과 connection budget이 다르다. 같은 pool 설정을 복붙하면 바로 문제로 이어진다.</p>
   </div>
+  <div class="reading-card">
+    <h3>migration은 어떻게 안전하게 굴리나</h3>
+    <p>Alembic revision graph, additive rollout, backfill, contract 순서를 이해해야 다운타임 없는 배포가 가능하다.</p>
+  </div>
 </div>
 
 ## 추천 읽기 순서
@@ -39,6 +43,7 @@
 4. [Async SQLAlchemy](/sqlalchemy/async-sqlalchemy)
 5. [Core vs ORM](/sqlalchemy/core-vs-orm)
 6. [Migrations and Patterns](/sqlalchemy/migrations-and-patterns)
+7. [Alembic과 Zero-Downtime Migration](/sqlalchemy/alembic-and-zero-downtime)
 
 ## 이 파트의 실전 규칙
 
@@ -48,6 +53,7 @@
 - write path와 read path를 구분해서 로딩 전략과 응답 DTO를 설계한다.
 - ORM model, Pydantic schema, domain 개념을 하나의 클래스에 몰아넣지 않는다.
 - async라면 `AsyncSession`을 task 간에 공유하지 않는다.
+- destructive migration은 additive rollout과 contract 단계를 나눠서 본다.
 
 ## 같이 읽으면 좋은 페이지
 
