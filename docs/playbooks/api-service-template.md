@@ -229,6 +229,11 @@ class OrderService:
 - `examples/sqlalchemy_class_based_uow.py`
 - `tests/test_fastapi_fixtures_and_teardown.py`
 
+## 리팩터링 동선
+
+- 공통 냄새를 빠르게 찾고 싶다면 [Refactoring Atlas](/playbooks/refactoring-atlas)를 먼저 본다.
+- route와 dependency 경계를 실제로 고치는 흐름은 [Refactoring Fat Routes and Dependency Leakage](/playbooks/refactoring-fat-routes-and-dependency-leakage)에서 이어진다.
+
 ## 공식 자료
 
 - [FastAPI Bigger Applications](https://fastapi.tiangolo.com/tutorial/bigger-applications/)

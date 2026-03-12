@@ -416,6 +416,8 @@ This pattern is implemented in `examples/usecase_with_uow_abc.py`.
 
 ## Good Companion Chapters
 
+- [Refactoring Atlas](/en/playbooks/refactoring-atlas)
+- [Refactoring Session Ownership and Hidden Commits](/en/playbooks/refactoring-session-ownership-and-hidden-commits)
 - [Session and Unit of Work](/en/sqlalchemy/session-and-unit-of-work)
 - [Deployment and Engine Settings](/en/sqlalchemy/deployment-and-engine-settings)
 - [ABC + Fake UoW Testing](/en/playbooks/testing-abc-and-fake-uow)

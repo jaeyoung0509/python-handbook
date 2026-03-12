@@ -176,7 +176,7 @@ async def create_user(
   </div>
 </div>
 
-The `abc.ABC`-based use-case plus class-based UoW pattern is covered separately in [Use Case + UoW + ABC](/en/playbooks/usecase-uow-and-abc).
+The `abc.ABC`-based use-case plus class-based UoW pattern is covered separately in [Use Case + UoW + ABC](/en/playbooks/usecase-uow-and-abc). For a concrete cleanup flow around DTO and ORM boundaries, continue with [Refactoring DTO Boundaries and Over-Abstraction](/en/playbooks/refactoring-dto-boundaries-and-over-abstraction).
 
 ## Avoid These Patterns
 

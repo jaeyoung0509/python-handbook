@@ -417,6 +417,8 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 ## 같이 읽으면 좋은 페이지
 
+- [Refactoring Atlas](/playbooks/refactoring-atlas)
+- [Refactoring: Session Ownership과 Hidden Commits](/playbooks/refactoring-session-ownership-and-hidden-commits)
 - [Session and Unit of Work](/sqlalchemy/session-and-unit-of-work)
 - [Deployment and Engine Settings](/sqlalchemy/deployment-and-engine-settings)
 - [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)

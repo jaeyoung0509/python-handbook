@@ -229,6 +229,11 @@ class OrderService:
 - `examples/sqlalchemy_class_based_uow.py`
 - `tests/test_fastapi_fixtures_and_teardown.py`
 
+## Refactoring Path
+
+- If you want a fast map of recurring smells first, start with [Refactoring Atlas](/en/playbooks/refactoring-atlas).
+- For the concrete route and dependency cleanup flow, continue with [Refactoring Fat Routes and Dependency Leakage](/en/playbooks/refactoring-fat-routes-and-dependency-leakage).
+
 ## Official References
 
 - [FastAPI Bigger Applications](https://fastapi.tiangolo.com/tutorial/bigger-applications/)

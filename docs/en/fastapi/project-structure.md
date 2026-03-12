@@ -193,3 +193,8 @@ class UserService:
 - Explain how that shape increases test cost, change surface, and operational ambiguity.
 - Move the smallest set of responsibilities so routes stay thin and business actions own commits.
 - Close by connecting the refactor to clearer unit tests, integration tests, and observability boundaries.
+
+## Refactoring Path
+
+- For the fast smell map, start with [Refactoring Atlas](/en/playbooks/refactoring-atlas).
+- For the narrative cleanup flow, continue with [Refactoring Fat Routes and Dependency Leakage](/en/playbooks/refactoring-fat-routes-and-dependency-leakage).

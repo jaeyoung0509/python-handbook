@@ -14,6 +14,10 @@
     <p>router, service, repository, schema, settings, logging, tests를 어디에 두고 어떻게 연결할지 제안한다.</p>
   </div>
   <div class="reading-card">
+    <h3>지금 보이는 냄새를 어디서부터 고치나</h3>
+    <p>fat route, hidden commit, DTO/ORM collapse 같은 공통 smell을 atlas와 refactoring series로 빠르게 연결한다.</p>
+  </div>
+  <div class="reading-card">
     <h3>환경변수와 설정은 어떻게 설계하나</h3>
     <p>`settings.py`, `pydantic-settings`, `.env`, secret source, dependency override를 어떤 기준으로 나눌지 정리한다.</p>
   </div>
@@ -57,34 +61,43 @@
 
 ## 추천 읽기 순서
 
-1. [API Service Template](/playbooks/api-service-template)
-2. [Settings and Pydantic Settings](/playbooks/settings-and-pydantic-settings)
-3. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
-4. [Testing Beyond Fixtures](/playbooks/testing-beyond-fixtures)
+1. [Refactoring Atlas](/playbooks/refactoring-atlas)
+2. [API Service Template](/playbooks/api-service-template)
+3. [리팩토링: Fat Route와 DI Leakage](/playbooks/refactoring-fat-routes-and-dependency-leakage)
+4. [Settings and Pydantic Settings](/playbooks/settings-and-pydantic-settings)
 5. [ABC + Fake UoW Testing](/playbooks/testing-abc-and-fake-uow)
 6. [Use Case + UoW + ABC](/playbooks/usecase-uow-and-abc)
-7. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
-8. [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)
-9. [Progressive Delivery + Alembic](/playbooks/progressive-delivery-and-alembic)
-10. [계약 진화와 지속가능한 CD](/playbooks/contract-evolution-and-sustainable-cd)
-11. [Idempotency와 Outbox](/playbooks/idempotency-and-outbox)
-12. [Typing Review Checklist](/playbooks/typing-review-checklist)
+7. [리팩토링: Session Ownership과 Hidden Commits](/playbooks/refactoring-session-ownership-and-hidden-commits)
+8. [FastAPI + Pydantic + SQLAlchemy](/playbooks/fastapi-pydantic-sqlalchemy)
+9. [리팩토링: DTO Boundary와 Over-Abstraction](/playbooks/refactoring-dto-boundaries-and-over-abstraction)
+10. [Testing with Fixtures](/playbooks/testing-with-pytest-fixtures)
+11. [Testing Beyond Fixtures](/playbooks/testing-beyond-fixtures)
+12. [Lambda vs Kubernetes](/playbooks/lambda-vs-kubernetes)
+13. [Progressive Delivery + Alembic](/playbooks/progressive-delivery-and-alembic)
+14. [계약 진화와 지속가능한 CD](/playbooks/contract-evolution-and-sustainable-cd)
+15. [Idempotency와 Outbox](/playbooks/idempotency-and-outbox)
+16. [Typing Review Checklist](/playbooks/typing-review-checklist)
 
 ## 이 파트를 리뷰 관점으로 읽는 법
 
 - 핵심 playbook 끝에는 `Code Review Lens`, `Common Anti-Patterns`, `Likely Discussion Questions`, `Strong Answer Frame` 블록이 붙는다.
 - `API Service Template`, `Use Case + UoW + ABC`는 `sub-optimal -> improved` 예제로 설계 리팩터링 방향을 바로 보여준다.
+- `Refactoring Atlas`는 공통 냄새를 먼저 찾는 index 역할을 하고, refactoring series는 각 냄새를 narrative하게 깊게 판다.
 - `Lambda vs Kubernetes`, `Progressive Delivery + Alembic`은 symptom-first scenario table로 운영 판단 순서를 정리한다.
 
 ## 이 파트의 사용법
 
+- 지금 보이는 냄새를 빠르게 분류하고 싶다면 `Refactoring Atlas`부터 본다.
+- route와 dependency가 엉켰다면 `리팩토링: Fat Route와 DI Leakage`를 먼저 본다.
 - 새 프로젝트를 시작할 때는 `API Service Template`부터 본다.
 - 환경 변수, `.env`, secret source, `get_settings()` 경계를 잡고 싶다면 `Settings and Pydantic Settings`를 바로 본다.
 - fixture, teardown, override cleanup 기준이 필요하면 `Testing with Fixtures`를 바로 본다.
 - fixture 다음 단계로 contract/property/protocol 테스트를 확장하고 싶다면 `Testing Beyond Fixtures`를 바로 본다.
 - use case를 DB 없이 빨리 검증하는 테스트가 필요하면 `ABC + Fake UoW Testing`을 본다.
 - use case와 SQLAlchemy UoW를 `abc.ABC` 기반 경계와 함께 보고 싶다면 `Use Case + UoW + ABC`를 본다.
+- hidden commit이나 split session ownership이 보인다면 `리팩토링: Session Ownership과 Hidden Commits`를 바로 본다.
 - 이미 FastAPI/SQLAlchemy 프로젝트가 있다면 `FastAPI + Pydantic + SQLAlchemy`를 먼저 본다.
+- DTO/ORM collapse나 과한 ABC가 보인다면 `리팩토링: DTO Boundary와 Over-Abstraction`을 먼저 본다.
 - 배포 대상을 Lambda와 Kubernetes 중에서 비교해야 한다면 `Lambda vs Kubernetes`를 본다.
 - rolling, blue-green, canary, Lambda alias 배포에서 Alembic과 backfill 순서를 잡고 싶다면 `Progressive Delivery + Alembic`을 본다.
 - DB schema, public API, async event를 한 묶음의 contract evolution 문제로 정리하고 싶다면 `계약 진화와 지속가능한 CD`를 본다.

@@ -163,6 +163,11 @@ class CheckoutService:
 - cleanup이 필요한 자원과 아닌 자원을 구분해 `yield` 여부를 결정한다.
 - 마지막으로 HTTP, CLI, worker에서 같은 service를 재사용할 수 있는지로 설계를 검증한다.
 
+## 리팩터링 동선
+
+- 공통 smell을 빠르게 분류하려면 [Refactoring Atlas](/playbooks/refactoring-atlas)를 본다.
+- dependency leakage를 실제로 걷어내는 순서는 [Refactoring Fat Routes and Dependency Leakage](/playbooks/refactoring-fat-routes-and-dependency-leakage)에서 이어진다.
+
 ## 공식 자료
 
 - [FastAPI Dependencies](https://fastapi.tiangolo.com/tutorial/dependencies/)

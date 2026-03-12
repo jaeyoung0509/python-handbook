@@ -163,6 +163,11 @@ class CheckoutService:
 - Separate resources that need cleanup from objects that only need construction.
 - Validate the design by checking whether the same service can run from HTTP, CLI, and worker entrypoints.
 
+## Refactoring Path
+
+- Use [Refactoring Atlas](/en/playbooks/refactoring-atlas) for the quick smell map.
+- For the concrete cleanup sequence, continue with [Refactoring Fat Routes and Dependency Leakage](/en/playbooks/refactoring-fat-routes-and-dependency-leakage).
+
 ## Official Sources
 
 - [FastAPI Dependencies](https://fastapi.tiangolo.com/tutorial/dependencies/)

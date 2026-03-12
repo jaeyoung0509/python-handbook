@@ -202,7 +202,13 @@ const sections: NavSection[] = [
     navPath: "/playbooks/",
     items: [
       { ko: "개요", en: "Overview", path: "/playbooks/" },
+      { ko: "Refactoring Atlas", en: "Refactoring Atlas", path: "/playbooks/refactoring-atlas" },
       { ko: "API 서비스 템플릿", en: "API Service Template", path: "/playbooks/api-service-template" },
+      {
+        ko: "리팩토링: Fat Route와 DI Leakage",
+        en: "Refactoring Fat Routes and Dependency Leakage",
+        path: "/playbooks/refactoring-fat-routes-and-dependency-leakage",
+      },
       {
         ko: "Settings와 Pydantic Settings",
         en: "Settings and Pydantic Settings",
@@ -229,9 +235,19 @@ const sections: NavSection[] = [
         path: "/playbooks/usecase-uow-and-abc",
       },
       {
+        ko: "리팩토링: Session Ownership과 Hidden Commits",
+        en: "Refactoring Session Ownership and Hidden Commits",
+        path: "/playbooks/refactoring-session-ownership-and-hidden-commits",
+      },
+      {
         ko: "FastAPI + Pydantic + SQLAlchemy",
         en: "FastAPI + Pydantic + SQLAlchemy",
         path: "/playbooks/fastapi-pydantic-sqlalchemy",
+      },
+      {
+        ko: "리팩토링: DTO Boundary와 Over-Abstraction",
+        en: "Refactoring DTO Boundaries and Over-Abstraction",
+        path: "/playbooks/refactoring-dto-boundaries-and-over-abstraction",
       },
       {
         ko: "Lambda vs Kubernetes",

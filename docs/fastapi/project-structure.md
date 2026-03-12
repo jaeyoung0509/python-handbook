@@ -193,3 +193,8 @@ class UserService:
 - 그 구조가 테스트 비용, 변경 반경, 운영 가시성에 어떤 문제를 만드는지 설명한다.
 - 가장 작은 리팩터링으로 route를 얇게 하고 commit과 business rule을 안쪽으로 이동시킨다.
 - 마지막으로 unit test, integration test, observability 포인트가 어떻게 선명해지는지 연결한다.
+
+## 리팩터링 동선
+
+- 공통 smell 지도는 [Refactoring Atlas](/playbooks/refactoring-atlas)에서 먼저 본다.
+- 이 주제를 narrative하게 따라가려면 [Refactoring Fat Routes and Dependency Leakage](/playbooks/refactoring-fat-routes-and-dependency-leakage)로 이어진다.
