@@ -218,6 +218,34 @@ rate limiting, audit logging, suspicious activity detection도 auth 이후에 �
   </div>
 </div>
 
+## Code Review Lens
+
+- authn과 authz가 분리돼 있고, route가 이미 복원된 principal 또는 policy 결과만 받는지 본다.
+- request-scoped session/client ownership이 auth dependency와 business service 사이에서 갈라지지 않는지 본다.
+- token decode, DB lookup, domain branching, HTTP error shaping이 한 함수에 몰리지 않는지 본다.
+- `async` endpoint 안에서 sync password hash, sync HTTP call, sync secret lookup이 숨어 있지 않은지 본다.
+
+## Common Anti-Patterns
+
+- `get_current_user()` 하나가 JWT decode, DB 조회, role 분기, tenant check를 전부 수행한다.
+- route가 principal 복원 직후 business rule까지 직접 판단해 policy와 use case가 섞인다.
+- WebSocket connect path는 인증하고 message-level authorization은 비워 둔다.
+- secret rotation, revoke, audit log 없이 JWT만 도입하고 끝낸다.
+
+## Likely Discussion Questions
+
+- principal 복원과 authorization policy를 왜 다른 경계로 봐야 하는가?
+- browser first-party 앱에서 cookie session과 bearer token 중 무엇을 기본값으로 둘 것인가?
+- auth dependency 안에서 sync blocking이 생기면 어떤 장애 양상으로 보이겠는가?
+- WebSocket에서는 "연결 허용"과 "메시지 허용"을 어떻게 분리할 것인가?
+
+## Strong Answer Frame
+
+- 먼저 credential extraction, principal restoration, policy check, use case 실행의 네 단계를 분리해 설명한다.
+- 현재 구조에서 어떤 책임이 섞여 있는지와 그로 인한 테스트/운영 비용을 짚는다.
+- threat model에 따라 cookie, token, API key를 비교하고 revoke/rotation/CSRF/XSS까지 같이 말한다.
+- 마지막으로 request path와 realtime path 모두에서 같은 보안 경계가 보이도록 정리한다.
+
 ## 이 저장소에서 같이 볼 문서
 
 1. [Request/Response Modeling](/fastapi/request-response-modeling)

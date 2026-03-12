@@ -80,6 +80,12 @@
 13. [Performance and Ops](/en/fastapi/performance-and-ops)
 14. [Observability](/en/fastapi/observability)
 
+## How to Read This Part in Review Mode
+
+- Key chapters now end with `Code Review Lens`, `Common Anti-Patterns`, `Likely Discussion Questions`, and `Strong Answer Frame`.
+- Structure chapters such as `Project Structure` and `Dependency Injection` use `sub-optimal -> improved` examples to show why the boundary matters.
+- Operational chapters such as `Observability` include symptom-first scenario tables so you can reason about what to inspect first under pressure.
+
 ## Working Rules for Real Services
 
 - Keep routes thin and transport-oriented.

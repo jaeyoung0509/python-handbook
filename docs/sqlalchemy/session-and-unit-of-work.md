@@ -308,6 +308,34 @@ class RegisterUserService:
   </div>
 </div>
 
+## Code Review Lens
+
+- session lifecycle ownership이 request/use case/job 경계와 명확히 맞물리는지 본다.
+- commit 위치가 business action 단위와 일치하고 repository helper 안에 숨지 않는지 본다.
+- request dependency, service, UoW 중 누가 session을 열고 닫는지 하나로 읽히는지 본다.
+- fake UoW 테스트와 실제 DB integration test가 서로 다른 검증 목적을 가지는지 본다.
+
+## Common Anti-Patterns
+
+- session을 전역 캐시처럼 길게 들고 있어 stale state와 memory pressure를 만든다.
+- repository 메서드가 `commit()`을 내부에서 호출해 여러 저장 작업을 원자적으로 묶지 못한다.
+- request dependency가 live Session을 열고, UoW가 또 내부 세션을 여는 식으로 ownership이 갈라진다.
+- API boundary에서 ORM entity를 그대로 흘려 lazy load와 serialization이 충돌한다.
+
+## Likely Discussion Questions
+
+- request scope Session과 class-based UoW는 어떤 상황에서 각각 더 읽기 좋은가?
+- 왜 `flush()`와 `commit()`을 분리해 생각해야 하는가?
+- fake UoW 테스트만으로 충분하지 않은 이유는 무엇인가?
+- session ownership이 둘로 갈라지면 운영에서 어떤 증상으로 나타나는가?
+
+## Strong Answer Frame
+
+- 먼저 Session을 connection이 아니라 짧은 work context로 정의한다.
+- 그 다음 transaction boundary, session lifecycle, repository responsibility를 분리해서 설명한다.
+- ownership이 갈라질 때 생기는 partial commit, stale state, test confusion을 짚는다.
+- 마지막으로 fake UoW와 real DB 테스트를 각각 어떤 계층 검증에 쓸지 구분한다.
+
 ## 공식 자료
 
 - [SQLAlchemy Session Basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)

@@ -92,6 +92,42 @@
 - websocket/streaming 요구가 있는데도 Lambda를 기본값처럼 택하는 것
 - 운영 표면적이 큰데도 Kubernetes를 "언젠가 필요할 것 같아서" 먼저 도입하는 것
 
+## 운영 시나리오로 점검하기
+
+| symptom | 먼저 볼 것 | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| burst traffic 때는 잘 버티는데 DB connection이 먼저 죽는다 | traffic shape보다 DB 연결 방식과 pool strategy를 먼저 본다 | Lambda/Kubernetes 선택은 맞아도 connection strategy가 workload와 안 맞는다 | RDS Proxy, bounded pool, worker math 등 DB 전략부터 다시 맞춘다 | 플랫폼만 다시 바꾸면 해결될 거라고 본다 |
+| product가 WebSocket/SSE를 요구하는데 운영 복잡도는 최소화하고 싶다 | long-lived connection이 핵심 요구인지부터 본다 | short-lived request 모델인 Lambda에 long-lived requirement를 억지로 올리려 한다 | realtime path는 Kubernetes 또는 별도 stateful runtime으로 분리한다 | workaround를 계속 쌓아 Lambda 하나에 모두 우겨넣는다 |
+| observability agent, sidecar, cron, worker를 같이 운영해야 한다 | sidecar/daemon/custom networking 요구를 먼저 본다 | hosting 결정을 API latency만으로 해버렸다 | platform choice를 API + worker + agent 묶음의 운영 모델로 다시 평가한다 | "API만 보면 되니까"라며 worker와 운영 도구를 나중 문제로 미룬다 |
+
+## Code Review Lens
+
+- hosting choice를 비용표보다 workload shape와 운영 조건으로 설명하는지 본다.
+- long-lived connection, worker, scheduler, sidecar 요구가 decision input에 포함되는지 본다.
+- DB connection strategy가 platform choice와 같이 논의되는지 본다.
+- hybrid 선택이 오히려 단순해지는 경계를 인정하는지 본다.
+
+## Common Anti-Patterns
+
+- Lambda와 Kubernetes를 "serverless vs containers" 정도의 표면적 비교로 끝낸다.
+- steady traffic과 websocket 요구가 있는데도 낮은 ops surface만 보고 Lambda를 고른다.
+- 운영 필요가 아직 없는데도 미래를 핑계로 Kubernetes를 과하게 앞당긴다.
+- API hosting 결정과 worker/scheduler/observability 운영 모델을 분리해 생각한다.
+
+## Likely Discussion Questions
+
+- 어떤 신호가 Lambda보다 Kubernetes 쪽으로 무게를 확실히 옮기는가?
+- hybrid architecture가 오히려 덜 복잡해지는 시점은 언제인가?
+- hosting 결정에서 DB connection budget이 왜 가장 먼저 나와야 하는가?
+- sidecar, service mesh, OTEL agent 요구가 설계에 미치는 영향은 무엇인가?
+
+## Strong Answer Frame
+
+- 먼저 traffic shape, request lifetime, realtime 요구, 운영 표면적을 입력값으로 둔다.
+- 그 다음 DB connection strategy와 worker model을 hosting decision과 함께 설명한다.
+- Lambda, Kubernetes, hybrid를 각각 언제 덜 아픈 선택인지 비교한다.
+- 마지막에 팀의 운영 역량과 blast radius를 같이 언급해 결정을 닫는다.
+
 ## 같이 읽으면 좋은 페이지
 
 - [Deployment and Engine Settings](/sqlalchemy/deployment-and-engine-settings)

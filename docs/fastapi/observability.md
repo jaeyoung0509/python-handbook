@@ -131,6 +131,42 @@ async def logging_middleware(request, call_next):
   </div>
 </div>
 
+## 운영 시나리오로 점검하기
+
+| symptom | 먼저 볼 것 | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| 릴리스 직후 p95가 급등했는데 trace가 듬성듬성 보인다 | bootstrap 시 instrumentation이 중복되었는지, sampling 변경이 있었는지 본다 | route/dependency 안에서 SDK를 다시 초기화했거나 sampler를 잘못 낮췄다 | 중복 초기화를 제거하고, 핵심 endpoint만 임시로 sampling을 높여 원인을 좁힌다 | 모든 요청을 즉시 100% tracing으로 올리고 장기 유지한다 |
+| 500 알람은 오는데 로그, 에러, trace를 서로 연결할 수 없다 | request id / trace id가 같은 request scope에 묶였는지 본다 | correlation id propagation이 없거나 middleware/contextvars binding이 빠졌다 | request-scoped binding을 복구하고 핵심 경로에 공통 correlation 필드를 맞춘다 | raw request body와 secret을 로그에 덤프해 임시로 찾으려 한다 |
+| observability 비용이 갑자기 치솟고 검색도 느려진다 | metric tag와 span attribute에 어떤 high-cardinality 값이 들어갔는지 본다 | `user_id`, `email`, `order_id` 같은 값을 무분별하게 붙였다 | 고카디널리티 필드를 제거하고 검색 가능한 bounded dimension만 남긴다 | cardinality 문제를 모른 척한 채 retention만 줄여서 신호 자체를 잃는다 |
+
+## Code Review Lens
+
+- instrumentation과 SDK init이 app bootstrap/lifespan에서 한 번만 일어나는지 본다.
+- request id, trace id, error event가 같은 request context로 묶이는지 본다.
+- sampling과 redaction 정책이 도구 초기화와 별개로 명시돼 있는지 본다.
+- span/tag/log field가 bounded cardinality를 유지하는지 본다.
+
+## Common Anti-Patterns
+
+- route나 dependency마다 logger scope, tracer, Sentry SDK를 다시 초기화한다.
+- trace는 있지만 request id가 없거나, 로그는 있는데 trace와 연결되지 않는다.
+- request/response body 전체를 운영 로그나 error context에 그대로 남긴다.
+- 문제를 모를 때마다 metric label과 span attribute를 계속 추가한다.
+
+## Likely Discussion Questions
+
+- incident가 났을 때 제일 먼저 어떤 signal부터 보고, 무엇을 연결할 것인가?
+- 왜 bootstrap-time instrumentation이 route-level initialization보다 안전한가?
+- 어떤 필드는 trace/log에 남기고, 어떤 필드는 redaction 또는 omission 해야 하는가?
+- tracing 비용이 치솟을 때 retention을 줄이기 전에 무엇을 먼저 정리해야 하는가?
+
+## Strong Answer Frame
+
+- 먼저 logs, traces, errors가 같은 request context를 공유하는지부터 본다고 설명한다.
+- 다음으로 initialization 위치, sampling, cardinality, redaction 네 축을 분리해 진단한다.
+- 장애 대응에서는 bounded하게 signal을 늘리고, 원인 파악 후 기본값을 다시 보수적으로 되돌린다.
+- 마지막에 observability를 기능이 아니라 운영 계약으로 본다는 관점을 명확히 한다.
+
 ## 공식 자료
 
 - [OpenTelemetry Python Getting Started](https://opentelemetry.io/docs/languages/python/getting-started/)

@@ -305,6 +305,34 @@ class RegisterUserService:
   </div>
 </div>
 
+## Code Review Lens
+
+- Check whether session lifecycle ownership lines up clearly with the request, use case, or job boundary.
+- Check whether commit ownership stays at the business-action level instead of hiding inside repository helpers.
+- Check whether one layer clearly opens and closes the session instead of splitting ownership across dependencies, services, and UoWs.
+- Check whether fake-UoW tests and real DB integration tests serve different validation goals.
+
+## Common Anti-Patterns
+
+- keeping sessions alive like global caches and accumulating stale state plus memory pressure
+- repository methods calling `commit()` internally so multi-step actions lose atomicity
+- request dependencies opening one live Session while a UoW opens another one internally
+- leaking ORM entities through the API boundary so lazy loading and serialization collide
+
+## Likely Discussion Questions
+
+- When is request-scoped Session injection clearer, and when is a class-based UoW clearer?
+- Why must `flush()` and `commit()` stay mentally separate?
+- Why are fake-UoW tests not enough on their own?
+- What operational symptoms appear when session ownership is split?
+
+## Strong Answer Frame
+
+- Start by defining Session as a short-lived work context rather than "the connection."
+- Then separate transaction boundaries, session lifecycle, and repository responsibility.
+- Point out the concrete failures created by split ownership: partial commits, stale state, and confusing tests.
+- Close by distinguishing the purpose of fake-UoW tests from real DB integration tests.
+
 ## Official Sources
 
 - [SQLAlchemy Session Basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)

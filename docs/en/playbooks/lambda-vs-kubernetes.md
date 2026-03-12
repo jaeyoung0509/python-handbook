@@ -92,6 +92,42 @@
 - defaulting to Lambda when long-lived streaming is clearly required
 - adopting Kubernetes "just in case" before the operational need exists
 
+## Scenario Table
+
+| symptom | inspect first | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| burst traffic is fine but the database falls over first | inspect DB connection strategy and pool shape before the hosting platform label | the Lambda/Kubernetes choice may be defensible, but the connection strategy does not fit the workload | fix RDS Proxy, bounded pools, and worker math before revisiting the platform label | assume changing platforms alone fixes the issue |
+| the product needs WebSockets or SSE but the team wants minimal ops | inspect whether long-lived connections are a core requirement | a short-lived request platform is being stretched into a long-lived connection runtime | move the real-time path to Kubernetes or another stateful runtime boundary | keep layering workarounds onto one Lambda-only shape |
+| observability agents, sidecars, schedulers, and workers must coexist | inspect sidecar, daemon, and custom-networking requirements first | hosting was chosen by API latency alone | reevaluate the platform as one operating model for API plus workers plus agents | treat workers and ops tooling as a future concern that can be bolted on later |
+
+## Code Review Lens
+
+- Check whether the hosting choice is explained through workload shape and operational conditions, not just cost.
+- Check whether long-lived connections, workers, schedulers, and sidecars are explicit decision inputs.
+- Check whether database connection strategy is discussed alongside the platform choice.
+- Check whether hybrid architecture is allowed once it is actually the simpler operational boundary.
+
+## Common Anti-Patterns
+
+- reducing the decision to a shallow "serverless vs containers" comparison
+- choosing Lambda for low ops even when steady traffic and long-lived connections dominate
+- pulling Kubernetes in too early because it might be useful someday
+- deciding API hosting separately from worker, scheduler, and observability operations
+
+## Likely Discussion Questions
+
+- Which signals should move the decision clearly from Lambda toward Kubernetes?
+- When does a hybrid architecture become simpler rather than more complex?
+- Why should DB connection budget show up early in the hosting decision?
+- How do sidecars, service mesh, or OTEL-agent requirements change the choice?
+
+## Strong Answer Frame
+
+- Start with traffic shape, request lifetime, realtime needs, and operational surface as the real inputs.
+- Then explain DB connection strategy and worker model together with the hosting choice.
+- Compare Lambda, Kubernetes, and hybrid in terms of which one hurts less for the given workload.
+- Close by including team operations capacity and blast radius in the final judgment.
+
 ## Good Companion Chapters
 
 - [Deployment and Engine Settings](/en/sqlalchemy/deployment-and-engine-settings)

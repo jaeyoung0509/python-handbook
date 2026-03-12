@@ -70,6 +70,12 @@
 11. [Idempotency와 Outbox](/playbooks/idempotency-and-outbox)
 12. [Typing Review Checklist](/playbooks/typing-review-checklist)
 
+## 이 파트를 리뷰 관점으로 읽는 법
+
+- 핵심 playbook 끝에는 `Code Review Lens`, `Common Anti-Patterns`, `Likely Discussion Questions`, `Strong Answer Frame` 블록이 붙는다.
+- `API Service Template`, `Use Case + UoW + ABC`는 `sub-optimal -> improved` 예제로 설계 리팩터링 방향을 바로 보여준다.
+- `Lambda vs Kubernetes`, `Progressive Delivery + Alembic`은 symptom-first scenario table로 운영 판단 순서를 정리한다.
+
 ## 이 파트의 사용법
 
 - 새 프로젝트를 시작할 때는 `API Service Template`부터 본다.

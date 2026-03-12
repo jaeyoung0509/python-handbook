@@ -172,6 +172,42 @@ SessionFactory = async_sessionmaker(
 - `AsyncSession` 하나를 여러 task가 동시에 쓰게 하는 것
 - 로컬에서 잘 되던 `echo=True`를 운영에 남겨두는 것
 
+## 운영 시나리오로 점검하기
+
+| symptom | 먼저 볼 것 | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| 배포 후 DB max connection alarm이 바로 뜬다 | `replicas * workers * (pool_size + max_overflow)` 계산부터 다시 본다 | worker 수와 pool 설정을 따로 바꾸면서 connection budget을 초과했다 | app pool을 줄이고 replica/worker/pool math를 다시 맞춘다 | 원인 계산 없이 DB max_connections만 먼저 올린다 |
+| `QueuePool limit reached`가 간헐적으로 터진다 | pool timeout, query latency, long transaction, worker 수를 같이 본다 | 느린 query 또는 너무 큰 pool 기대치 때문에 checkout이 막힌다 | query shape를 줄이고 pool을 bounded하게 재조정하며 timeout으로 saturation을 빨리 드러낸다 | `max_overflow`만 계속 키워 문제를 뒤로 미룬다 |
+| Lambda burst 때 DB timeout이 난다 | RDS Proxy/PgBouncer 유무와 app-side pool 전략을 본다 | invocation형 workload인데 app 쪽 pooling을 과하게 두었거나 외부 pooler 없이 직접 연결 storm가 났다 | `NullPool` 또는 작은 풀로 줄이고 외부 pooler 전략을 검토한다 | Lambda에도 long-lived server 기준 pool 설정을 그대로 복붙한다 |
+
+## Code Review Lens
+
+- 배포 환경별 process lifetime과 concurrency shape를 먼저 계산하고 pool을 고르는지 본다.
+- app-side pool과 external pooler의 역할이 겹치지 않게 설계했는지 본다.
+- worker 수, replica 수, session scope가 connection budget과 같이 논의되는지 본다.
+- shutdown/dispose 전략이 engine ownership과 함께 보이는지 본다.
+
+## Common Anti-Patterns
+
+- Lambda, Kubernetes, batch worker에 같은 engine 설정을 일괄 적용한다.
+- `pool_size`만 보고 `max_overflow`와 worker multiplicative effect를 잊는다.
+- 외부 pooler가 있는데도 앱에서 큰 `QueuePool`을 중첩한다.
+- async 서비스에서 `AsyncSession` 하나를 여러 coroutine이 공유하게 둔다.
+
+## Likely Discussion Questions
+
+- 왜 pool 설정은 코드 취향이 아니라 배포 topology 문제인가?
+- Lambda와 Kubernetes에서 session scope와 pool 전략이 달라지는 핵심 이유는 무엇인가?
+- saturation이 났을 때 `pool_timeout`과 fail-fast가 왜 중요한가?
+- engine dispose와 graceful shutdown을 같이 말해야 하는 이유는 무엇인가?
+
+## Strong Answer Frame
+
+- 먼저 workload shape, process lifetime, concurrency, external pooler 유무를 입력값으로 둔다.
+- 그 다음 connection budget 계산으로 pool 상한을 설명한다.
+- 환경별로 `NullPool`과 bounded pool의 trade-off를 나누어 말한다.
+- 마지막에 shutdown, session scope, saturation 대응까지 운영 관점으로 닫는다.
+
 ## 이 저장소의 실행 예제
 
 배포 프로필별 권장 설정은 `examples/sqlalchemy_deployment_profiles.py` 에 runnable note 형태로 넣어두었다.

@@ -70,6 +70,12 @@
 11. [Idempotency and Outbox](/en/playbooks/idempotency-and-outbox)
 12. [Typing Review Checklist](/en/playbooks/typing-review-checklist)
 
+## How to Read This Part in Review Mode
+
+- Key playbooks now end with `Code Review Lens`, `Common Anti-Patterns`, `Likely Discussion Questions`, and `Strong Answer Frame`.
+- `API Service Template` and `Use Case + UoW + ABC` now include `sub-optimal -> improved` examples that show concrete refactoring direction.
+- `Lambda vs Kubernetes` and `Progressive Delivery + Alembic` now include symptom-first scenario tables for operational judgment.
+
 ## How to Use This Part
 
 - Start with `API Service Template` when creating a new service skeleton.

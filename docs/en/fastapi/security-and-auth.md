@@ -218,6 +218,34 @@ Rate limiting, audit logging, and suspicious-activity monitoring belong right af
   </div>
 </div>
 
+## Code Review Lens
+
+- Check whether authn and authz are separated so routes receive a restored principal or policy result, not raw token mechanics.
+- Check whether request-scoped session or client ownership stays coherent across auth dependencies and business services.
+- Check whether token decoding, DB lookup, domain branching, and HTTP error shaping have collapsed into one function.
+- Check whether sync password hashing, sync HTTP calls, or sync secret lookups are hiding inside `async` paths.
+
+## Common Anti-Patterns
+
+- one `get_current_user()` dependency doing JWT decode, DB lookup, role branching, and tenant checks together
+- routes applying business rules immediately after principal restoration so policy and use case logic blur together
+- authenticating the WebSocket connect path but leaving message-level authorization undefined
+- adopting JWTs without a revoke, rotation, or audit story
+
+## Likely Discussion Questions
+
+- Why should principal restoration and authorization policy stay in different boundaries?
+- For a first-party browser app, when should cookies beat bearer tokens as the default?
+- What production symptoms show up when auth dependencies hide sync blocking work?
+- How should WebSocket "connection allowed" and "message allowed" decisions be separated?
+
+## Strong Answer Frame
+
+- Start by separating credential extraction, principal restoration, policy checks, and use-case execution.
+- Point to the mixed responsibilities in the current design and the resulting test and operational cost.
+- Compare cookies, bearer tokens, and API keys through threat model, revoke, rotation, CSRF, and XSS.
+- Close by showing that the same security boundary must exist for both request-response and real-time paths.
+
 ## Good companion chapters in this repository
 
 1. [Request/Response Modeling](/en/fastapi/request-response-modeling)

@@ -108,6 +108,71 @@ app = create_app()
 4. background 작업과 request path를 분리한다.
 5. observability와 timeout을 early default로 넣는다.
 
+## sub-optimal -> improved: 서비스 뼈대에서 가장 먼저 무너지는 지점
+
+### 나쁜 예: route, 설정, persistence, side effect가 한 덩어리
+
+```py
+import os
+
+from fastapi import APIRouter, Depends, HTTPException
+
+router = APIRouter()
+
+
+@router.post("/orders")
+async def create_order(
+    payload: OrderCreate,
+    session: AsyncSession = Depends(get_session),
+) -> OrderRead:
+    if os.getenv("ALLOW_ORDERING", "true") != "true":
+        raise HTTPException(status_code=503, detail="ordering disabled")
+
+    order = OrderModel.model_validate(payload)
+    session.add(order)
+    await session.commit()
+    await publish_order_created(order.id)
+    return OrderRead.model_validate(order)
+```
+
+<p class="code-caption">이 구조는 작을 때는 빨라 보이지만, ordering policy, transaction 경계, 이벤트 발행 순서, DTO 안정성이 모두 route 파일에 묶인다. 이후 retry, timeout, idempotency, audit logging을 붙일수록 route가 서비스 전체를 대표하는 giant function이 된다.</p>
+
+### 더 나은 예: route는 transport, service는 action orchestration
+
+```py
+@router.post("/orders", response_model=OrderRead)
+async def create_order(
+    payload: OrderCreate,
+    service: OrderService = Depends(get_order_service),
+) -> OrderRead:
+    command = CreateOrderCommand.model_validate(payload)
+    return await service.create_order(command)
+
+
+class OrderService:
+    def __init__(
+        self,
+        session: AsyncSession,
+        settings: Settings,
+        publisher: OrderPublisher,
+    ) -> None:
+        self.session = session
+        self.settings = settings
+        self.publisher = publisher
+
+    async def create_order(self, command: CreateOrderCommand) -> OrderRead:
+        if not self.settings.allow_ordering:
+            raise OrderingDisabled()
+
+        order = OrderModel.from_command(command)
+        self.session.add(order)
+        await self.session.commit()
+        await self.publisher.publish_created(order.id)
+        return OrderRead(id=order.id, status=order.status)
+```
+
+<p class="code-caption">핵심은 layer를 늘리는 것이 아니라 ownership을 읽히게 만드는 것이다. route는 transport adapter, service는 business action, settings/publisher는 injected boundary가 되면 리팩터링과 장애 대응이 훨씬 덜 꼬인다.</p>
+
 ## 실전 체크리스트
 
 <div class="doc-checklist">
@@ -128,6 +193,34 @@ app = create_app()
     <p>프로젝트 초기에 경계를 잡아두면 나중에 observability와 환경별 설정 분기가 덜 아프다.</p>
   </div>
 </div>
+
+## Code Review Lens
+
+- route가 transport adapter처럼 얇고, service가 business action을 대표하는지 본다.
+- settings/env lookup이 service boundary 바깥의 wiring에서 정리되는지 본다.
+- repository가 query/persistence detail만 알고 commit 정책은 모르는지 본다.
+- 외부 side effect가 durable commit 뒤에 실행되는지 본다.
+
+## Common Anti-Patterns
+
+- route 안에서 env lookup, query, commit, publish, serialization을 모두 처리한다.
+- repository/helper가 암묵적으로 commit해서 transaction 원자성이 깨진다.
+- ORM entity를 request/response schema처럼 직접 사용한다.
+- observability, timeout, retry를 나중에 붙일 일로 미뤄 entrypoint가 비대해진다.
+
+## Likely Discussion Questions
+
+- 현재 구조에서 feature flag, audit log, outbox를 넣으려면 어디가 가장 먼저 깨지는가?
+- 왜 repository가 아니라 service/use case가 commit을 소유해야 하는가?
+- background task나 worker가 같은 business action을 재사용하려면 어떤 경계를 유지해야 하는가?
+- settings를 직접 읽는 코드가 늘어날수록 테스트와 운영에서 무슨 비용이 생기는가?
+
+## Strong Answer Frame
+
+- 먼저 boundary별 책임을 정리해 route, service, repository, infra의 역할을 구분한다.
+- 현재 구조가 만드는 partial commit, 테스트 과대화, 운영 가시성 부족을 설명한다.
+- 가장 작은 구조 개선으로 settings 주입, service orchestration, DTO 경계를 복원한다.
+- 마지막에 retry/idempotency/observability 같은 운영 요구를 어디에 붙일지 연결한다.
 
 ## 함께 보면 좋은 예제
 

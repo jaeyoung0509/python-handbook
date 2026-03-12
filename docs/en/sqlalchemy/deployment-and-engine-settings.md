@@ -172,6 +172,42 @@ SessionFactory = async_sessionmaker(
 - sharing one `AsyncSession` across concurrent tasks
 - leaving `echo=True` on in production
 
+## Scenario Table
+
+| symptom | inspect first | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| DB max-connection alarms fire right after a deployment | recalculate `replicas * workers * (pool_size + max_overflow)` first | worker count and pool settings changed independently and blew past the connection budget | reduce app-side pool pressure and rebalance replica, worker, and pool math | raise `max_connections` first without understanding the app-side multiplier |
+| `QueuePool limit reached` appears intermittently | inspect pool timeout, query latency, long transactions, and worker count together | slow queries or unrealistic pool expectations are blocking checkout | reduce query cost, keep the pool bounded, and use timeout to surface saturation quickly | keep increasing `max_overflow` and hide the problem |
+| Lambda bursts cause DB timeouts | inspect whether RDS Proxy or PgBouncer exists and what app-side pool strategy is in use | invocation-shaped workload is using server-style pooling or causing direct connection storms | move toward `NullPool` or a tiny pool and evaluate an external pooler | copy long-lived server pool settings into Lambda unchanged |
+
+## Code Review Lens
+
+- Check whether process lifetime and concurrency shape are calculated before pool choices are made.
+- Check whether app-side pools and external poolers have distinct responsibilities.
+- Check whether worker count, replica count, and session scope are discussed together with connection budget.
+- Check whether shutdown and disposal strategy are part of engine ownership.
+
+## Common Anti-Patterns
+
+- applying one engine profile to Lambda, Kubernetes, and batch workers alike
+- looking only at `pool_size` while forgetting `max_overflow` and worker multiplication
+- stacking a large `QueuePool` on top of an external pooler
+- letting one `AsyncSession` leak across concurrent coroutines
+
+## Likely Discussion Questions
+
+- Why is pool configuration a deployment-topology decision rather than a stylistic one?
+- What changes the session-scope and pool strategy decision between Lambda and Kubernetes?
+- Why do `pool_timeout` and fail-fast behavior matter under saturation?
+- Why should engine disposal and graceful shutdown be discussed together?
+
+## Strong Answer Frame
+
+- Start with workload shape, process lifetime, concurrency, and external pooler presence as the real inputs.
+- Then explain pool limits through explicit connection-budget math.
+- Separate the `NullPool` story from the bounded-pool story by deployment type.
+- Close from an operational angle: shutdown, session scope, and saturation response.
+
 ## Runnable Example in This Repository
 
 Recommended deployment profiles are summarized in `examples/sqlalchemy_deployment_profiles.py`.

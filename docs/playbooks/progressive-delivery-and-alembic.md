@@ -319,6 +319,42 @@ AWS Lambda weighted alias나 CodeDeploy canary/linear도 앱 버전 트래픽만
 - canary 비율이 낮으니 destructive migration도 괜찮다고 본다.
 - contract migration을 traffic shift 직후 즉시 실행한다.
 
+## 운영 시나리오로 점검하기
+
+| symptom | 먼저 볼 것 | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| canary 10%까지는 괜찮았는데 50%부터 old worker가 터진다 | old/new app이 같은 expanded schema를 모두 이해하는지 본다 | compatibility deploy 없이 사실상 contract behavior를 먼저 켰다 | feature flag를 되돌리고 compatibility path를 복구한 뒤 다시 promotion한다 | "canary니까 blast radius가 작다"며 destructive path를 유지한다 |
+| backfill 중 replica lag와 DB CPU가 급등한다 | batch size, checkpoint, lock pattern, throttle 유무를 본다 | backfill이 resumable/throttled job이 아니라 사실상 대형 migration으로 실행됐다 | batch를 줄이고 throttle을 넣고, 필요하면 traffic shift를 멈춘다 | Alembic downgrade로 한 번에 되돌리려 한다 |
+| promotion 직후 rollback 요구가 들어왔는데 contract가 이미 실행됐다 | contract migration 시점과 old consumer 존재 여부를 본다 | cutover gate와 contract gate를 같은 승인 단위로 묶었다 | DB downgrade보다 forward fix 또는 feature compatibility 복구를 우선 검토한다 | shared DB에서 즉시 schema downgrade가 항상 가능하다고 가정한다 |
+
+## Code Review Lens
+
+- expand, compatibility deploy, backfill, cutover, contract가 분리된 단계로 읽히는지 본다.
+- Alembic revision과 operational backfill job의 책임이 분리돼 있는지 본다.
+- old/new app이 shared DB를 얼마나 오래 같이 견뎌야 하는지 명시돼 있는지 본다.
+- rollback이 "앱 rollback"인지 "schema downgrade"인지 단계별로 다르게 정의되는지 본다.
+
+## Common Anti-Patterns
+
+- app startup 시 Alembic을 자동 실행해 rollout과 schema change를 강제로 결합한다.
+- 큰 backfill을 revision 안에 넣고 한 transaction으로 끝내려 한다.
+- canary나 blue-green이면 destructive migration도 괜찮다고 오해한다.
+- traffic promotion과 contract migration을 같은 승인 버튼으로 묶는다.
+
+## Likely Discussion Questions
+
+- 왜 progressive delivery가 schema compatibility 문제를 자동으로 해결해 주지 않는가?
+- 어떤 data change까지는 Alembic revision 안에 두고, 어떤 것은 별도 job으로 빼야 하는가?
+- cutover gate와 contract gate를 왜 따로 봐야 하는가?
+- rollback 전략이 stage마다 달라지는 이유는 무엇인가?
+
+## Strong Answer Frame
+
+- 먼저 shared DB에서는 rollout 전략과 schema 호환성이 다른 문제라고 분리해서 말한다.
+- 그 다음 `expand -> compatible -> backfill -> cutover -> contract`의 순서를 기준선으로 둔다.
+- Alembic revision, backfill worker, feature flag, traffic promotion의 역할을 나눠 설명한다.
+- 마지막으로 rollback은 stage별로 의미가 다르며, contract 이후에는 forward fix가 더 현실적일 수 있다고 닫는다.
+
 ## 같이 읽으면 좋은 문서
 
 1. [Alembic과 Zero-Downtime Migration](/sqlalchemy/alembic-and-zero-downtime)

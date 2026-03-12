@@ -273,6 +273,59 @@ def register_user(
 
 즉, `UoW를 쓸 거면 live Session보다 sessionmaker/factory를 주입하는 편이 ownership이 더 깨끗하다`.
 
+## sub-optimal -> improved: UoW를 쓰는데도 ownership이 흐려지는 경우
+
+### 나쁜 예: use case가 Session lifecycle과 side effect 순서를 직접 짊어진다
+
+```py
+class RegisterUserUseCase:
+    def __init__(self, session: Session, notifier: WelcomeNotifier) -> None:
+        self.session = session
+        self.notifier = notifier
+
+    def execute(self, command: RegisterUserCommand) -> UserRead:
+        repository = UserRepository(self.session)
+        if repository.get_by_email(command.email) is not None:
+            raise DuplicateEmail(command.email)
+
+        record = UserModel(email=command.email, name=command.name)
+        repository.add(record)
+        self.session.commit()
+        self.notifier.send(record.email, record.name)
+        return UserRead(id=record.id, email=record.email, name=record.name)
+```
+
+<p class="code-caption">겉으로는 단순하지만, 이 use case는 session ownership, repository wiring, commit timing, side effect ordering을 동시에 안다. 이후 repository가 늘거나 테스트에서 fake를 쓰고 싶어질 때 경계가 빠르게 무너진다.</p>
+
+### 더 나은 예: use case는 추상 경계만 알고 concrete lifecycle은 UoW가 가진다
+
+```py
+class RegisterUserUseCase:
+    def __init__(
+        self,
+        uow_factory: Callable[[], AbstractUnitOfWork],
+        notifier: AbstractWelcomeNotifier,
+    ) -> None:
+        self.uow_factory = uow_factory
+        self.notifier = notifier
+
+    def execute(self, command: RegisterUserCommand) -> UserRead:
+        with self.uow_factory() as uow:
+            if uow.users.get_by_email(command.email) is not None:
+                raise DuplicateEmail(command.email)
+
+            record = UserModel(email=command.email, name=command.name)
+            uow.users.add(record)
+            uow.flush()
+            result = UserRead(id=record.id, email=record.email, name=record.name)
+            uow.commit()
+
+        self.notifier.send(result.email, result.name)
+        return result
+```
+
+<p class="code-caption">개선 포인트는 추상화의 양이 아니라 ownership의 선명함이다. use case는 transaction boundary와 side effect boundary만 알고, session 생성/종료와 repository wiring은 concrete UoW가 맡는다.</p>
+
 ## 이 패턴에서 하지 않는 편이 좋은 것
 
 - `get_session()`으로 live Session을 열어두고, UoW가 또 내부에서 새 Session을 만드는 것
@@ -329,6 +382,34 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 - UoW가 FastAPI dependency, HTTP status code, response DTO를 알게 하는 것
 - commit 전에 이메일 발송이나 이벤트 publish를 실행하는 것
 - UoW 인스턴스를 singleton처럼 길게 재사용하는 것
+
+## Code Review Lens
+
+- use case가 정말로 transaction boundary와 external side effect boundary만 아는지 본다.
+- UoW가 session 생성/종료와 repository wiring ownership을 일관되게 가지는지 본다.
+- ABC가 substitution/testing 가치가 있는 경계에만 쓰였는지 본다.
+- commit 이후 side effect 순서가 명시적이고 테스트 가능한지 본다.
+
+## Common Anti-Patterns
+
+- use case가 `Session`, `engine`, `Request`를 직접 받아 lifecycle까지 관리한다.
+- live Session을 dependency에서 만들고 UoW가 또 내부에서 새 세션을 만든다.
+- fake를 만들 가치가 없는 helper나 DTO까지 ABC로 추상화한다.
+- notifier, publisher 같은 side effect가 commit 전에 먼저 실행된다.
+
+## Likely Discussion Questions
+
+- 왜 live Session보다 `uow_factory` 주입이 ownership을 더 잘 드러내는가?
+- 어떤 경계는 ABC로 두고, 어떤 경계는 concrete로 남겨야 하는가?
+- fake UoW 테스트와 실제 DB integration test는 각각 무엇을 검증해야 하는가?
+- repository 수가 늘어날 때 UoW가 어떤 복잡성을 줄여 주고, 무엇은 줄여 주지 못하는가?
+
+## Strong Answer Frame
+
+- 먼저 use case가 알아야 할 최소 경계를 transaction과 side effect로 정의한다.
+- 현재 구조가 session lifecycle, commit timing, fakeability를 어떻게 흐리는지 설명한다.
+- UoW에 concrete lifecycle을 모으고 use case는 작은 ABC에만 의존하도록 정리한다.
+- 마지막으로 fake UoW 테스트와 실제 SQLAlchemy 통합 테스트의 역할을 분리해 말한다.
 
 ## 이 저장소의 실행 예제
 

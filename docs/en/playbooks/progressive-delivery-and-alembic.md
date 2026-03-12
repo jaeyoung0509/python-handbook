@@ -319,6 +319,42 @@ So the order is still the same: `expand -> compatible code -> backfill -> traffi
 - assuming low canary percentage makes destructive migration acceptable
 - running contract immediately after traffic promotion
 
+## Scenario Table
+
+| symptom | inspect first | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| canary is fine at 10% but old workers start failing at 50% | inspect whether both old and new app versions truly understand the expanded schema | contract-like behavior was enabled before a real compatibility deploy existed | flip the feature path back, restore compatibility behavior, and only then re-promote | keep the destructive path live because "the canary blast radius is still small" |
+| replica lag and DB CPU spike during backfill | inspect batch size, checkpointing, lock pattern, and throttle behavior | the backfill is acting like one giant migration instead of a resumable operational job | reduce batch size, add throttling, and pause traffic promotion if needed | reach for Alembic downgrade as the first response |
+| rollback is requested right after promotion but contract already ran | inspect when contract ran and whether old consumers still exist | cutover and contract were treated as one approval step | favor forward-fix or compatibility restoration over immediate schema downgrade | assume shared-db schema downgrade is always quick and safe |
+
+## Code Review Lens
+
+- Check whether expand, compatibility deploy, backfill, cutover, and contract read as separate stages.
+- Check whether Alembic revisions and operational backfill jobs have clearly separated responsibilities.
+- Check whether the document states how long old and new apps must coexist against the shared DB.
+- Check whether rollback means different things at different stages instead of pretending schema downgrade is always available.
+
+## Common Anti-Patterns
+
+- auto-running Alembic at app startup and hard-coupling rollout to schema change
+- forcing a large backfill into one revision transaction
+- assuming canary or blue-green makes destructive migration safe
+- bundling traffic promotion and contract migration behind one approval gate
+
+## Likely Discussion Questions
+
+- Why does progressive delivery not solve schema compatibility by itself?
+- Which data changes are small enough for an Alembic revision, and which need a separate job?
+- Why should cutover gates and contract gates stay separate?
+- Why does rollback strategy change by stage?
+
+## Strong Answer Frame
+
+- Start by separating rollout strategy from schema compatibility in a shared-database system.
+- Then anchor the answer around `expand -> compatible -> backfill -> cutover -> contract`.
+- Explain the distinct roles of Alembic revisions, backfill workers, feature flags, and traffic promotion.
+- Close by stating that rollback meaning changes by stage and that forward-fix is often more realistic after contract.
+
 ## Good companion chapters in this repository
 
 1. [Alembic and Zero-Downtime Migrations](/en/sqlalchemy/alembic-and-zero-downtime)

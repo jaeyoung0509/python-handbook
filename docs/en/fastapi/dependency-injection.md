@@ -60,12 +60,108 @@ async def get_test_session() -> AsyncIterator[AsyncSession]:
 app.dependency_overrides[get_session] = get_test_session
 ```
 
+## sub-optimal -> improved: when dependencies turn into business layers
+
+### Bad example: the dependency owns branching and commit policy
+
+```py
+import os
+
+from fastapi import Depends, HTTPException, status
+
+
+async def get_checkout_service(
+    session: AsyncSession = Depends(get_session),
+    user: CurrentUser = Depends(get_current_user),
+) -> CheckoutService:
+    if os.getenv("CHECKOUT_DISABLED", "false") == "true":
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+    if user.is_suspended:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    service = CheckoutService(session)
+    await service.prepare_cart_for(user.user_id)
+    await session.commit()
+    return service
+```
+
+<p class="code-caption">This dependency now owns config lookup, policy branching, service side effects, and commit behavior. DI stops being framework wiring and starts becoming a hidden business layer, which makes overrides and tests much more expensive.</p>
+
+### Better example: keep the dependency boring
+
+```py
+from typing import Annotated
+
+from fastapi import Depends
+
+
+def get_checkout_service(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    principal: Annotated[CurrentUser, Depends(get_current_user)],
+) -> CheckoutService:
+    return CheckoutService(
+        session=session,
+        settings=settings,
+        principal=principal,
+    )
+
+
+class CheckoutService:
+    def __init__(
+        self,
+        session: AsyncSession,
+        settings: Settings,
+        principal: CurrentUser,
+    ) -> None:
+        self.session = session
+        self.settings = settings
+        self.principal = principal
+
+    async def checkout(self, command: CheckoutCommand) -> CheckoutResult:
+        if not self.settings.checkout_enabled:
+            raise CheckoutDisabled()
+        if self.principal.is_suspended:
+            raise PermissionDenied()
+        ...
+```
+
+<p class="code-caption">The key improvement is making the dependency boring. DI assembles resources and boundaries, while business branching and transaction policy remain visible inside the service or use case.</p>
+
 ## Practical Rules
 
 - Dependencies are resource providers, not business layers.
 - Use `yield` dependencies for request-scoped resources that must be cleaned up.
 - Build services in dependencies if that keeps routers thin, but keep branching logic inside service methods.
 - Background jobs, schedulers, and CLIs need their own session lifecycle outside FastAPI's dependency graph.
+
+## Code Review Lens
+
+- Check whether the dependency stops at wiring sessions, settings, principals, and clients.
+- Check whether `yield` dependencies really guarantee cleanup for request-scoped resources.
+- Check whether service construction is separated from business branching.
+- Check whether FastAPI-specific types stay out of service and use-case signatures.
+
+## Common Anti-Patterns
+
+- a dependency reading feature flags and deciding HTTP errors directly
+- a dependency calling `commit()` or making external side effects before the service runs
+- CLIs, schedulers, or background workers trying to reuse FastAPI dependency lifecycles
+- stuffing resource supply, authorization policy, and domain branching into one dependency chain
+
+## Likely Discussion Questions
+
+- What logic belongs in a dependency, and what should move into a service?
+- What does a missing `yield` cleanup path look like in production?
+- How do you design dependencies so tests only need to swap values, not replay whole workflows?
+- If the same service must run in HTTP and background jobs, where should it stop depending on FastAPI DI?
+
+## Strong Answer Frame
+
+- Define dependency responsibility first in terms of resource ownership and boundary wiring.
+- Point out the testing and operational costs once business logic leaks into DI.
+- Separate resources that need cleanup from objects that only need construction.
+- Validate the design by checking whether the same service can run from HTTP, CLI, and worker entrypoints.
 
 ## Official Sources
 

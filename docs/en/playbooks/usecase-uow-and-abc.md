@@ -272,6 +272,59 @@ def register_user(
 
 If you are using a UoW, injecting a sessionmaker or factory is usually cleaner than injecting a live Session.
 
+## sub-optimal -> improved: when UoW ownership still stays blurry
+
+### Bad example: the use case still owns session lifecycle and side-effect timing
+
+```py
+class RegisterUserUseCase:
+    def __init__(self, session: Session, notifier: WelcomeNotifier) -> None:
+        self.session = session
+        self.notifier = notifier
+
+    def execute(self, command: RegisterUserCommand) -> UserRead:
+        repository = UserRepository(self.session)
+        if repository.get_by_email(command.email) is not None:
+            raise DuplicateEmail(command.email)
+
+        record = UserModel(email=command.email, name=command.name)
+        repository.add(record)
+        self.session.commit()
+        self.notifier.send(record.email, record.name)
+        return UserRead(id=record.id, email=record.email, name=record.name)
+```
+
+<p class="code-caption">This looks simple, but the use case now knows session ownership, repository wiring, commit timing, and side-effect ordering. Once repositories grow or tests want to swap in fakes, those boundaries erode quickly.</p>
+
+### Better example: the use case knows only abstract boundaries and the UoW owns the concrete lifecycle
+
+```py
+class RegisterUserUseCase:
+    def __init__(
+        self,
+        uow_factory: Callable[[], AbstractUnitOfWork],
+        notifier: AbstractWelcomeNotifier,
+    ) -> None:
+        self.uow_factory = uow_factory
+        self.notifier = notifier
+
+    def execute(self, command: RegisterUserCommand) -> UserRead:
+        with self.uow_factory() as uow:
+            if uow.users.get_by_email(command.email) is not None:
+                raise DuplicateEmail(command.email)
+
+            record = UserModel(email=command.email, name=command.name)
+            uow.users.add(record)
+            uow.flush()
+            result = UserRead(id=record.id, email=record.email, name=record.name)
+            uow.commit()
+
+        self.notifier.send(result.email, result.name)
+        return result
+```
+
+<p class="code-caption">The improvement is not "more abstraction." The improvement is clearer ownership. The use case knows only transaction and side-effect boundaries, while the concrete UoW owns session creation, cleanup, and repository wiring.</p>
+
 ## Patterns to Avoid in This Wiring
 
 - opening a live `Session` in `get_session()` while the UoW also creates another one internally
@@ -328,6 +381,34 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 - letting the UoW know about FastAPI dependencies, HTTP status codes, or response DTOs
 - triggering emails or event publishes before commit
 - reusing one UoW instance like a singleton
+
+## Code Review Lens
+
+- Check whether the use case knows only transaction and external side-effect boundaries.
+- Check whether the UoW owns session creation, cleanup, and repository wiring coherently.
+- Check whether ABCs are used only where substitution and testing value are real.
+- Check whether post-commit side-effect ordering is explicit and testable.
+
+## Common Anti-Patterns
+
+- giving the use case direct `Session`, `engine`, or `Request` objects and making it manage lifecycle details
+- opening a live Session in dependencies while the UoW secretly opens another one
+- abstracting helpers or DTOs that provide no substitution value
+- firing notifiers or publishers before commit succeeds
+
+## Likely Discussion Questions
+
+- Why does injecting a `uow_factory` reveal ownership more clearly than injecting a live Session?
+- Which boundaries deserve ABCs, and which should remain concrete?
+- What should fake-UoW tests verify, and what still belongs to real DB integration tests?
+- As repository count grows, what complexity does a UoW remove, and what does it not remove?
+
+## Strong Answer Frame
+
+- Start by defining the minimum boundaries the use case should know: transaction plus side effects.
+- Explain how the current shape blurs session lifecycle, commit timing, and testability.
+- Move concrete lifecycle concerns into the UoW and keep the use case dependent on small ABCs only.
+- Close by separating the role of fake-UoW tests from real SQLAlchemy integration tests.
 
 ## Runnable Example in This Repository
 

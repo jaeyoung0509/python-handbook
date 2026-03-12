@@ -131,6 +131,42 @@ async def logging_middleware(request, call_next):
   </div>
 </div>
 
+## Scenario Table
+
+| symptom | inspect first | likely root cause | safe mitigation | what not to do |
+| --- | --- | --- | --- | --- |
+| p95 jumps right after a release but traces are patchy | inspect whether instrumentation was duplicated at bootstrap and whether sampling changed | SDKs were reinitialized inside routes or sampling was accidentally reduced | remove duplicate initialization and temporarily raise sampling only for key endpoints | switch the whole service to permanent 100% tracing under pressure |
+| 500 alerts fire but logs, errors, and traces cannot be correlated | inspect whether request ID and trace ID are bound in the same request scope | correlation propagation is missing or middleware/contextvars binding broke | restore request-scoped binding and normalize shared correlation fields on hot paths | dump raw request bodies and secrets into logs as a shortcut |
+| observability cost spikes and search gets slower | inspect metric tags and span attributes for high-cardinality values | fields such as `user_id`, `email`, or `order_id` were added too broadly | remove high-cardinality fields and keep only bounded searchable dimensions | ignore the cardinality issue and only shorten retention until the signal becomes useless |
+
+## Code Review Lens
+
+- Check whether instrumentation and SDK setup happen once during bootstrap or lifespan.
+- Check whether request IDs, trace IDs, and error events share one request context.
+- Check whether sampling and redaction policy are explicit instead of hidden inside tool defaults.
+- Check whether spans, tags, and log fields stay within bounded cardinality.
+
+## Common Anti-Patterns
+
+- reinitializing logger scope, tracer setup, or Sentry SDK inside routes or dependencies
+- having traces without request IDs or logs that never correlate with traces
+- storing full request or response bodies in operational logs or error context
+- adding more metric labels or span attributes every time something becomes hard to debug
+
+## Likely Discussion Questions
+
+- During an incident, which signal would you inspect first and how would you correlate the rest?
+- Why is bootstrap-time instrumentation safer than route-level initialization?
+- Which fields belong in traces and logs, and which should be redacted or omitted?
+- When tracing cost rises, what should be constrained before you just reduce retention?
+
+## Strong Answer Frame
+
+- Start by checking whether logs, traces, and errors share the same request context.
+- Diagnose the system through four separate concerns: initialization point, sampling, cardinality, and redaction.
+- Under pressure, increase signal in a bounded way and then restore conservative defaults once the cause is known.
+- Close by framing observability as an operational contract, not a pile of vendor SDKs.
+
 ## Official References
 
 - [OpenTelemetry Python Getting Started](https://opentelemetry.io/docs/languages/python/getting-started/)

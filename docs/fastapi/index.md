@@ -80,6 +80,12 @@
 13. [Performance and Ops](/fastapi/performance-and-ops)
 14. [Observability](/fastapi/observability)
 
+## 이 파트를 리뷰 관점으로 읽는 법
+
+- 핵심 챕터 끝에는 `Code Review Lens`, `Common Anti-Patterns`, `Likely Discussion Questions`, `Strong Answer Frame` 블록이 붙는다.
+- `Project Structure`, `Dependency Injection` 같은 구조 문서는 `sub-optimal -> improved` 예제로 경계가 왜 필요한지 바로 보여준다.
+- `Observability` 같은 운영 문서는 symptom 중심 scenario table로 "먼저 무엇을 볼지"를 같이 정리한다.
+
 ## FastAPI 파트의 실전 규칙
 
 - route는 transport adapter처럼 얇게 유지한다.

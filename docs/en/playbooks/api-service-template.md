@@ -108,6 +108,71 @@ For deeper guidance on `settings.py` and `pydantic-settings`, see [Settings and 
 4. Separate background work from request paths.
 5. Add observability and timeouts early.
 
+## sub-optimal -> improved: where service skeletons usually break first
+
+### Bad example: route, settings, persistence, and side effects collapsed together
+
+```py
+import os
+
+from fastapi import APIRouter, Depends, HTTPException
+
+router = APIRouter()
+
+
+@router.post("/orders")
+async def create_order(
+    payload: OrderCreate,
+    session: AsyncSession = Depends(get_session),
+) -> OrderRead:
+    if os.getenv("ALLOW_ORDERING", "true") != "true":
+        raise HTTPException(status_code=503, detail="ordering disabled")
+
+    order = OrderModel.model_validate(payload)
+    session.add(order)
+    await session.commit()
+    await publish_order_created(order.id)
+    return OrderRead.model_validate(order)
+```
+
+<p class="code-caption">This feels fast at first, but ordering policy, transaction boundaries, event timing, and DTO stability all become route-level concerns. As retry, timeout, idempotency, or audit requirements appear, the route turns into a giant function representing the whole service.</p>
+
+### Better example: route as transport, service as action orchestration
+
+```py
+@router.post("/orders", response_model=OrderRead)
+async def create_order(
+    payload: OrderCreate,
+    service: OrderService = Depends(get_order_service),
+) -> OrderRead:
+    command = CreateOrderCommand.model_validate(payload)
+    return await service.create_order(command)
+
+
+class OrderService:
+    def __init__(
+        self,
+        session: AsyncSession,
+        settings: Settings,
+        publisher: OrderPublisher,
+    ) -> None:
+        self.session = session
+        self.settings = settings
+        self.publisher = publisher
+
+    async def create_order(self, command: CreateOrderCommand) -> OrderRead:
+        if not self.settings.allow_ordering:
+            raise OrderingDisabled()
+
+        order = OrderModel.from_command(command)
+        self.session.add(order)
+        await self.session.commit()
+        await self.publisher.publish_created(order.id)
+        return OrderRead(id=order.id, status=order.status)
+```
+
+<p class="code-caption">The goal is not "more layers." The goal is readable ownership. Once routes behave like transport adapters, services represent business actions, and settings plus publishers are explicit boundaries, refactoring and incident response both become easier.</p>
+
 ## Practical Checklist
 
 <div class="doc-checklist">
@@ -128,6 +193,34 @@ For deeper guidance on `settings.py` and `pydantic-settings`, see [Settings and 
     <p>Early structure around configuration and observability reduces later operational pain.</p>
   </div>
 </div>
+
+## Code Review Lens
+
+- Check whether the route stays transport-oriented while the service represents the business action.
+- Check whether settings and env reads are organized at wiring boundaries instead of scattered through service code.
+- Check whether repositories know query and persistence details but not commit policy.
+- Check whether external side effects happen only after durable commit.
+
+## Common Anti-Patterns
+
+- doing env lookup, querying, committing, publishing, and serializing directly in a route
+- helpers or repositories committing implicitly and breaking transaction atomicity
+- using ORM entities directly as request or response schemas
+- postponing observability, timeout, and retry structure until the entrypoint is already bloated
+
+## Likely Discussion Questions
+
+- Where would this structure break first if you had to add feature flags, audit logs, or an outbox?
+- Why should commit ownership live at the service or use-case boundary instead of the repository?
+- What boundaries must remain stable if background jobs and workers should reuse the same business action?
+- What cost appears in tests and operations once service code reads env vars directly?
+
+## Strong Answer Frame
+
+- Start by separating responsibilities across route, service, repository, and infrastructure boundaries.
+- Explain the concrete cost of the current shape: partial commits, oversized tests, and weak operational visibility.
+- Restore settings injection, service orchestration, and DTO boundaries with the smallest refactor that changes ownership clearly.
+- Close by showing where retry, idempotency, and observability will attach once the boundaries are explicit.
 
 ## Good Supporting Examples
 
